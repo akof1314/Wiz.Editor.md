@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Editor.md
  *
  * @file        editormd.js 
@@ -3852,8 +3852,8 @@
     // 使用国外的CDN，加载速度有时会很慢，或者自定义URL
     // You can custom KaTeX load url.
     editormd.katexURL  = {
-        css : "//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.3.0/katex.min",
-        js  : "//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.3.0/katex.min"
+        css : "Editor.md/lib/katex/katex.min",
+        js  : "Editor.md/lib/katex/katex.min"
     };
     
     editormd.kaTeXLoaded = false;
