@@ -1,69 +1,98 @@
 ﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
     "http://www.w3.org/TR/html4/loose.dtd">
-<html lang="zh">
+<html lang="zh" style="height:100%;">
     <head>
         <meta charset="utf-8" />
-        <title>Simple example - Editor.md examples</title>
+        <title></title>
         <link rel="stylesheet" href="Editor.md/examples/css/style.css" />
         <link rel="stylesheet" href="Editor.md/css/editormd.css" />
         <link rel="shortcut icon" href="https://pandao.github.io/editor.md/favicon.ico" type="image/x-icon" />
     </head>
-    <body>
-        <div id="layout">
-            <header>
-                <h1>Simple example</h1>
-            </header>
+    <body style="height:100%;">
+        <div id="layout" style="height:100%;">
             <div id="test-editormd">
-                <textarea style="display:none;">[TOC]
-
-#### Disabled options
-
-- TeX (Based on KaTeX);
-- Emoji;
-- Task lists;
-- HTML tags decode;
-- Flowchart and Sequence Diagram;
-
-#### Editor.md directory
-
-    editor.md/
-            lib/
-            css/
-            scss/
-            tests/
-            fonts/
-            images/
-            plugins/
-            examples/
-            languages/
-            editormd.js
-            ...
-
-</textarea>
+                <textarea style="display:none;"></textarea>
             </div>
         </div>
         <script src="Editor.md/examples/js/jquery.min.js"></script>
         <script src="Editor.md/editormd.js"></script>
         <script type="text/javascript">
+            var objApp = window.external;
             var testEditor;
 
             $(function() {
-                testEditor = editormd("test-editormd", {
-                    width   : "90%",
-                    height  : 640,
-                    path    : "Editor.md/lib/"
-                });
 
-                /*
-                // or
-                testEditor = editormd({
-                    id      : "test-editormd",
-                    width   : "90%",
-                    height  : 640,
-                    path    : "../lib/"
+                ////////////////////////////////////////////////
+                // Load document
+                function getQueryString(name) {
+                    if (location.href.indexOf("?") == -1 || location.href.indexOf(name + '=') == -1) {
+                        return '';
+                    }
+                    var queryString = location.href.substring(location.href.indexOf("?") + 1);
+
+                    var parameters = queryString.split("&");
+
+                    var pos, paraName, paraValue;
+                    for (var i = 0; i < parameters.length; i++) {
+                        pos = parameters[i].indexOf('=');
+                        if (pos == -1) { continue; }
+
+                        paraName = parameters[i].substring(0, pos);
+                        paraValue = parameters[i].substring(pos + 1);
+
+                        if (paraName == name) {
+                            return unescape(paraValue.replace(/\+/g, " "));
+                        }
+                    }
+                    return '';
+                };
+
+                var guid = getQueryString("guid");
+                var kbGUID = getQueryString("kbguid");
+
+                var objDatabase = null;
+                if (kbGUID == "" || kbGUID == null) {
+                    objDatabase = objApp.Database;
+                }
+                else {
+                    objDatabase = objApp.GetGroupDatabase(kbGUID);
+                }
+
+                var objDocument = null;
+                try {
+                    objDocument = objDatabase.DocumentFromGUID(guid);
+                    document.title = "编辑 " + objDocument.Title.split('.')[0];
+                }
+                catch (err) {
+                }
+
+                ////////////////////////////////////////////////
+                // Extract Markdown text from HTML
+                var code = "";
+                if (objDocument) {
+                    var t = document.body.innerHTML;
+                    document.body.innerHTML = objDocument.GetHtml();
+                    code = document.body.innerText;
+                    document.body.innerHTML = t;
+                }
+
+                testEditor = editormd("test-editormd", {
+                    value           : code,
+                    path            : "Editor.md/lib/",
+                    htmlDecode      : "style,script,iframe",  // 开启HTML标签解析，为了安全性，默认不开启
+                    codeFold        : false,             // 代码折叠，默认关闭
+                    tex             : true,              // 开启科学公式TeX语言支持，默认关闭
+                    flowChart       : true,              // 开启流程图支持，默认关闭
+                    sequenceDiagram : true,              // 开启时序/序列图支持，默认关闭
+                    toc             : true,              // [TOC]自动生成目录，默认开启
+                    tocm            : false,             // [TOCM]自动生成下拉菜单的目录，默认关闭
+                    tocTitle        : "",                // 下拉菜单的目录的标题
+                    tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
+                    emoji           : false,             // Emoji表情，默认关闭
+                    taskList        : false,             // Task lists，默认关闭
                 });
-                */
             });
+
         </script>
     </body>
 </html>
