@@ -17,6 +17,7 @@
         <script src="Editor.md/examples/js/jquery.min.js"></script>
         <script src="Editor.md/editormd.js"></script>
         <script type="text/javascript">
+            var modified = false;
             var objApp = window.external;
             var testEditor;
 
@@ -80,7 +81,7 @@
                     value           : code,
                     path            : "Editor.md/lib/",
                     htmlDecode      : "style,script,iframe",  // 开启HTML标签解析，为了安全性，默认不开启
-                    codeFold        : false,             // 代码折叠，默认关闭
+                    codeFold        : true,              // 代码折叠，默认关闭
                     tex             : true,              // 开启科学公式TeX语言支持，默认关闭
                     flowChart       : true,              // 开启流程图支持，默认关闭
                     sequenceDiagram : true,              // 开启时序/序列图支持，默认关闭
@@ -90,9 +91,32 @@
                     tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
                     emoji           : false,             // Emoji表情，默认关闭
                     taskList        : false,             // Task lists，默认关闭
+                    onchange : function() {
+                        modified = true;
+                    }
                 });
+
+                ////////////////////////////////////////////////
+                // Save document
+                saveDocument = function () {
+                    if (objDocument) {
+                        var doc = testEditor.getValue();
+                        doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
+                        objDocument.UpdateDocument3(doc, 0);
+                        modified = false;
+                    }
+                };
             });
 
+        ////////////////////////////////////////////////
+        // Save before close tab
+        function onBeforeCloseTab_MdEditor() {
+            if (modified) {
+                if (6 == objApp.Window.ShowMessage("是否保存？", "Wiz", 0x04 + 0x20)) {
+                    saveDocument();
+                }
+            }
+        };
         </script>
     </body>
 </html>

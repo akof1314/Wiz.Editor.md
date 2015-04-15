@@ -1,6 +1,6 @@
 
 
-function VimEditorOnTabClose(objHtmlDocument, objWizDocument) {
+function MdEditorOnTabClose(objHtmlDocument, objWizDocument) {
     //
     if (objWizDocument)
         return;
@@ -9,11 +9,11 @@ function VimEditorOnTabClose(objHtmlDocument, objWizDocument) {
         return;
     //
     try {
-        objHtmlDocument.defaultView.eval("if (onBeforeCloseTab_VimEditor) onBeforeCloseTab_VimEditor();");
+        objHtmlDocument.defaultView.eval("if (onBeforeCloseTab_MdEditor) onBeforeCloseTab_MdEditor();");
     }
     catch (err) {
     }
 
 };
 
-eventsTabClose.add(VimEditorOnTabClose);
+eventsTabClose.add(MdEditorOnTabClose);
