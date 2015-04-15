@@ -93,6 +93,9 @@
                     tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
                     emoji           : false,             // Emoji表情，默认关闭
                     taskList        : false,             // Task lists，默认关闭
+                    imageUpload     : true,
+                    imageFormats    : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                    imageUploadURL  : "./php/upload.php?test=dfdf",
                     toolbarIcons : function() {
                         var arrayIcons = ["saveIcon", "|"];
                         return arrayIcons.concat(editormd.toolbarModes["full"])
