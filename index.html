@@ -77,6 +77,8 @@
                     document.body.innerHTML = t;
                 }
 
+                ////////////////////////////////////////////////
+                // 配置编辑器功能
                 testEditor = editormd("test-editormd", {
                     value           : code,
                     path            : "Editor.md/lib/",
@@ -91,6 +93,23 @@
                     tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
                     emoji           : false,             // Emoji表情，默认关闭
                     taskList        : false,             // Task lists，默认关闭
+                    toolbarIcons : function() {
+                        var arrayIcons = ["saveIcon", "|"];
+                        return arrayIcons.concat(editormd.toolbarModes["full"])
+                    },
+                    toolbarIconsClass : {
+                        saveIcon : "fa-floppy-o"  // 指定一个FontAawsome的图标类
+                    },
+                    toolbarHandlers : {
+                        saveIcon : function() {
+                            saveDocument();
+                        }
+                    },
+                    lang : {
+                        toolbar : {
+                            saveIcon : "保存 (Ctrl+S)"
+                        }
+                    },
                     onchange : function() {
                         modified = true;
                     }
