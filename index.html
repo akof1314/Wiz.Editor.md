@@ -80,6 +80,7 @@
                 ////////////////////////////////////////////////
                 // 配置编辑器功能
                 testEditor = editormd("test-editormd", {
+                    theme           : "default",         // 主题样式
                     value           : code,
                     path            : "Editor.md/lib/",
                     htmlDecode      : "style,script,iframe",  // 开启HTML标签解析，为了安全性，默认不开启
@@ -93,12 +94,14 @@
                     tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
                     emoji           : false,             // Emoji表情，默认关闭
                     taskList        : false,             // Task lists，默认关闭
-                    imageUpload     : true,
+                    imageUpload     : false,             // 还无法实现图片上传
                     imageFormats    : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
                     imageUploadURL  : "./php/upload.php?test=dfdf",
                     toolbarIcons : function() {
                         var arrayIcons = ["saveIcon", "|"];
-                        return arrayIcons.concat(editormd.toolbarModes["full"])
+                        arrayIcons = arrayIcons.concat(editormd.toolbarModes["full"]);
+                        arrayIcons.splice($.inArray("emoji", arrayIcons), 1); // Emoji表情关闭时移除按钮
+                        return arrayIcons;
                     },
                     toolbarIconsClass : {
                         saveIcon : "fa-floppy-o"  // 指定一个FontAawsome的图标类
