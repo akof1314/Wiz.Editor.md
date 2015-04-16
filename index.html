@@ -71,10 +71,8 @@
                 // Extract Markdown text from HTML
                 var code = "";
                 if (objDocument) {
-                    var t = document.body.innerHTML;
-                    document.body.innerHTML = objDocument.GetHtml();
-                    code = document.body.innerText;
-                    document.body.innerHTML = t;
+                    code = objDocument.GetText(0);
+                    code = code.replace(' ', ' '); // 解决C2A0空格问题
                 }
 
                 ////////////////////////////////////////////////
