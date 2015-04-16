@@ -10,12 +10,12 @@
 ##### 键盘快捷键 (Keyboard shortcuts)
 
 > If Editor.md code editor is on focus, you can use keyboard shortcuts.
-    
+
 | Keyboard shortcuts (键盘快捷键)                 |   说明                            | Description                                        |
 | :---------------------------------------------- |:--------------------------------- | :------------------------------------------------- |
-| F9                                              | 切换实时预览                      | Switch watch/unwatch                               |
-| F10                                             | 全屏HTML预览(按 Shift + ESC 退出) | Full preview HTML (Press Shift + ESC exit)         |
-| F11                                             | 切换全屏状态                      | Switch fullscreen (Press ESC exit)                 |
+| Ctrl + F9                                       | 切换实时预览                      | Switch watch/unwatch                               |
+| Ctrl + F10                                      | 全屏HTML预览                      | Full preview HTML                                  |
+| F11                                             | 切换全屏状态                      | Switch fullscreen                                  |
 | Ctrl + 1~6 / Command + 1~6                      | 插入标题1~6                       | Insert heading 1~6                                 |
 | Ctrl + A / Command + A                          | 全选                              | Select all                                         |
 | Ctrl + B / Command + B                          | 插入粗体                          | Insert bold                                        |
