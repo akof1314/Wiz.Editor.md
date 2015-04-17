@@ -16,6 +16,7 @@
 #### 下载和安装
 
 通过 [Github下载安装](https://github.com/akof1314/Wiz.Editor.md/archive/master.zip)，解压到 `XXX\My Knowledge\Plugins\Wiz.Editor.md` 文件夹。
+或者到[为知笔记应用中心](http://app.wiz.cn/ "为知笔记应用中心")进行下载插件包，双击即可安装。
 
 #### 使用方法
 
