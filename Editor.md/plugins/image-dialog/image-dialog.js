@@ -48,7 +48,7 @@
                                             return (settings.imageUpload) ? "<div class=\"" + classPrefix + "file-input\">" +
                                                                                 "<input type=\"file\" name=\"" + classPrefix + "image-file\" accept=\"image/*\" />" +
                                                                                 "<input type=\"submit\" value=\"" + imageLang.uploadButton + "\" />" +
-                                                                            "</div>" : "";
+                                                                            "</div>" : "<button class=\"editormd-btn\" name=\"imageUploadButton\">" + imageLang.uploadButton + "</button>";
                                         })() +
                                         "<br/>" +
                                         "<label>" + imageLang.alt + "</label>" +
@@ -63,7 +63,7 @@
 
                 dialog = this.createDialog({
                     title      : imageLang.title,
-                    width      : (settings.imageUpload) ? 465 : 380,
+                    width      : 465,
                     height     : 250,
                     name       : dialogName,
                     content    : dialogContent,
@@ -115,6 +115,12 @@
                 });
 
                 dialog.attr("id", classPrefix + "image-dialog-" + guid);
+				
+				var uploadButtonHandler = function() {
+					dialog.find("[data-url]").val($.proxy(settings.onimageUploadButton, this)());
+				};
+
+				dialog.find("[name=\"imageUploadButton\"]").bind("click", uploadButtonHandler);
 
 				if (!settings.imageUpload) return ;
 

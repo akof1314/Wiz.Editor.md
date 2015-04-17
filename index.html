@@ -22,6 +22,12 @@
             var wizEditor;
 
             $(function() {
+                var objCommon = null;
+                try {
+                    objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI");
+                }
+                catch (err) {
+                }
 
                 ////////////////////////////////////////////////
                 // Load document
@@ -72,13 +78,13 @@
                 var code = "";
                 if (objDocument) {
                     code = objDocument.GetText(0);
-                    code = code.replace(' ', ' '); // 解决C2A0空格问题
+                    code = code.replace(/\u00a0/g, ' ');
                 }
 
                 ////////////////////////////////////////////////
                 // 配置编辑器功能
                 wizEditor = editormd("test-editormd", {
-                    theme           : "default",         // 主题样式
+                    theme           : "default",         // 主题样式，见editormd.themes定义
                     value           : code,
                     path            : "Editor.md/lib/",
                     htmlDecode      : "style,script,iframe",  // 开启HTML标签解析，为了安全性，默认不开启
@@ -92,9 +98,6 @@
                     tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
                     emoji           : false,             // Emoji表情，默认关闭
                     taskList        : false,             // Task lists，默认关闭
-                    imageUpload     : false,             // 还无法实现图片上传
-                    imageFormats    : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
-                    imageUploadURL  : "./php/upload.php?test=dfdf",
                     disabledKeyMaps : [
                         "F9", "F10", "F11"               // 禁用切换全屏状态，因为为知已经支持
                     ],
@@ -134,6 +137,10 @@
                     },
                     onchange : function() {
                         modified = true;
+                    },
+                    onimageUploadButton : function() {
+                        var filename = objCommon.SelectWindowsFile(true, "Image Files(*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|");
+                        return filename;
                     }
                 });
 
