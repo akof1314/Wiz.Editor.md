@@ -121,7 +121,6 @@
                     onload : function() {
                         var keyMap = {
                             "Shift-Ctrl-Alt-S": function(cm) {      // Ctrl-S 被为知编辑器所占用
-                                console.log('onload', this);
                                 saveDocument();
                             },
                             "Ctrl-F9": function(cm) {
@@ -150,15 +149,21 @@
                 };
             });
 
-        ////////////////////////////////////////////////
-        // Save before close tab
-        function onBeforeCloseTab_MdEditor() {
-            if (modified) {
-                if (6 == objApp.Window.ShowMessage("是否保存？", "Wiz", 0x04 + 0x20)) {
-                    saveDocument();
+            ////////////////////////////////////////////////
+            // 预防页面被跳转丢失编辑
+            window.onbeforeunload = function () {
+                onBeforeCloseTab_MdEditor();
+            };
+
+            ////////////////////////////////////////////////
+            // Save before close tab
+            function onBeforeCloseTab_MdEditor() {
+                if (modified) {
+                    if (6 == objApp.Window.ShowMessage("是否保存？", "Wiz", 0x04 + 0x20)) {
+                        saveDocument();
+                    }
                 }
-            }
-        };
+            };
         </script>
     </body>
 </html>
