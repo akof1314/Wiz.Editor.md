@@ -67,7 +67,7 @@
                 var objDocument = null;
                 try {
                     objDocument = objDatabase.DocumentFromGUID(guid);
-                    document.title = "编辑 " + objDocument.Title.split('.')[0];
+                    document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
                 }
                 catch (err) {
                 }
