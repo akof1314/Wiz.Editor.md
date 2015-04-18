@@ -117,14 +117,11 @@
                     },
                     lang : {
                         toolbar : {
-                            saveIcon : "保存 (Shift+Ctrl+Alt+S)"
+                            saveIcon : "保存 (Ctrl+S)"
                         }
                     },
                     onload : function() {
                         var keyMap = {
-                            "Shift-Ctrl-Alt-S": function(cm) {      // Ctrl-S 被为知编辑器所占用
-                                saveDocument();
-                            },
                             "Ctrl-F9": function(cm) {
                                 $.proxy(wizEditor.toolbarHandlers["watch"], wizEditor)();
                             },
@@ -144,7 +141,7 @@
                 });
 
                 ////////////////////////////////////////////////
-                // Save document
+                // 保存文档
                 saveDocument = function () {
                     if (objDocument) {
                         var doc = wizEditor.getValue();
@@ -158,18 +155,27 @@
             ////////////////////////////////////////////////
             // 预防页面被跳转丢失编辑
             window.onbeforeunload = function () {
-                onBeforeCloseTab_MdEditor();
-            };
-
-            ////////////////////////////////////////////////
-            // Save before close tab
-            function onBeforeCloseTab_MdEditor() {
                 if (modified) {
                     if (6 == objApp.Window.ShowMessage("是否保存？", "Wiz", 0x04 + 0x20)) {
                         saveDocument();
                     }
                 }
             };
+			
+			////////////////////////////////////////////////
+			// 为知回调
+			// 关闭标签时会调用来判断是否需要保存
+			function OnPluginQueryModified() {
+				return modified;
+			};
+			
+			////////////////////////////////////////////////
+			// 为知回调
+			// 可响应Ctrl+S保存事件
+			function OnPluginSave() {
+				saveDocument();
+				return true;
+			};
         </script>
     </body>
 </html>
