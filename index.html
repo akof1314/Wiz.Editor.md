@@ -143,12 +143,50 @@
                 ////////////////////////////////////////////////
                 // 保存文档
                 saveDocument = function () {
-                    if (objDocument) {
-                        var doc = wizEditor.getValue();
-                        doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
-                        objDocument.UpdateDocument3(doc, 0);
-                        modified = false;
-                    }
+					var doc = wizEditor.getValue();
+					doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
+					saveDocumentEx(doc);
+					modified = false;
+                };
+				
+				////////////////////////////////////////////////
+                // 保存文档里面的图片到数据文件
+                saveDocumentEx = function (doc) {
+					var linkExp = /!\[((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*)\]\(\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*\)/g;
+					var arrCap = new Array();					
+					var cap = null;
+					var imgStr = "";
+					while (cap = linkExp.exec(doc)) {
+						arrCap.push(cap);
+						imgStr += "<img src=\"" + cap[2] + "\">";
+					}
+					
+					var imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">";
+					if (imgStr.length > 0) {
+						imgStr = imgStrDiv + imgStr + "</div>";
+					}
+					doc += imgStr;
+					
+					if (objDocument) {
+						objDocument.UpdateDocument3(doc, 0);
+						
+						if (imgStr.length > 0) {
+							code = objDocument.GetHtml();
+							var imgStrDivStart = code.indexOf(imgStrDiv);
+							if (imgStrDivStart != -1) {
+								var imgStrDivEnd = code.indexOf("</div>", imgStrDivStart);
+								if (imgStrDivEnd != -1) {
+									var codeSub = code.substring(imgStrDivStart, imgStrDivEnd);
+									
+									var imgExp = /img src="(.*?)"/g;
+									while (cap = imgExp.exec(codeSub)) {
+										console.log(cap[1]);
+									}
+								}
+							}
+						}
+						
+					}
                 };
             });
 
