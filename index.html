@@ -16,7 +16,8 @@
         <script src="Editor.md/examples/js/jquery.min.js"></script>
         <script src="Editor.md/editormd.js"></script>
         <script type="text/javascript">
-            var modified = false;
+            var modified = false;		// 文档修改标志
+			var saveLocalImg = true;	// 保存本地图片
             var objApp = window.external;
             var wizEditor;
 
@@ -71,13 +72,18 @@
                 }
                 catch (err) {
                 }
-
+				
+				var imgTempPath = "../../temp/" + guid + "_4_files";
+				var imgRealPath = guid + "_4_files";
                 ////////////////////////////////////////////////
                 // Extract Markdown text from HTML
                 var code = "";
                 if (objDocument) {
                     code = objDocument.GetText(0);
                     code = code.replace(/\u00a0/g, ' ');
+					if (saveLocalImg) {
+						code = code.replace(imgRealPath, imgTempPath);
+					}
                 }
 
                 ////////////////////////////////////////////////
@@ -132,6 +138,7 @@
                         this.addKeyMap(keyMap);
                     },
                     onchange : function() {
+					console.log("11");
                         modified = true;
                     },
                     onimageUploadButton : function() {
@@ -152,6 +159,12 @@
                 saveDocumentEx = function () {
 					var docOrg = wizEditor.getValue();
 					var doc = docOrg.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
+					if (!saveLocalImg) {
+						if (objDocument) {
+							objDocument.UpdateDocument3(doc, 0);
+						}
+						return;
+					}
 					
 					// 提取图片链接
 					var linkExp = /!\[((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*)\]\(\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*\)/g;
@@ -159,8 +172,11 @@
 					var cap = null;
 					var imgStr = "";
 					while (cap = linkExp.exec(docOrg)) {
-						arrCap.push(cap);
-						imgStr += "<img src=\"" + cap[2] + "\">";
+						// 只提取本地图片的链接
+						if (cap[2].indexOf("https://") != 0 && cap[2].indexOf("http://") != 0) {
+							arrCap.push(cap);
+							imgStr += "<img src=\"" + cap[2] + "\">";
+						}
 					}
 					
 					// 转换成隐藏标签
@@ -172,6 +188,7 @@
 					doc += imgStr;
 					
 					if (objDocument) {
+						doc = doc.replace(imgTempPath, imgRealPath);
 						objDocument.UpdateDocument3(doc, 0);
 						
 						if (imgStr.length == 0) {
@@ -196,15 +213,26 @@
 									
 									var curCap = arrCap[curIdx++];
 									docNew += docOrg.substring(docIdx, curCap.index);
-									docNew += curCap[0].replace(curCap[2], cap[1]);
+									docNew += curCap[0].replace(curCap[2], cap[1].replace("index_files", imgTempPath));
 									docIdx = curCap.index + curCap[0].length;
 								}
 								docNew += docOrg.substring(docIdx);
+								var hasWatch = wizEditor.settings.watch;
+								wizEditor.settings.watch = false;
 								wizEditor.setValue(docNew);
+								wizEditor.settings.watch = hasWatch;
+								
+								// 再次保存更新后的文档
+								doc = docNew.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
+								// 隐藏标签也要保存，不然会被丢弃掉
+								doc += imgStr;
+								doc = doc.replace(imgTempPath, imgRealPath);
+								objDocument.UpdateDocument3(doc, 0);
 							}
 						}
 					}
 					hideWaitDialog();
+					console.log("21");
                 };
 				
 				////////////////////////////////////////////////
