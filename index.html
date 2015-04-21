@@ -72,7 +72,7 @@
                 }
                 catch (err) {
                 }
-				
+
 				var imgTempPath = "../../temp/" + guid + "_4_files";
 				var imgRealPath = guid + "_4_files";
                 ////////////////////////////////////////////////
@@ -82,7 +82,7 @@
                     code = objDocument.GetText(0);
                     code = code.replace(/\u00a0/g, ' ');
 					if (saveLocalImg) {
-						code = code.replace(imgRealPath, imgTempPath);
+						code = code.replace(new RegExp(imgRealPath, "g"), imgTempPath);
 					}
                 }
 
@@ -138,7 +138,6 @@
                         this.addKeyMap(keyMap);
                     },
                     onchange : function() {
-					console.log("11");
                         modified = true;
                     },
                     onimageUploadButton : function() {
@@ -153,7 +152,7 @@
 					saveDocumentEx();
 					modified = false;
                 };
-				
+
 				////////////////////////////////////////////////
                 // 保存文档里面的图片到数据文件
                 saveDocumentEx = function () {
@@ -165,10 +164,10 @@
 						}
 						return;
 					}
-					
+
 					// 提取图片链接
 					var linkExp = /!\[((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*)\]\(\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*\)/g;
-					var arrCap = new Array();					
+					var arrCap = new Array();
 					var cap = null;
 					var imgStr = "";
 					while (cap = linkExp.exec(docOrg)) {
@@ -178,30 +177,30 @@
 							imgStr += "<img src=\"" + cap[2] + "\">";
 						}
 					}
-					
+
 					// 转换成隐藏标签
 					var imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">";
 					if (imgStr.length > 0) {
 						imgStr = imgStrDiv + imgStr + "</div>";
-						showWaitDialog();			
+						showWaitDialog();
 					}
 					doc += imgStr;
-					
+
 					if (objDocument) {
-						doc = doc.replace(imgTempPath, imgRealPath);
+						doc = doc.replace(new RegExp(imgTempPath, "g"), imgRealPath);
 						objDocument.UpdateDocument3(doc, 0);
-						
+
 						if (imgStr.length == 0) {
 							return;
 						}
-							
+
 						code = objDocument.GetHtml();
 						var imgStrDivStart = code.indexOf(imgStrDiv);
 						if (imgStrDivStart != -1) {
 							var imgStrDivEnd = code.indexOf("</div>", imgStrDivStart);
 							if (imgStrDivEnd != -1) {
 								var codeSub = code.substring(imgStrDivStart, imgStrDivEnd);
-								
+
 								var imgExp = /img src="(.*?)"/g;
 								var curIdx = 0;
 								var docNew = "";
@@ -210,7 +209,7 @@
 									if (curIdx >= arrCap.length) {
 										break;
 									}
-									
+
 									var curCap = arrCap[curIdx++];
 									docNew += docOrg.substring(docIdx, curCap.index);
 									docNew += curCap[0].replace(curCap[2], cap[1].replace("index_files", imgTempPath));
@@ -218,32 +217,33 @@
 								}
 								docNew += docOrg.substring(docIdx);
 								var hasWatch = wizEditor.settings.watch;
-								wizEditor.settings.watch = false;
 								wizEditor.setValue(docNew);
-								wizEditor.settings.watch = hasWatch;
-								
+                                // 因为会触发change事件，所以这里强制设置改动标志
+                                setTimeout(function () {
+                                    modified = false;
+                                }, wizEditor.settings.delay);
+
 								// 再次保存更新后的文档
 								doc = docNew.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
 								// 隐藏标签也要保存，不然会被丢弃掉
 								doc += imgStr;
-								doc = doc.replace(imgTempPath, imgRealPath);
+								doc = doc.replace(new RegExp(imgTempPath, "g"), imgRealPath);
 								objDocument.UpdateDocument3(doc, 0);
 							}
 						}
 					}
 					hideWaitDialog();
-					console.log("21");
                 };
-				
+
 				////////////////////////////////////////////////
                 // 参照关于对话框写成的等待对话框
 				createWaitDialog = function() {
 					var editor       = wizEditor.editor;
-					var classPrefix  = wizEditor.classPrefix;  
-					
+					var classPrefix  = wizEditor.classPrefix;
+
 					var waitDialogHTML = [
 						"<div class=\"" + classPrefix + "dialog " + classPrefix + "dialog-info\" style=\"width:250px;\">",
-						"<div class=\"" + classPrefix + "dialog-container\">",						
+						"<div class=\"" + classPrefix + "dialog-container\">",
 						"<p>正在保存...</p><p>&nbsp;</p>",
 						"<div class=\"" + classPrefix + "container-mask\" style=\"display:block;top: 50px;height:30%;\"></div>",
 						"</div>",
@@ -251,19 +251,19 @@
 					].join("\n");
 
 					editor.append(waitDialogHTML);
-					
+
 					var waitDialog  = wizEditor.waitDialog = editor.children("." + classPrefix + "dialog-info");
-					
+
 					waitDialog.css("border", (editormd.isIE8) ? "1px solid #ddd" : "").css("z-index", editormd.dialogZindex).show();
-					
+
 					waitDialogPosition();
 
 					return wizEditor;
-				},				
-				
+				},
+
 				waitDialogPosition = function() {
 					var waitDialog = wizEditor.waitDialog;
-					
+
 					var _waitDialogPosition = function() {
 						waitDialog.css({
 							top  : ($(window).height() - waitDialog.height()) / 2 + "px",
@@ -274,24 +274,24 @@
 					_waitDialogPosition();
 
 					$(window).resize(_waitDialogPosition);
-					
+
 					return wizEditor;
 				},
-				
+
 				showWaitDialog = function() {
 					$("html,body").css("overflow-x", "hidden");
-					
+
 					var editor      = wizEditor.editor;
-					var settings    = wizEditor.settings;         
+					var settings    = wizEditor.settings;
 					var waitDialog  = wizEditor.waitDialog = editor.children("." + wizEditor.classPrefix + "dialog-info");
-					
+
 					if (waitDialog.length < 1)
 					{
 						createWaitDialog();
 					}
-					
+
 					wizEditor.lockScreen(true);
-					
+
 					wizEditor.mask.css({
 								opacity         : settings.dialogMaskOpacity,
 								backgroundColor : settings.dialogMaskBgColor
@@ -303,8 +303,8 @@
 
 					return wizEditor;
 				};
-				
-				hideWaitDialog = function() {            
+
+				hideWaitDialog = function() {
 					$("html,body").css("overflow-x", "");
 					wizEditor.waitDialog.hide();
 					wizEditor.mask.hide();
@@ -323,14 +323,14 @@
                     }
                 }
             };
-			
+
 			////////////////////////////////////////////////
 			// 为知回调
 			// 关闭标签时会调用来判断是否需要保存
 			function OnPluginQueryModified() {
 				return modified;
 			};
-			
+
 			////////////////////////////////////////////////
 			// 为知回调
 			// 可响应Ctrl+S保存事件
