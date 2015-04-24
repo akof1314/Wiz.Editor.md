@@ -166,11 +166,21 @@
 					}
 
 					// 提取图片链接
-					var linkExp = /!\[((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*)\]\(\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*\)/g;
+					var linkExp = /!?\[((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*)\]\(\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*\)/g;
 					var arrCap = new Array();
 					var cap = null;
 					var imgStr = "";
 					while (cap = linkExp.exec(docOrg)) {
+                        // 如果是超链接，则再检索一遍
+                        while (cap[0].charAt(0) !== "!") {
+                            if ((cap = new RegExp(linkExp.source).exec(cap[1])) == null) {
+                                break;
+                            }
+                        }
+                        if (cap == null) {
+                            continue;
+                        };
+
 						// 只提取本地图片的链接
 						if (cap[2].indexOf("https://") != 0 && cap[2].indexOf("http://") != 0) {
 							arrCap.push(cap);
@@ -182,6 +192,7 @@
 					var imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">";
 					if (imgStr.length > 0) {
 						imgStr = imgStrDiv + imgStr + "</div>";
+                        console.log(imgStr);
 						showWaitDialog();
 					}
 					doc += imgStr;
