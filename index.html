@@ -22,13 +22,6 @@
             var wizEditor;
 
             $(function() {
-                var objCommon = null;
-                try {
-                    objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI");
-                }
-                catch (err) {
-                }
-
                 ////////////////////////////////////////////////
                 // Load document
                 function getQueryString(name) {
@@ -73,7 +66,17 @@
                 catch (err) {
                 }
 
-				var imgTempPath = "../../temp/" + guid + "_4_files";
+                var tempPath = "";
+                var objCommon = null;
+                try {
+                    objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI");
+                    tempPath = objCommon.GetSpecialFolder("TemporaryFolder");
+                }
+                catch (err) {
+                }
+
+
+				var imgTempPath = tempPath + guid + "_4_files";
 				var imgRealPath = guid + "_4_files";
                 ////////////////////////////////////////////////
                 // Extract Markdown text from HTML
@@ -166,23 +169,13 @@
 					}
 
 					// 提取图片链接
-					var linkExp = /!?\[((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*)\]\(\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*\)/g;
+					var linkExp = /!\[((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)\]\(\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*\)/g;
 					var arrCap = new Array();
 					var cap = null;
 					var imgStr = "";
 					while (cap = linkExp.exec(docOrg)) {
-                        // 如果是超链接，则再检索一遍
-                        while (cap[0].charAt(0) !== "!") {
-                            if ((cap = new RegExp(linkExp.source).exec(cap[1])) == null) {
-                                break;
-                            }
-                        }
-                        if (cap == null) {
-                            continue;
-                        };
-
 						// 只提取本地图片的链接
-						if (cap[2].indexOf("https://") != 0 && cap[2].indexOf("http://") != 0) {
+						if (cap[2].length > 0 && cap[2].indexOf("https://") != 0 && cap[2].indexOf("http://") != 0) {
 							arrCap.push(cap);
 							imgStr += "<img src=\"" + cap[2] + "\">";
 						}
@@ -198,7 +191,8 @@
 					doc += imgStr;
 
 					if (objDocument) {
-						doc = doc.replace(new RegExp(imgTempPath, "g"), imgRealPath);
+						doc = doc.replace(new RegExp(imgTempPath.replace(/\\/g, "\\\\"), "g"), imgRealPath);                              
+                        console.log(doc);
 						objDocument.UpdateDocument3(doc, 0);
 
 						if (imgStr.length == 0) {
@@ -220,15 +214,23 @@
 									if (curIdx >= arrCap.length) {
 										break;
 									}
+                                    console.log(cap[1]);
+
 
 									var curCap = arrCap[curIdx++];
 									docNew += docOrg.substring(docIdx, curCap.index);
-									docNew += curCap[0].replace(curCap[2], cap[1].replace("index_files", imgTempPath));
+                                    docNew += "![" + curCap[1] + "](" + cap[1].replace("index_files", imgTempPath);
+                                    if (curCap[3]) {
+                                        docNew += " \"" + curCap[3] + "\"";
+                                    };
+                                    docNew += ")";
 									docIdx = curCap.index + curCap[0].length;
 								}
 								docNew += docOrg.substring(docIdx);
 								var hasWatch = wizEditor.settings.watch;
 								wizEditor.setValue(docNew);
+                                console.log(docNew);
+
                                 // 因为会触发change事件，所以这里强制设置改动标志
                                 setTimeout(function () {
                                     modified = false;
@@ -238,7 +240,8 @@
 								doc = docNew.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
 								// 隐藏标签也要保存，不然会被丢弃掉
 								doc += imgStr;
-								doc = doc.replace(new RegExp(imgTempPath, "g"), imgRealPath);
+								doc = doc.replace(new RegExp(imgTempPath.replace(/\\/g, "\\\\"), "g"), imgRealPath);                                
+                                console.log(doc);
 								objDocument.UpdateDocument3(doc, 0);
 							}
 						}
