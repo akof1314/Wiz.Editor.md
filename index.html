@@ -22,63 +22,9 @@
 
             $(function() {
                 var objCommon = null;
-                try {
-                    objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI");
-                }
-                catch (err) {
-                }
-
-                ////////////////////////////////////////////////
-                // Load document
-                function getQueryString(name) {
-                    if (location.href.indexOf("?") == -1 || location.href.indexOf(name + '=') == -1) {
-                        return '';
-                    }
-                    var queryString = location.href.substring(location.href.indexOf("?") + 1);
-
-                    var parameters = queryString.split("&");
-
-                    var pos, paraName, paraValue;
-                    for (var i = 0; i < parameters.length; i++) {
-                        pos = parameters[i].indexOf('=');
-                        if (pos == -1) { continue; }
-
-                        paraName = parameters[i].substring(0, pos);
-                        paraValue = parameters[i].substring(pos + 1);
-
-                        if (paraName == name) {
-                            return unescape(paraValue.replace(/\+/g, " "));
-                        }
-                    }
-                    return '';
-                };
-
-                var guid = getQueryString("guid");
-                var kbGUID = getQueryString("kbguid");
-
                 var objDatabase = null;
-                if (kbGUID == "" || kbGUID == null) {
-                    objDatabase = objApp.Database;
-                }
-                else {
-                    objDatabase = objApp.GetGroupDatabase(kbGUID);
-                }
-
                 var objDocument = null;
-                try {
-                    objDocument = objDatabase.DocumentFromGUID(guid);
-                    document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
-                }
-                catch (err) {
-                }
-
-                ////////////////////////////////////////////////
-                // Extract Markdown text from HTML
-                var code = "";
-                if (objDocument) {
-                    code = objDocument.GetText(0);
-                    code = code.replace(/\u00a0/g, ' ');
-                }
+                var code = loadDocument();
 
                 ////////////////////////////////////////////////
                 // 配置编辑器功能
@@ -138,20 +84,85 @@
                         modified = true;
                     },
                     onimageUploadButton : function() {
-                        var filename = objCommon.SelectWindowsFile(true, "Image Files(*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|");
+                        var filename = getObjCommon().SelectWindowsFile(true, "Image Files(*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|");
                         return filename;
                     }
                 });
 
                 ////////////////////////////////////////////////
+                // 获得为知常用操作对象
+                function getObjCommon() {
+                    if (objCommon == null) {
+                        try {
+                            objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI");
+                        }
+                        catch (err) {
+                        }
+                    };
+                    return objCommon;
+                };
+
+                ////////////////////////////////////////////////
                 // 保存文档
-                saveDocument = function () {
+                function saveDocument() {
                     if (objDocument) {
                         var doc = wizEditor.getValue();
                         doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
                         objDocument.UpdateDocument3(doc, 0);
                         modified = false;
                     }
+                };
+
+                ////////////////////////////////////////////////
+                // 加载文档
+                function loadDocument() {
+                    var guid = getQueryString("guid");
+                    var kbGUID = getQueryString("kbguid");
+
+                    if (kbGUID == "" || kbGUID == null) {
+                        objDatabase = objApp.Database;
+                    }
+                    else {
+                        objDatabase = objApp.GetGroupDatabase(kbGUID);
+                    }
+
+                    var code = "";
+                    try {
+                        objDocument = objDatabase.DocumentFromGUID(guid);
+                        document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
+
+                        code = objDocument.GetText(0);
+                        code = code.replace(/\u00a0/g, ' ');
+                    }
+                    catch (err) {
+                    }
+
+                    return code;
+                };
+
+                ////////////////////////////////////////////////
+                // 解析参数
+                function getQueryString(name) {
+                    if (location.href.indexOf("?") == -1 || location.href.indexOf(name + '=') == -1) {
+                        return '';
+                    }
+                    var queryString = location.href.substring(location.href.indexOf("?") + 1);
+
+                    var parameters = queryString.split("&");
+
+                    var pos, paraName, paraValue;
+                    for (var i = 0; i < parameters.length; i++) {
+                        pos = parameters[i].indexOf('=');
+                        if (pos == -1) { continue; }
+
+                        paraName = parameters[i].substring(0, pos);
+                        paraValue = parameters[i].substring(pos + 1);
+
+                        if (paraName == name) {
+                            return unescape(paraValue.replace(/\+/g, " "));
+                        }
+                    }
+                    return '';
                 };
             });
 
@@ -165,20 +176,20 @@
                 }
             };
 
-			////////////////////////////////////////////////
-			// 为知回调
-			// 关闭标签时会调用来判断是否需要保存
-			function OnPluginQueryModified() {
-				return modified;
-			};
+            ////////////////////////////////////////////////
+            // 为知回调
+            // 关闭标签时会调用来判断是否需要保存
+            function OnPluginQueryModified() {
+                return modified;
+            };
 
-			////////////////////////////////////////////////
-			// 为知回调
-			// 可响应Ctrl+S保存事件
-			function OnPluginSave() {
-				saveDocument();
-				return true;
-			};
+            ////////////////////////////////////////////////
+            // 为知回调
+            // 可响应Ctrl+S保存事件
+            function OnPluginSave() {
+                saveDocument();
+                return true;
+            };
         </script>
     </body>
 </html>
