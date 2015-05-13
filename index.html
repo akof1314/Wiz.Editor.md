@@ -104,7 +104,7 @@
 
                 ////////////////////////////////////////////////
                 // 保存文档
-                function saveDocument() {
+                saveDocument = function () {
                     if (objDocument) {
                         var doc = wizEditor.getValue();
                         doc = doc.replace(/</g, '&lt;');    // 左尖括号会被解析掉，替换成实体
