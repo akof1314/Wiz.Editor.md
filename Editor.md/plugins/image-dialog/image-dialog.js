@@ -53,7 +53,7 @@
                                             return (settings.imageUpload) ? "<div class=\"" + classPrefix + "file-input\">" +
                                                                                 "<input type=\"file\" name=\"" + classPrefix + "image-file\" accept=\"image/*\" />" +
                                                                                 "<input type=\"submit\" value=\"" + imageLang.uploadButton + "\" />" +
-                                                                            "</div>" : "<button class=\"editormd-btn\" name=\"imageUploadButton\">" + imageLang.uploadButton + "</button>";
+                                                                            "</div>" : "<button class=\"editormd-btn\" name=\"imageUploadButton\" style=\"margin-left: 8px;\">" + imageLang.uploadButton + "</button>";
                                         })() +
                                         "<br/>" +
                                         "<label>" + imageLang.alt + "</label>" +
