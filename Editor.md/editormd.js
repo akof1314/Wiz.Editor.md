@@ -3339,7 +3339,7 @@
         markedRenderer.heading = function(text, level, raw) {
                     
             var linkText       = text;
-            var hasLinkReg     = /\s*\<a\s*href\=\"(.*)\"\s*([^\>]*)\>(.*)\<\/a\>\s*/;
+            var hasLinkReg     = /\s*\<a\s*target=\"_blank\"\s*href\=\"(.*)\"\s*([^\>]*)\>(.*)\<\/a\>\s*/;
             var getLinkTextReg = /\s*\<a\s*([^\>]+)\>([^\>]*)\<\/a\>\s*/g;
 
             if (hasLinkReg.test(text)) 
@@ -3349,7 +3349,7 @@
 
                 for (var i = 0, len = text.length; i < len; i++)
                 {
-                    tempText.push(text[i].replace(/\s*href\=\"(.*)\"\s*/g, ""));
+                    tempText.push(text[i].replace(/\s*target=\"_blank\"\s*href\=\"(.*)\"\s*/g, ""));
                 }
 
                 text = tempText.join(" ");
