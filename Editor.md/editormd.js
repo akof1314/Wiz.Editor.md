@@ -1938,7 +1938,7 @@
                 {
                     if (!editormd.kaTeXLoaded && settings.autoLoadModules) 
                     {
-                        editormd.loadKaTeX(function() {
+                        editormd.loadKaTeX(settings.path, function() {
                             editormd.$katex = katex;
                             editormd.kaTeXLoaded = true;
                             _this.katexRender();
@@ -2185,7 +2185,7 @@
                 return false;
             }
             
-            return this.htmlTextarea.html();
+            return this.htmlTextarea.val();
         },
         
         /**
@@ -3787,7 +3787,7 @@
             
             if (settings.autoLoadKaTeX && !editormd.$katex && !editormd.kaTeXLoaded)
             {
-                this.loadKaTeX(function() {
+                this.loadKaTeX(settings.path,function() {
                     editormd.$katex      = katex;
                     editormd.kaTeXLoaded = true;
                     katexHandle();
@@ -3934,8 +3934,8 @@
     // 使用国外的CDN，加载速度有时会很慢，或者自定义URL
     // You can custom KaTeX load url.
     editormd.katexURL  = {
-        css : "Editor.md/lib/katex/katex.min",
-        js  : "Editor.md/lib/katex/katex.min"
+        css : "katex/katex.min",
+        js  : "katex/katex.min"
     };
     
     editormd.kaTeXLoaded = false;
@@ -3947,9 +3947,9 @@
      * @param {Function} [callback=function()]  加载成功后执行的回调函数
      */
     
-    editormd.loadKaTeX = function (callback) {
-        editormd.loadCSS(editormd.katexURL.css, function(){
-            editormd.loadScript(editormd.katexURL.js, callback || function(){});
+    editormd.loadKaTeX = function (path, callback) {
+        editormd.loadCSS(path + editormd.katexURL.css, function(){
+            editormd.loadScript(path + editormd.katexURL.js, callback || function(){});
         });
     };
         

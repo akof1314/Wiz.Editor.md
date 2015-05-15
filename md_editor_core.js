@@ -25,6 +25,7 @@ $(function() {
         tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
         emoji           : false,             // Emoji表情，默认关闭
         taskList        : false,             // Task lists，默认关闭
+        saveHTMLToTextarea : true,
         disabledKeyMaps : [
             "F9", "F10", "F11"               // 禁用切换全屏状态，因为为知已经支持
         ],
@@ -94,7 +95,7 @@ $(function() {
         catch (err) {
         }
         return pluginPath;
-    }
+    };
 
     ////////////////////////////////////////////////
     // 保存文档
@@ -104,10 +105,20 @@ $(function() {
             doc = doc.replace(/</g, '&lt;');    // 左尖括号会被解析掉，替换成实体
             doc = doc.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');   // 替换制表符
             doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
+            doc += getImgContent();
             objDocument.UpdateDocument3(doc, 0);
             modified = false;
         }
     };
+
+    function getImgContent () {
+        var htmlText = wizEditor.getHTML();
+        var fileName = document.location.href;
+        var filePath = fileName.substring(0, fileName.lastIndexOf('/') + 1);
+        var arrTags = getObjCommon().HtmlExtractTags2(htmlText, "img", "", "").replace(/src="index_files/g, "src=\"" + filePath +"index_files");
+        var imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">" + arrTags + "</div>";
+        return imgStrDiv;
+    }
 
     ////////////////////////////////////////////////
     // 加载文档
