@@ -25,7 +25,6 @@ $(function() {
         tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
         emoji           : false,             // Emoji表情，默认关闭
         taskList        : false,             // Task lists，默认关闭
-        saveHTMLToTextarea : true,
         disabledKeyMaps : [
             "F9", "F10", "F11"               // 禁用切换全屏状态，因为为知已经支持
         ],
@@ -34,19 +33,25 @@ $(function() {
             arrayIcons = arrayIcons.concat(editormd.toolbarModes["full"]);
             arrayIcons.splice($.inArray("emoji", arrayIcons), 1);       // Emoji表情关闭时移除按钮
             arrayIcons.splice($.inArray("fullscreen", arrayIcons), 1);  // 禁用切换全屏状态时移除按钮
+            arrayIcons.splice($.inArray("code", arrayIcons), 0, "captureIcon");  // 禁用切换全屏状态时移除按钮
             return arrayIcons;
         },
         toolbarIconsClass : {
-            saveIcon : "fa-floppy-o"  // 指定一个FontAawsome的图标类
+            saveIcon : "fa-floppy-o",  // 指定一个FontAawsome的图标类
+            captureIcon : "fa-scissors"
         },
         toolbarHandlers : {
             saveIcon : function() {
                 saveDocument();
+            },
+            captureIcon : function() {
+                captureScreenImage();
             }
         },
         lang : {
             toolbar : {
-                saveIcon : "保存 (Ctrl+S)"
+                saveIcon : "保存 (Ctrl+S)",
+                captureIcon : "截取屏幕"
             }
         },
         onload : function() {
@@ -95,6 +100,15 @@ $(function() {
         catch (err) {
         }
         return pluginPath;
+    };
+
+    ////////////////////////////////////////////////
+    // 截取屏幕
+    captureScreenImage = function () {
+        var filename = getObjCommon().CaptureScreen(0);
+        if (objCommon.PathFileExists(filename)) {
+            wizEditor.insertValue("![](" + filename + ")");
+        };
     };
 
     ////////////////////////////////////////////////
