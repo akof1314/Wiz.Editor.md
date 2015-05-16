@@ -14,6 +14,7 @@ function editCurrentMarkdownDocument () {
 	objCommon.CreateDirectory(tempPath);
 	tempPath += objDocument.GUID + "/";
 	objCommon.CreateDirectory(tempPath);
+	objCommon.CreateDirectory(tempPath + "index_files/");
 
 	var tempFile = tempPath + "index.html";
 	objDocument.SaveToHtml(tempFile, 0);

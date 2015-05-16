@@ -155,9 +155,13 @@ $(function() {
             return imgSrc;
         }
 
-        var imgReg = /(!\[.*?\]\()(.+?)(\))/g;
-        doc = doc.replace(imgReg, function(whole, a, b, c) {
-            return a + dealImg(b) + c;
+        var imgReg = /(!\[[^\[]*?\]\()(.+?)(\s+['"][\s\S]*?['"])?(\))/g;
+        doc = doc.replace(imgReg, function(whole, a, b, c, d) {
+            if (c) {
+                return a + dealImg(b) + c + d;
+            } else{
+                return a + dealImg(b) + d;
+            }
         });
 
         var imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">" + arrImgTags + "</div>";
