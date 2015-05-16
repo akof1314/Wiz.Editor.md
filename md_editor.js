@@ -28,7 +28,7 @@ function editCurrentMarkdownDocument () {
 	objCommon.CopyFile(pluginPath + "md_editor_core.js", tempPath + "md_editor_core.js");
 
 	var tempText = objCommon.LoadTextFromFile(tempFile);
-	tempText = tempText.replace(/Editor.md\//g, pluginPath + "Editor.md/");
+	tempText = tempText.replace(/Editor.md\//g, encodeURI(pluginPath) + "Editor.md/");
 	objCommon.SaveTextToFile(tempFile, tempText, "utf-8-bom");
 
 	var editorFileName = tempFile + "?guid=" + objDocument.GUID + "&kbguid=" + objDocument.Database.KbGUID;

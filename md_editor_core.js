@@ -111,12 +111,39 @@ $(function() {
         }
     };
 
+    ////////////////////////////////////////////////
+    // 获取图片内容
     function getImgContent () {
         var htmlText = wizEditor.getHTML();
-        var fileName = document.location.href;
-        var filePath = fileName.substring(0, fileName.lastIndexOf('/') + 1);
-        var arrTags = getObjCommon().HtmlExtractTags2(htmlText, "img", "", "").replace(/src="index_files/g, "src=\"" + filePath +"index_files");
-        var imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">" + arrTags + "</div>";
+        var htmlName = document.location.href;
+        var htmlPath = htmlName.substring(0, htmlName.lastIndexOf('/') + 1);
+        var filesPath = htmlPath + "index_files/"; // 带file:///的路径
+        var filesWinPath = filesPath.substring(8);
+        var imgReg = /(!\[.*?\]\()(.+?)(\))/g;
+        var arrImgTags = "";
+
+        // 提取img标签
+        var arrTags = getObjCommon().HtmlExtractTags(htmlText, "img", "", "");
+        for (var i = 0; i < arrTags.length; i++) {
+            var imgTag = arrTags[i];
+            var imgSrc = objCommon.HtmlTagGetAttributeValue(imgTag, "src");
+            if (imgSrc != "") {
+                if (imgSrc.indexOf("index_files/") == 0) {
+                    // 转换可能包含中文名的名称，转换成Unicode
+                    var imgName = imgSrc.substring(imgSrc.lastIndexOf('/') + 1);
+                    var imgNameNew = escape(imgName).replace(/%/g, '_');
+                    if (imgName != imgNameNew) {
+                        objCommon.CopyFile(filesWinPath + imgName, filesWinPath + imgNameNew);
+                    };
+                    
+                    var imgSrcNew = filesPath + imgNameNew;
+                    arrImgTags += "<img src=\"" + imgSrcNew + "\">";
+                } else{
+
+                };
+            };
+        };
+        var imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">" + arrImgTags + "</div>";
         return imgStrDiv;
     }
 
