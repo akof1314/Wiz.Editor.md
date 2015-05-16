@@ -8,16 +8,11 @@ function editCurrentMarkdownDocument () {
 		return;
 	}
 
-	var guidDoc = objDocument.GUID;
-	if (objDocument.Database.KbGUID != "") {
-		guidDoc = objDocument.Database.KbGUID;
-	}
-
 	var objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI");
 	var tempPath = objCommon.GetSpecialFolder("TemporaryFolder");
 	tempPath += "editor_md_temp/";
 	objCommon.CreateDirectory(tempPath);
-	tempPath += guidDoc + "/";
+	tempPath += objDocument.GUID + "/";
 	objCommon.CreateDirectory(tempPath);
 
 	var tempFile = tempPath + "index.html";

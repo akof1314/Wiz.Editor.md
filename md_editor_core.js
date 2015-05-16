@@ -105,46 +105,63 @@ $(function() {
             doc = doc.replace(/</g, '&lt;');    // 左尖括号会被解析掉，替换成实体
             doc = doc.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');   // 替换制表符
             doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
-            doc += getImgContent();
+            doc = dealImgDoc(doc);
             objDocument.UpdateDocument3(doc, 0);
             modified = false;
         }
     };
 
     ////////////////////////////////////////////////
-    // 获取图片内容
-    function getImgContent () {
-        var htmlText = wizEditor.getHTML();
+    // 处理带图片内容
+    function dealImgDoc (doc) {
         var htmlName = document.location.href;
         var htmlPath = htmlName.substring(0, htmlName.lastIndexOf('/') + 1);
-        var filesPath = htmlPath + "index_files/"; // 带file:///的路径
+        var htmlWinPath = htmlPath.substring(8);
+        var filesDirName = "index_files/";
+        var filesPath = htmlPath + filesDirName; // 带file:///的路径
         var filesWinPath = filesPath.substring(8);
-        var imgReg = /(!\[.*?\]\()(.+?)(\))/g;
         var arrImgTags = "";
 
-        // 提取img标签
-        var arrTags = getObjCommon().HtmlExtractTags(htmlText, "img", "", "");
-        for (var i = 0; i < arrTags.length; i++) {
-            var imgTag = arrTags[i];
-            var imgSrc = objCommon.HtmlTagGetAttributeValue(imgTag, "src");
-            if (imgSrc != "") {
-                if (imgSrc.indexOf("index_files/") == 0) {
-                    // 转换可能包含中文名的名称，转换成Unicode
-                    var imgName = imgSrc.substring(imgSrc.lastIndexOf('/') + 1);
-                    var imgNameNew = escape(imgName).replace(/%/g, '_');
-                    if (imgName != imgNameNew) {
-                        objCommon.CopyFile(filesWinPath + imgName, filesWinPath + imgNameNew);
-                    };
-                    
-                    var imgSrcNew = filesPath + imgNameNew;
-                    arrImgTags += "<img src=\"" + imgSrcNew + "\">";
-                } else{
+        function dealImg (imgSrc) {
+            var imgFullPath = "";
+            if (imgSrc.indexOf(filesDirName) == 0) {
+                imgFullPath = htmlWinPath + imgSrc;
+            }
+            else {
+                imgFullPath = imgSrc;
+                if (imgFullPath.indexOf("file:///") == 0) {
+                    imgFullPath = imgFullPath.substring(8);
+                }
+            }
+            imgFullPath = imgFullPath.replace(/\\/g, '/');
 
-                };
-            };
-        };
+            if (imgFullPath != "") {
+                if (getObjCommon().PathFileExists(imgFullPath)) {
+                    var imgName = imgFullPath.substring(imgFullPath.lastIndexOf('/') + 1);
+
+                    // 转换可能包含中文名的名称，转换成Unicode
+                    var imgNameNew = escape(imgName).replace(/%/g, '_');
+
+                    // 路径不同，则进行拷贝
+                    var imgCopyToFullPath = filesWinPath + imgNameNew;
+                    if (imgFullPath != imgCopyToFullPath) {
+                        getObjCommon().CopyFile(imgFullPath, imgCopyToFullPath);
+                    }
+                    
+                    imgSrc = filesDirName + imgNameNew;
+                    arrImgTags += "<img src=\"" + imgCopyToFullPath + "\">";
+                }
+            }
+            return imgSrc;
+        }
+
+        var imgReg = /(!\[.*?\]\()(.+?)(\))/g;
+        doc = doc.replace(imgReg, function(whole, a, b, c) {
+            return a + dealImg(b) + c;
+        });
+
         var imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">" + arrImgTags + "</div>";
-        return imgStrDiv;
+        return doc + imgStrDiv;
     }
 
     ////////////////////////////////////////////////
@@ -167,6 +184,11 @@ $(function() {
 
             code = objDocument.GetText(0);
             code = code.replace(/\u00a0/g, ' ');
+
+            // 如果用原生编辑器保存过图片，会被替换成错的图片路径
+            var imgErrorPath = guid + "_128_files/";
+            var imgRealPath = "index_files/";
+            code = code.replace(new RegExp(imgErrorPath, "g"), imgRealPath);
         }
         catch (err) {
         }
