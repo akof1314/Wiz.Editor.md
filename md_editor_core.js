@@ -72,10 +72,13 @@ $(function() {
             this.cm.getInputField().addEventListener("paste", function (e) {
                 var clipboardData = event.clipboardData || window.clipboardData;
                 if (clipboardData) {
-                    if (clipboardData.types = "Files") {
+                    if (clipboardData.types == "Files") {
                         clipboardToImage();
                     }
-                };
+                    else if (clipboardData.types == "text/plain,text/html") {
+                        clipboardHTMLImage(clipboardData.getData("text/html"));
+                    }
+                }
             });
         },
         onchange : function() {
@@ -96,7 +99,7 @@ $(function() {
             }
             catch (err) {
             }
-        };
+        }
         return objCommon;
     };
 
@@ -127,7 +130,22 @@ $(function() {
         var filename = getObjCommon().ClipboardToImage(objApp.Window.HWND, "");
         if (objCommon.PathFileExists(filename)) {
             wizEditor.insertValue("![](" + filename + ")");
-        };
+        }
+    };
+
+    ////////////////////////////////////////////////
+    // 剪贴板HTML图片地址
+    clipboardHTMLImage = function (htmlText) {
+        if (htmlText != "") {
+            var imgText = "";
+            $(htmlText).find("img").each(function (){
+                imgText += "![](" + $(this).attr('src') + ")\n";
+            });
+
+            if (imgText != "") {
+                wizEditor.insertValue(imgText);
+            }
+        }
     };
 
     ////////////////////////////////////////////////
@@ -175,9 +193,10 @@ $(function() {
                     // 转换可能包含中文名的名称，转换成Unicode
                     var imgNameNew = escape(imgName).replace(/%/g, '_');
 
-                    // 路径不同，则进行拷贝
-                    var imgCopyToFullPath = filesWinPath + imgNameNew;
-                    if (imgFullPath != imgCopyToFullPath) {
+                    // 名称不同，则进行拷贝
+                    var imgCopyToFullPath = imgFullPath;
+                    if (imgName != imgNameNew) {
+                        imgCopyToFullPath = filesWinPath + imgNameNew;
                         getObjCommon().CopyFile(imgFullPath, imgCopyToFullPath);
                     }
                     
