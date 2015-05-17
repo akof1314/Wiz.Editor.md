@@ -76,7 +76,9 @@ $(function() {
                         clipboardToImage();
                     }
                     else if (clipboardData.types == "text/plain,text/html") {
-                        clipboardHTMLImage(clipboardData.getData("text/html"));
+                        if (clipboardHTMLImage(clipboardData.getData("text/html"))) {
+                            e.preventDefault();
+                        }
                     }
                 }
             });
@@ -137,15 +139,20 @@ $(function() {
     // 剪贴板HTML图片地址
     clipboardHTMLImage = function (htmlText) {
         if (htmlText != "") {
+            var txt= htmlText.replace(/<html>\s*<body>/,'<div id="myTest">').replace(/<\/body>\s*<\/html>/,'</div>');
             var imgText = "";
-            $(htmlText).find("img").each(function (){
+            $(txt).find("img").each(function (){
+                $('<p></p>').text("![](" + $(this).attr('src') + ")\n").insertAfter($(this));
                 imgText += "![](" + $(this).attr('src') + ")\n";
             });
+            console.log($(txt).html());
 
             if (imgText != "") {
                 wizEditor.insertValue(imgText);
-            }
+                return true;sss
+            }s
         }
+        return false;
     };
 
     ////////////////////////////////////////////////
