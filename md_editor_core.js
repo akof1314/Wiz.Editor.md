@@ -67,6 +67,16 @@ $(function() {
                 }
             };
             this.addKeyMap(keyMap);
+
+            // 监听粘贴事件
+            this.cm.getInputField().addEventListener("paste", function (e) {
+                var clipboardData = event.clipboardData || window.clipboardData;
+                if (clipboardData) {
+                    if (clipboardData.types = "Files") {
+                        clipboardToImage();
+                    }
+                };
+            });
         },
         onchange : function() {
             modified = true;
@@ -106,6 +116,15 @@ $(function() {
     // 截取屏幕
     captureScreenImage = function () {
         var filename = getObjCommon().CaptureScreen(0);
+        if (objCommon.PathFileExists(filename)) {
+            wizEditor.insertValue("![](" + filename + ")");
+        };
+    };
+
+    ////////////////////////////////////////////////
+    // 剪贴板图片
+    clipboardToImage = function () {
+        var filename = getObjCommon().ClipboardToImage(objApp.Window.HWND, "");
         if (objCommon.PathFileExists(filename)) {
             wizEditor.insertValue("![](" + filename + ")");
         };
