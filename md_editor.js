@@ -21,10 +21,10 @@ function editCurrentMarkdownDocument () {
 
 	var pluginPath = objApp.GetPluginPathByScriptFileName("md_editor.js");
 	objCommon.CopyFile(pluginPath + "index.html", tempFile);
-	objCommon.CopyFile(pluginPath + "md_editor_core.js", tempPath + "md_editor_core.js");
 
 	var tempText = objCommon.LoadTextFromFile(tempFile);
-	tempText = tempText.replace(/Editor.md\//g, encodeURI(pluginPath) + "Editor.md/");
+	tempText = tempText.replace(/(<script src=")/g, "$1" + encodeURI(pluginPath))
+					   .replace(/(<link rel="stylesheet" href=")/g, "$1" + encodeURI(pluginPath));
 	objCommon.SaveTextToFile(tempFile, tempText, "utf-8-bom");
 
 	var editorFileName = tempFile + "?guid=" + objDocument.GUID + "&kbguid=" + objDocument.Database.KbGUID;

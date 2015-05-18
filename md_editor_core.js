@@ -139,18 +139,32 @@ $(function() {
     // 剪贴板HTML图片地址
     clipboardHTMLImage = function (htmlText) {
         if (htmlText != "") {
-            var txt= htmlText.replace(/<html>\s*<body>/,'<div id="myTest">').replace(/<\/body>\s*<\/html>/,'</div>');
-            var imgText = "";
-            $(txt).find("img").each(function (){
-                $('<p></p>').text("![](" + $(this).attr('src') + ")\n").insertAfter($(this));
-                imgText += "![](" + $(this).attr('src') + ")\n";
-            });
-            console.log($(txt).html());
-
-            if (imgText != "") {
-                wizEditor.insertValue(imgText);
-                return true;sss
-            }s
+            var referencelinkRegEx = /reference-link/;
+            wizEditor.insertValue(toMarkdown(htmlText, {
+                gfm: true,
+                converters:[
+                {
+                    filter: 'div',
+                    replacement: function(content) {
+                        return content + '\n';
+                    }
+                },
+                {
+                    filter: 'span',
+                    replacement: function(content) {
+                        return content;
+                    }
+                },
+                {
+                    filter: function (node) {
+                      return node.nodeName === 'A' && referencelinkRegEx.test(node.className);
+                    },
+                    replacement: function(content) {
+                        return "";
+                    }
+                }]})
+            );
+            return true;
         }
         return false;
     };
@@ -206,7 +220,7 @@ $(function() {
                         imgCopyToFullPath = filesWinPath + imgNameNew;
                         getObjCommon().CopyFile(imgFullPath, imgCopyToFullPath);
                     }
-                    
+
                     imgSrc = filesDirName + imgNameNew;
                     arrImgTags += "<img src=\"" + imgCopyToFullPath + "\">";
                 }
