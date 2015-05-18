@@ -2185,7 +2185,7 @@
                 return false;
             }
             
-            return this.htmlTextarea.val();
+            return this.htmlTextarea.html();
         },
         
         /**

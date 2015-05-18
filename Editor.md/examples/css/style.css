@@ -86,3 +86,14 @@ body {
 .btns button:hover, .btn:hover {
     background: #f6f6f6;
 }
+
+.menu-selected {
+    border: 1px solid #ddd;
+    background: #eee;
+    padding: 4px 0 5px;
+}
+
+.menu-selected:hover {
+    border: 1px solid #ddd;
+    background: #eee;
+}

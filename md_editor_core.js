@@ -6,6 +6,7 @@ $(function() {
     var objCommon = null;
     var objDatabase = null;
     var objDocument = null;
+    var plainPasteMode = false;             // 纯文本粘贴模式
     var code = loadDocument();
 
     ////////////////////////////////////////////////
@@ -33,12 +34,14 @@ $(function() {
             arrayIcons = arrayIcons.concat(editormd.toolbarModes["full"]);
             arrayIcons.splice($.inArray("emoji", arrayIcons), 1);       // Emoji表情关闭时移除按钮
             arrayIcons.splice($.inArray("fullscreen", arrayIcons), 1);  // 禁用切换全屏状态时移除按钮
-            arrayIcons.splice($.inArray("code", arrayIcons), 0, "captureIcon");  // 禁用切换全屏状态时移除按钮
+            arrayIcons.splice($.inArray("code", arrayIcons), 0, "captureIcon");  // 加入截取屏幕按钮
+            arrayIcons.splice($.inArray("link", arrayIcons), 0, "plainPasteIcon");  // 加入纯文本粘贴模式按钮
             return arrayIcons;
         },
         toolbarIconsClass : {
             saveIcon : "fa-floppy-o",  // 指定一个FontAawsome的图标类
-            captureIcon : "fa-scissors"
+            captureIcon : "fa-scissors",
+            plainPasteIcon : "fa-clipboard"
         },
         toolbarHandlers : {
             saveIcon : function() {
@@ -46,12 +49,17 @@ $(function() {
             },
             captureIcon : function() {
                 captureScreenImage();
+            },
+            plainPasteIcon : function() {
+                plainPasteMode = !plainPasteMode;
+                showPlainPasteMode();
             }
         },
         lang : {
             toolbar : {
                 saveIcon : "保存 (Ctrl+S)",
-                captureIcon : "截取屏幕"
+                captureIcon : "截取屏幕",
+                plainPasteIcon : "纯文本粘贴模式",
             }
         },
         onload : function() {
@@ -67,6 +75,7 @@ $(function() {
                 }
             };
             this.addKeyMap(keyMap);
+            showPlainPasteMode();
 
             // 监听粘贴事件
             this.cm.getInputField().addEventListener("paste", function (e) {
@@ -76,7 +85,7 @@ $(function() {
                         clipboardToImage();
                     }
                     else if (clipboardData.types == "text/plain,text/html") {
-                        if (clipboardHTMLImage(clipboardData.getData("text/html"))) {
+                        if (!plainPasteMode && clipboardHTMLToMd(clipboardData.getData("text/html"))) {
                             e.preventDefault();
                         }
                     }
@@ -136,8 +145,8 @@ $(function() {
     };
 
     ////////////////////////////////////////////////
-    // 剪贴板HTML图片地址
-    clipboardHTMLImage = function (htmlText) {
+    // 剪贴板解析HTML转换到Markdown
+    clipboardHTMLToMd = function (htmlText) {
         if (htmlText != "") {
             var referencelinkRegEx = /reference-link/;
             wizEditor.insertValue(toMarkdown(htmlText, {
@@ -167,6 +176,16 @@ $(function() {
             return true;
         }
         return false;
+    };
+
+    ////////////////////////////////////////////////
+    // 显示纯文本粘贴模式
+    showPlainPasteMode = function () {
+        if (plainPasteMode) {
+            $(".fa-clipboard").addClass("menu-selected");
+        } else{
+            $(".fa-clipboard").removeClass("menu-selected");
+        };
     };
 
     ////////////////////////////////////////////////
