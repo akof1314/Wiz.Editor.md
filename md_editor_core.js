@@ -7,6 +7,8 @@ $(function() {
     var objDatabase = null;
     var objDocument = null;
     var plainPasteMode = false;             // 纯文本粘贴模式
+    var filesDirName = "index_files/";      // 本地文件目录名，不可更改
+    var filesFullPath = getLocalFilesPath();
     var code = loadDocument();
 
     ////////////////////////////////////////////////
@@ -97,7 +99,7 @@ $(function() {
         },
         onimageUploadButton : function() {
             var filename = getObjCommon().SelectWindowsFile(true, "Image Files(*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|");
-            return filename;
+            return saveImageToLocal(filename)[0];
         }
     });
 
@@ -131,7 +133,7 @@ $(function() {
     captureScreenImage = function () {
         var filename = getObjCommon().CaptureScreen(0);
         if (objCommon.PathFileExists(filename)) {
-            wizEditor.insertValue("![](" + filename + ")");
+            wizEditor.insertValue("![](" + saveImageToLocal(filename)[0] + ")");
         };
     };
 
@@ -140,7 +142,7 @@ $(function() {
     clipboardToImage = function () {
         var filename = getObjCommon().ClipboardToImage(objApp.Window.HWND, "");
         if (objCommon.PathFileExists(filename)) {
-            wizEditor.insertValue("![](" + filename + ")");
+            wizEditor.insertValue("![](" + saveImageToLocal(filename)[0] + ")");
         }
     };
 
@@ -195,9 +197,9 @@ $(function() {
             var doc = wizEditor.getValue();
             var arrResult = dealImgDoc(doc);
             if (arrResult[0] != doc) {
-                var range = wizEditor.getSelections();
+                var cursor = wizEditor.getCursor();
                 wizEditor.setMarkdown(arrResult[0]);
-                wizEditor.setSelections(range);
+                wizEditor.setCursor(cursor);
                 doc = arrResult[0];
             };
 
@@ -213,45 +215,12 @@ $(function() {
     ////////////////////////////////////////////////
     // 处理带图片内容
     function dealImgDoc (doc) {
-        var htmlName = document.location.href;
-        var htmlPath = htmlName.substring(0, htmlName.lastIndexOf('/') + 1);
-        var htmlWinPath = htmlPath.substring(8);
-        var filesDirName = "index_files/";
-        var filesPath = htmlPath + filesDirName; // 带file:///的路径
-        var filesWinPath = filesPath.substring(8);
         var arrImgTags = "";
 
         function dealImg (imgSrc) {
-            var imgFullPath = "";
-            if (imgSrc.indexOf(filesDirName) == 0) {
-                imgFullPath = htmlWinPath + imgSrc;
-            }
-            else {
-                imgFullPath = imgSrc;
-                if (imgFullPath.indexOf("file:///") == 0) {
-                    imgFullPath = imgFullPath.substring(8);
-                }
-            }
-            imgFullPath = imgFullPath.replace(/\\/g, '/');
-
-            if (imgFullPath != "") {
-                if (getObjCommon().PathFileExists(imgFullPath)) {
-                    var imgName = imgFullPath.substring(imgFullPath.lastIndexOf('/') + 1);
-
-                    // 转换可能包含中文名的名称，转换成Unicode
-                    var imgNameNew = escape(imgName).replace(/%/g, '_');
-
-                    // 路径不同，则进行拷贝
-                    var imgCopyToFullPath = filesWinPath + imgNameNew;
-                    if (imgFullPath != imgCopyToFullPath) {
-                        getObjCommon().CopyFile(imgFullPath, imgCopyToFullPath);
-                    }
-
-                    imgSrc = filesDirName + imgNameNew;
-                    arrImgTags += "<img src=\"" + imgCopyToFullPath + "\">";
-                }
-            }
-            return imgSrc;
+            var result = saveImageToLocal(imgSrc);
+            arrImgTags += result[1];
+            return result[0];
         }
 
         var imgReg = /(!\[[^\[]*?\]\()(.+?)(\s+['"][\s\S]*?['"])?(\))/g;
@@ -268,6 +237,46 @@ $(function() {
             imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">" + arrImgTags + "</div>";
         };
         return [doc, imgStrDiv];
+    }
+
+    ////////////////////////////////////////////////
+    // 保存图片到本地临时目录
+    // 返回新图片路径名和图片HTML标签内容
+    function saveImageToLocal(filename) {
+        filename = filename.replace(/\\/g, '/');
+        var imgName = filename.substring(filename.lastIndexOf('/') + 1);
+        var filenameNew = filename;
+        var tagImg = "";
+
+        var imgFullPath = "";
+        if (filename.indexOf(filesDirName) == 0) {
+            imgFullPath = filesFullPath + imgName;
+        }
+        else {
+            imgFullPath = filename;
+            if (imgFullPath.indexOf("file:///") == 0) {
+                imgFullPath = imgFullPath.substring(8);
+            }
+        }
+
+        if (imgFullPath != "") {
+            if (getObjCommon().PathFileExists(imgFullPath)) {
+
+                // 转换可能包含中文名的名称，转换成Unicode
+                var imgNameNew = escape(imgName).replace(/%/g, '_');
+
+                // 路径不同，则进行拷贝
+                var imgCopyToFullPath = filesFullPath + imgNameNew;
+                if (imgFullPath != imgCopyToFullPath) {
+                    getObjCommon().CopyFile(imgFullPath, imgCopyToFullPath);
+                }
+
+                filenameNew = filesDirName + imgNameNew;
+                tagImg = "<img src=\"" + imgCopyToFullPath + "\">";
+            }
+        }
+
+        return [filenameNew, tagImg];
     }
 
     ////////////////////////////////////////////////
@@ -301,6 +310,15 @@ $(function() {
 
         return code;
     };
+
+    ////////////////////////////////////////////////
+    // 得到本地文件路径
+    function getLocalFilesPath() {
+        var htmlName = document.location.href;
+        var htmlPath = htmlName.substring(0, htmlName.lastIndexOf('/') + 1);
+        var htmlWinPath = htmlPath.substring(8);
+        return htmlWinPath + filesDirName;
+    }
 
     ////////////////////////////////////////////////
     // 解析参数
