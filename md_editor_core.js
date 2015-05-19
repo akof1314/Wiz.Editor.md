@@ -193,10 +193,18 @@ $(function() {
     saveDocument = function () {
         if (objDocument) {
             var doc = wizEditor.getValue();
+            var arrResult = dealImgDoc(doc);
+            if (arrResult[0] != doc) {
+                var range = wizEditor.getSelections();
+                wizEditor.setMarkdown(arrResult[0]);
+                wizEditor.setSelections(range);
+                doc = arrResult[0];
+            };
+
             doc = doc.replace(/</g, '&lt;');    // 左尖括号会被解析掉，替换成实体
             doc = doc.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');   // 替换制表符
             doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
-            doc = dealImgDoc(doc);
+            doc += arrResult[1];
             objDocument.UpdateDocument3(doc, 0);
             modified = false;
         }
@@ -233,10 +241,9 @@ $(function() {
                     // 转换可能包含中文名的名称，转换成Unicode
                     var imgNameNew = escape(imgName).replace(/%/g, '_');
 
-                    // 名称不同，则进行拷贝
-                    var imgCopyToFullPath = imgFullPath;
-                    if (imgName != imgNameNew) {
-                        imgCopyToFullPath = filesWinPath + imgNameNew;
+                    // 路径不同，则进行拷贝
+                    var imgCopyToFullPath = filesWinPath + imgNameNew;
+                    if (imgFullPath != imgCopyToFullPath) {
                         getObjCommon().CopyFile(imgFullPath, imgCopyToFullPath);
                     }
 
@@ -256,8 +263,11 @@ $(function() {
             }
         });
 
-        var imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">" + arrImgTags + "</div>";
-        return doc + imgStrDiv;
+        var imgStrDiv = "";
+        if (arrImgTags != "") {
+            imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">" + arrImgTags + "</div>";
+        };
+        return [doc, imgStrDiv];
     }
 
     ////////////////////////////////////////////////
