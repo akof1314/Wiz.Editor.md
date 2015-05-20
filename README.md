@@ -28,22 +28,7 @@
 
 #### 配置方法
 
-如果需要开启或关闭一些功能，那么打开`index.html`文件，修改以下配置项：
-
-```javascript
-codeFold        : true,              // 代码折叠，默认关闭
-tex             : true,              // 开启科学公式TeX语言支持，默认关闭
-flowChart       : true,              // 开启流程图支持，默认关闭
-sequenceDiagram : true,              // 开启时序/序列图支持，默认关闭
-toc             : true,              // [TOC]自动生成目录，默认开启
-tocm            : false,             // [TOCM]自动生成下拉菜单的目录，默认关闭
-tocTitle        : "",                // 下拉菜单的目录的标题
-tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
-emoji           : false,             // Emoji表情，默认关闭
-taskList        : false,             // Task lists，默认关闭
-```
-
-保存，重新启动为知笔记即可。
+如果需要开启或关闭一些功能，那么打开`md_editor_core.js`文件，修改配置项。保存，重新启动为知笔记即可。
 
 #### 更新日志
 

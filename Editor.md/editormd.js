@@ -1243,7 +1243,7 @@
                 "<p>" + this.lang.description + "</p>",
                 "<p style=\"margin: 10px 0 20px 0;\"><a href=\"" + editormd.homePage + "\" target=\"_blank\">" + editormd.homePage + " <i class=\"fa fa-external-link\"></i></a>",
 				"<a href=\"https://github.com/akof1314/Wiz.Editor.md\" target=\"_blank\">https://github.com/akof1314/Wiz.Editor.md <i class=\"fa fa-external-link\"></i></a>(为知版)",
-				"<br/>当前为知版版本:1.0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;最新为知版版本:<img src=\"https://img.shields.io/github/release/akof1314/Wiz.Editor.md.svg\" style=\"vertical-align:middle\"/></p>",
+				"<br/>当前为知版版本:1.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;最新为知版版本:<img src=\"https://img.shields.io/github/release/akof1314/Wiz.Editor.md.svg\" style=\"vertical-align:middle\"/></p>",
                 "<p style=\"font-size: 0.85em;\">Copyright &copy; 2015 <a href=\"https://github.com/pandao\" target=\"_blank\" class=\"hover-link\">Pandao</a>, The <a href=\"https://github.com/pandao/editor.md/blob/master/LICENSE\" target=\"_blank\" class=\"hover-link\">MIT</a> License.</p>",
                 "</div>",
                 "<a href=\"javascript:;\" class=\"fa fa-close " + classPrefix + "dialog-close\"></a>",
