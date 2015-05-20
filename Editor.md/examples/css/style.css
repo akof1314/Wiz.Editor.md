@@ -29,7 +29,7 @@ ul, ol {
 }
 
 .clear:before, .clear:after {
-    height: 0; 
+    height: 0;
     content: "";
     font-size: 0;
     display: table;
@@ -44,7 +44,7 @@ ul, ol {
 body {
     font-size: 14px;
     color: #666;
-    font-family: "Microsoft YaHei", "微软雅黑", Helvetica, Tahoma, STXihei, "华文细黑", STHeiti, "Helvetica Neue", Helvetica, Tahoma, "Droid Sans", "wenquanyi micro hei", FreeSans, Arimo, Arial, SimSun, "宋体", Heiti, "黑体", sans-serif; 
+    font-family: "Microsoft YaHei", "微软雅黑", Helvetica, Tahoma, STXihei, "华文细黑", STHeiti, "Helvetica Neue", Helvetica, Tahoma, "Droid Sans", "wenquanyi micro hei", FreeSans, Arimo, Arial, SimSun, "宋体", Heiti, "黑体", sans-serif;
     background: #fff;
     text-align: center;
 }
@@ -88,12 +88,6 @@ body {
 }
 
 .menu-selected {
-    border: 1px solid #ddd;
-    background: #eee;
-    padding: 4px 0 5px;
-}
-
-.menu-selected:hover {
     border: 1px solid #ddd;
     background: #eee;
 }

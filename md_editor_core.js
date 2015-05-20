@@ -99,7 +99,7 @@ $(function() {
         },
         onimageUploadButton : function() {
             var filename = getObjCommon().SelectWindowsFile(true, "Image Files(*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|");
-            return saveImageToLocal(filename)[0];
+            return getSavedLocalImage(filename);
         }
     });
 
@@ -133,7 +133,7 @@ $(function() {
     captureScreenImage = function () {
         var filename = getObjCommon().CaptureScreen(0);
         if (objCommon.PathFileExists(filename)) {
-            wizEditor.insertValue("![](" + saveImageToLocal(filename)[0] + ")");
+            wizEditor.insertValue("![](" + getSavedLocalImage(filename) + ")");
         };
     };
 
@@ -142,7 +142,7 @@ $(function() {
     clipboardToImage = function () {
         var filename = getObjCommon().ClipboardToImage(objApp.Window.HWND, "");
         if (objCommon.PathFileExists(filename)) {
-            wizEditor.insertValue("![](" + saveImageToLocal(filename)[0] + ")");
+            wizEditor.insertValue("![](" + getSavedLocalImage(filename) + ")");
         }
     };
 
@@ -280,6 +280,12 @@ $(function() {
     }
 
     ////////////////////////////////////////////////
+    // 获得保存到本地的图片
+    function getSavedLocalImage(filename) {
+        return saveImageToLocal(filename)[0];
+    }
+
+    ////////////////////////////////////////////////
     // 加载文档
     function loadDocument() {
         var guid = getQueryString("guid");
@@ -302,8 +308,7 @@ $(function() {
 
             // 如果用原生编辑器保存过图片，会被替换成错的图片路径
             var imgErrorPath = guid + "_128_files/";
-            var imgRealPath = "index_files/";
-            code = code.replace(new RegExp(imgErrorPath, "g"), imgRealPath);
+            code = code.replace(new RegExp(imgErrorPath, "g"), filesDirName);
         }
         catch (err) {
         }
@@ -317,7 +322,7 @@ $(function() {
         var htmlName = document.location.href;
         var htmlPath = htmlName.substring(0, htmlName.lastIndexOf('/') + 1);
         var htmlWinPath = htmlPath.substring(8);
-        return htmlWinPath + filesDirName;
+        return decodeURI(htmlWinPath + filesDirName);
     }
 
     ////////////////////////////////////////////////
