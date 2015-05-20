@@ -200,6 +200,12 @@ $(function() {
                 var cursor = wizEditor.getCursor();
                 wizEditor.setMarkdown(arrResult[0]);
                 wizEditor.setCursor(cursor);
+
+                // 因为会触发change事件，所以这里强制设置改动标志
+                setTimeout(function () {
+                    modified = false;
+                }, wizEditor.settings.delay);
+
                 doc = arrResult[0];
             };
 
