@@ -63,7 +63,7 @@
 
 			if (helpContent.html() === "") 
 			{
-				$.get(path + "help.md", function(text) {
+				$.proxy(settings.onloadLocalFile, this)(path + "help.md", function(text) {
 					var md = exports.$marked(text);
 					helpContent.html(md);
                     

@@ -269,7 +269,7 @@
                     dialog.loading(true);
                 }
 
-				$.getJSON(path + "emoji.json?temp=" + Math.random(), function(json) {
+				$.proxy(settings.onloadLocalJsonFile, this)(path + "emoji.json", function(json) {
 
 					if (typeof dialog.loading === "function") {
                         dialog.loading(false);

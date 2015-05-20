@@ -100,6 +100,12 @@ $(function() {
         onimageUploadButton : function() {
             var filename = getObjCommon().SelectWindowsFile(true, "Image Files(*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|");
             return getSavedLocalImage(filename);
+        },
+        onloadLocalFile : function(filename, fun) {
+            fun(getObjCommon().LoadTextFromFile(filename));
+        },
+        onloadLocalJsonFile : function(filename, fun) {
+            fun($.parseJSON(getObjCommon().LoadTextFromFile(filename)));
         }
     });
 

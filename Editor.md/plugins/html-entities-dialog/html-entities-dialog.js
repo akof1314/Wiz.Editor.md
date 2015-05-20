@@ -129,7 +129,7 @@
 			{            
 				if (typeof (dialog.loading) == "function") dialog.loading(true);
 
-				$.getJSON(path + pluginName.replace("-dialog", "") + ".json", function(json) {
+				$.proxy(settings.onloadLocalJsonFile, this)(path + pluginName.replace("-dialog", "") + ".json", function(json) {
 
 					if (typeof (dialog.loading) == "function") dialog.loading(false);
 
