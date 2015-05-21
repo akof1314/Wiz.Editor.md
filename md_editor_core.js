@@ -86,7 +86,7 @@ $(function() {
                     if (clipboardData.types == "Files") {
                         clipboardToImage();
                     }
-                    else if (clipboardData.types == "text/plain,text/html") {
+                    else if ($.inArray("text/html", clipboardData.types) != -1) {
                         if (!plainPasteMode && clipboardHTMLToMd(clipboardData.getData("text/html"))) {
                             e.preventDefault();
                         }
@@ -174,7 +174,7 @@ $(function() {
                 },
                 {
                     filter: function (node) {
-                      return node.nodeName === 'A' && referencelinkRegEx.test(node.className);
+                      return (node.nodeName === 'A' && referencelinkRegEx.test(node.className));
                     },
                     replacement: function(content) {
                         return "";

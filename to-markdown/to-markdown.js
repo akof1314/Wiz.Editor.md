@@ -80,7 +80,7 @@ function createHtmlParser() {
   Parser.prototype.parseFromString = function (string) {
     var newDoc = _document.implementation.createHTMLDocument('');
 
-    if (string.toLowerCase().indexOf('<!doctype') > -1) {
+    if (string.toLowerCase().indexOf('<html') > -1) {
       newDoc.documentElement.innerHTML = string;
     }
     else {
