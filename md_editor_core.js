@@ -280,6 +280,14 @@ $(function() {
                 // 路径不同，则进行拷贝
                 var imgCopyToFullPath = filesFullPath + imgNameNew;
                 if (imgFullPath != imgCopyToFullPath) {
+
+                    // 目标文件已经存在
+                    if (getObjCommon().PathFileExists(imgCopyToFullPath)) {
+                        var date = new Date();
+                        imgNameNew = date.getTime() + imgNameNew;
+                        imgCopyToFullPath = filesFullPath + imgNameNew;
+                    }
+
                     getObjCommon().CopyFile(imgFullPath, imgCopyToFullPath);
                 }
 
