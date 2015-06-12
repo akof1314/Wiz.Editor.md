@@ -215,7 +215,7 @@ $(function() {
                 doc = arrResult[0];
             };
 
-            doc = doc.replace(/</g, '&lt;');    // 左尖括号会被解析掉，替换成实体
+            doc = $('<div/>').text(doc).html();
             doc = doc.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');   // 替换制表符
             doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
             doc += arrResult[1];
