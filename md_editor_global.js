@@ -79,7 +79,8 @@
     }
 
     function initMarkdown() {
-        appendCssSrc("Editor.md/css/editormd.css");
+        doc.title = doc.title.replace(new RegExp(".md", "gi"), "");
+        appendCssSrc("Editor.md/css/editormd.preview.css");
         appendCssSrc("Editor.md/lib/katex/katex.min.css");
         appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/marked.min.js");
         appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/prettify.min.js");
