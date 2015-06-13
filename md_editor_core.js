@@ -14,7 +14,9 @@ $(function() {
     ////////////////////////////////////////////////
     // 配置编辑器功能
     wizEditor = editormd("test-editormd", {
-        theme           : "default",         // 主题样式，见editormd.themes定义
+        theme           : "",                // 工具栏区域主题样式，见editormd.themes定义，夜间模式dark
+        editorTheme     : "default",         // 编辑器区域主题样式，见editormd.editorThemes定义，夜间模式pastel-on-dark
+        previewTheme    : "",                // 预览区区域主题样式，见editormd.previewThemes定义，夜间模式dark
         value           : code,
         path            : getPluginPath() + "Editor.md/lib/",
         htmlDecode      : "style,script,iframe",  // 开启HTML标签解析，为了安全性，默认不开启
