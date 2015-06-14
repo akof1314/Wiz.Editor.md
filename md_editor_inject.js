@@ -11,7 +11,7 @@
             tocTitle        : "目录",
             tocDropdown     : false,
             autoLoadKaTeX   : false,
-            emoji           : false,
+            emoji           : true,
             taskList        : false,
             tex             : true,
             flowChart       : true,

@@ -16,17 +16,13 @@
         return false;
     }
 
-    //-----------------------------------------------------------------
-    //-----------------------------------------------------------------
     function insertElem(part, elem_type, callbackfunc) {
         var oPart = doc.getElementsByTagName(part).item(0);
         var oElem = doc.createElement(elem_type);
         callbackfunc(oElem);
-        //oHead.appendChild(oElem); 
         oPart.insertBefore(oElem, null);
         return oElem;
     }
-    //--------------------------------------------
 
     function appendScriptSrc(part, script_type, str, isServer) {
         return insertElem(part, "script", function(oScript) {
@@ -55,11 +51,8 @@
         }
       );
     }
-    /*
-    *解析markdown内容
-    */
-    function appendScriptSrc2(part, script_type, str, isServer, onLoadFunc) {
 
+    function appendScriptSrc2(part, script_type, str, isServer, onLoadFunc) {
         var oPart = doc.getElementsByTagName(part).item(0);
         var oElem = doc.createElement('script');
 
@@ -67,7 +60,7 @@
         if (!!onLoadFunc) {
             oElem.onload = function() { onLoadFunc(); };
         }
-        //
+        
         if (isServer) {
             oElem.src = str;
         } else {
@@ -107,20 +100,9 @@
         }
     }
 
-    function isRenderCompleted() {
-        try {
-            return doc.defaultView.WizIsMarkdownRendered();
-        }
-        catch(e) {
-
-        }
-    }
-
     return {
-        onDocumentComplete: onDocumentComplete,
-        isRenderCompleted: isRenderCompleted
+        onDocumentComplete: onDocumentComplete
     }
-
 }
 
 (function() {
