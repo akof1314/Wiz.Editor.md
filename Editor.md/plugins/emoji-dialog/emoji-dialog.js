@@ -92,6 +92,7 @@
 			var dialogContent = [
 				"<div class=\"" + classPrefix + "emoji-dialog-box\" style=\"width: 760px;height: 334px;margin-bottom: 8px;overflow: hidden;\">",
 				"<div class=\"" + classPrefix + "tab\"></div>",
+				"<div><br/><a id=\"link-offline-emoji\" target=\"_blank\" style=\"color: #2196F3;\" href=\"https://github.com/akof1314/Wiz.Editor.md/wiki/emojiImport\"></a></div>",
 				"</div>",
 			].join("\n");
 
@@ -138,6 +139,11 @@
 					}
 				});
 			}
+
+			var offlinelink = dialog.find("#link-offline-emoji");
+			if (editormd.emoji.path.indexOf("http") == 0) {
+				offlinelink.text("导入离线表情包");
+			};
 			
 			var category = ["Github emoji", "Twemoji", "Font awesome", "Editor.md logo"];
 			var tab      = dialog.find("." + classPrefix + "tab");
@@ -146,10 +152,11 @@
 			{
 				var head = "<ul class=\"" + classPrefix + "tab-head\">";
 
-				for (var i = 0; i<4; i++) {
+				for (var i = 0; i<3; i++) {
 					var active = (i === 0) ? " class=\"active\"" : "";
 					head += "<li" + active + "><a href=\"javascript:;\">" + category[i] + "</a></li>";
 				}
+				head += "<li" + " style=\"display:none;\"" + "><a href=\"javascript:;\">" + category[3] + "</a></li>";
 
 				head += "</ul>";
 

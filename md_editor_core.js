@@ -3,14 +3,16 @@ var objApp = window.external;
 var wizEditor;
 
 $(function() {
-    var objCommon = null;
     var objDatabase = null;
     var objDocument = null;
+    var objCommon = getObjCommon();
     var plainPasteMode = false;             // 纯文本粘贴模式
     var filesDirName = "index_files/";      // 本地文件目录名，不可更改
     var filesFullPath = getLocalFilesPath();
+    var pluginFullPath = getPluginPath();
     var code = loadDocument();
 
+    setEmojiFilePath();
     ////////////////////////////////////////////////
     // 配置编辑器功能
     wizEditor = editormd("test-editormd", {
@@ -18,7 +20,7 @@ $(function() {
         editorTheme     : "default",         // 编辑器区域主题样式，见editormd.editorThemes定义，夜间模式pastel-on-dark
         previewTheme    : "",                // 预览区区域主题样式，见editormd.previewThemes定义，夜间模式dark
         value           : code,
-        path            : getPluginPath() + "Editor.md/lib/",
+        path            : pluginFullPath + "Editor.md/lib/",
         htmlDecode      : "style,script,iframe",  // 开启HTML标签解析，为了安全性，默认不开启
         codeFold        : true,              // 代码折叠，默认关闭
         tex             : true,              // 开启科学公式TeX语言支持，默认关闭
@@ -28,15 +30,14 @@ $(function() {
         tocm            : false,             // [TOCM]自动生成下拉菜单的目录，默认关闭
         tocTitle        : "",                // 下拉菜单的目录的标题
         tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
-        emoji           : false,             // Emoji表情，默认关闭
-        taskList        : false,             // Task lists，默认关闭
+        emoji           : true,              // Emoji表情，默认关闭
+        taskList        : true,              // Task lists，默认关闭
         disabledKeyMaps : [
             "F9", "F10", "F11"               // 禁用切换全屏状态，因为为知已经支持
         ],
         toolbarIcons : function() {
             var arrayIcons = ["saveIcon", "|"];
             arrayIcons = arrayIcons.concat(editormd.toolbarModes["full"]);
-            arrayIcons.splice($.inArray("emoji", arrayIcons), 1);       // Emoji表情关闭时移除按钮
             arrayIcons.splice($.inArray("fullscreen", arrayIcons), 1);  // 禁用切换全屏状态时移除按钮
             arrayIcons.splice($.inArray("code", arrayIcons), 0, "captureIcon");  // 加入截取屏幕按钮
             arrayIcons.splice($.inArray("link", arrayIcons), 0, "plainPasteIcon");  // 加入纯文本粘贴模式按钮
@@ -100,14 +101,14 @@ $(function() {
             modified = true;
         },
         onimageUploadButton : function() {
-            var filename = getObjCommon().SelectWindowsFile(true, "Image Files(*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|");
+            var filename = objCommon.SelectWindowsFile(true, "Image Files(*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|");
             return getSavedLocalImage(filename);
         },
         onloadLocalFile : function(filename, fun) {
-            fun(getObjCommon().LoadTextFromFile(filename));
+            fun(objCommon.LoadTextFromFile(filename));
         },
         onloadLocalJsonFile : function(filename, fun) {
-            fun($.parseJSON(getObjCommon().LoadTextFromFile(filename)));
+            fun($.parseJSON(objCommon.LoadTextFromFile(filename)));
         }
     });
 
@@ -139,7 +140,7 @@ $(function() {
     ////////////////////////////////////////////////
     // 截取屏幕
     captureScreenImage = function () {
-        var filename = getObjCommon().CaptureScreen(0);
+        var filename = objCommon.CaptureScreen(0);
         if (objCommon.PathFileExists(filename)) {
             wizEditor.insertValue("![](" + getSavedLocalImage(filename) + ")");
         };
@@ -148,7 +149,7 @@ $(function() {
     ////////////////////////////////////////////////
     // 剪贴板图片
     clipboardToImage = function () {
-        var filename = getObjCommon().ClipboardToImage(objApp.Window.HWND, "");
+        var filename = objCommon.ClipboardToImage(objApp.Window.HWND, "");
         if (objCommon.PathFileExists(filename)) {
             wizEditor.insertValue("![](" + getSavedLocalImage(filename) + ")");
         }
@@ -274,7 +275,7 @@ $(function() {
         }
 
         if (imgFullPath != "") {
-            if (getObjCommon().PathFileExists(imgFullPath)) {
+            if (objCommon.PathFileExists(imgFullPath)) {
 
                 // 转换可能包含中文名的名称，转换成Unicode
                 var imgNameNew = escape(imgName).replace(/%/g, '_');
@@ -284,13 +285,13 @@ $(function() {
                 if (imgFullPath != imgCopyToFullPath) {
 
                     // 目标文件已经存在
-                    if (getObjCommon().PathFileExists(imgCopyToFullPath)) {
+                    if (objCommon.PathFileExists(imgCopyToFullPath)) {
                         var date = new Date();
                         imgNameNew = date.getTime() + imgNameNew;
                         imgCopyToFullPath = filesFullPath + imgNameNew;
                     }
 
-                    getObjCommon().CopyFile(imgFullPath, imgCopyToFullPath);
+                    objCommon.CopyFile(imgFullPath, imgCopyToFullPath);
                 }
 
                 filenameNew = filesDirName + imgNameNew;
@@ -305,6 +306,15 @@ $(function() {
     // 获得保存到本地的图片
     function getSavedLocalImage(filename) {
         return saveImageToLocal(filename)[0];
+    }
+
+    ////////////////////////////////////////////////
+    // 设置表情文件的地址
+    function setEmojiFilePath () {
+        if (objCommon && objCommon.PathFileExists(pluginFullPath + "emoji/emojis/a.png")) {
+            editormd.emoji.path = pluginFullPath + "emoji/emojis/";
+            editormd.twemoji.path = pluginFullPath + "emoji/twemoji/36x36/";
+        }
     }
 
     ////////////////////////////////////////////////
