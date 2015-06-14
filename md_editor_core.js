@@ -311,10 +311,8 @@ $(function() {
     ////////////////////////////////////////////////
     // 设置表情文件的地址
     function setEmojiFilePath () {
-        if (objCommon && objCommon.PathFileExists(pluginFullPath + "emoji/emojis/a.png")) {
-            editormd.emoji.path = pluginFullPath + "emoji/emojis/";
-            editormd.twemoji.path = pluginFullPath + "emoji/twemoji/36x36/";
-        }
+        editormd.emoji.path = pluginFullPath + "Editor.md/emoji/emojis/";
+        editormd.twemoji.path = pluginFullPath + "Editor.md/emoji/twemoji/36x36/";
     }
 
     ////////////////////////////////////////////////

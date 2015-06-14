@@ -92,7 +92,6 @@
 			var dialogContent = [
 				"<div class=\"" + classPrefix + "emoji-dialog-box\" style=\"width: 760px;height: 334px;margin-bottom: 8px;overflow: hidden;\">",
 				"<div class=\"" + classPrefix + "tab\"></div>",
-				"<div><br/><a id=\"link-offline-emoji\" target=\"_blank\" style=\"color: #2196F3;\" href=\"https://github.com/akof1314/Wiz.Editor.md/wiki/emojiImport\"></a></div>",
 				"</div>",
 			].join("\n");
 
@@ -139,11 +138,6 @@
 					}
 				});
 			}
-
-			var offlinelink = dialog.find("#link-offline-emoji");
-			if (editormd.emoji.path.indexOf("http") == 0) {
-				offlinelink.text("导入离线表情包");
-			};
 			
 			var category = ["Github emoji", "Twemoji", "Font awesome", "Editor.md logo"];
 			var tab      = dialog.find("." + classPrefix + "tab");
