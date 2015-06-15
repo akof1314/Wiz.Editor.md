@@ -144,9 +144,6 @@
         onfullscreenExit     : function() {},
         onscroll             : function() {},
         onpreviewscroll      : function() {},
-        onimageUploadButton  : function() {},
-        onloadLocalFile      : function() {},
-        onloadLocalJsonFile  : function() {},
         
         imageUpload          : false,
         imageFormats         : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],

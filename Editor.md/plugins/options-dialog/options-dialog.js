@@ -111,7 +111,7 @@
                 markdownStyleChecked = 1;
             }
             faBtns.find("[name=\"markdown-style\"]:checked").removeAttr("checked");
-            faBtns.find("#editormd-table-dialog-radio" + markdownStyleChecked).attr("checked", "checked");
+            faBtns.find("input#editormd-table-dialog-radio" + markdownStyleChecked).attr("checked", "checked").click();
         };
 
     };
