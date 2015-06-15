@@ -4,7 +4,7 @@
 
     function isMarkdown() {
         var title = doc.title;
-        
+
         if (!title)
             return false;
         if (-1 != title.indexOf(".md "))
@@ -60,7 +60,7 @@
         if (!!onLoadFunc) {
             oElem.onload = function() { onLoadFunc(); };
         }
-        
+
         if (isServer) {
             oElem.src = str;
         } else {
@@ -108,6 +108,10 @@
 (function() {
     try {
         var WizMD_pluginPath = objApp.GetPluginPathByScriptFileName("md_editor_global.js");
+        var WizMD_style = objCommon.GetValueFromIni(WizMD_pluginPath + "plugin.ini", "PluginConfig_1", "MarkdownStyle");
+        if (WizMD_style == "WizDefault") {
+            return;
+        }
 
         function onDocumentComplete(doc) {
             var mardown = new WizEditormdMarkdown(doc, WizMD_pluginPath);

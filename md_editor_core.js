@@ -41,12 +41,14 @@ $(function() {
             arrayIcons.splice($.inArray("fullscreen", arrayIcons), 1);  // 禁用切换全屏状态时移除按钮
             arrayIcons.splice($.inArray("code", arrayIcons), 0, "captureIcon");  // 加入截取屏幕按钮
             arrayIcons.splice($.inArray("link", arrayIcons), 0, "plainPasteIcon");  // 加入纯文本粘贴模式按钮
+            arrayIcons.splice($.inArray("help", arrayIcons), 0, "optionsIcon");  // 加入选项按钮
             return arrayIcons;
         },
         toolbarIconsClass : {
             saveIcon : "fa-floppy-o",  // 指定一个FontAawsome的图标类
             captureIcon : "fa-scissors",
-            plainPasteIcon : "fa-clipboard"
+            plainPasteIcon : "fa-clipboard",
+            optionsIcon : "fa-gear"
         },
         toolbarHandlers : {
             saveIcon : function() {
@@ -58,6 +60,9 @@ $(function() {
             plainPasteIcon : function() {
                 plainPasteMode = !plainPasteMode;
                 showPlainPasteMode();
+            },
+            optionsIcon : function() {
+                this.executePlugin("optionsDialog", "options-dialog/options-dialog");
             }
         },
         lang : {
@@ -65,6 +70,7 @@ $(function() {
                 saveIcon : "保存 (Ctrl+S)",
                 captureIcon : "截取屏幕",
                 plainPasteIcon : "纯文本粘贴模式",
+                optionsIcon : "选项",
             }
         },
         onload : function() {
@@ -109,6 +115,17 @@ $(function() {
         },
         onloadLocalJsonFile : function(filename, fun) {
             fun($.parseJSON(objCommon.LoadTextFromFile(filename)));
+        },
+        onsaveOptions : function(optionsValue) {
+            var markdownStyle = optionsValue["MarkdownStyle"];
+            objCommon.SetValueToIni(pluginFullPath + "plugin.ini", "PluginConfig_1", "MarkdownStyle", markdownStyle);
+        },
+        ongetOptions : function() {
+            var markdownStyle = objCommon.GetValueFromIni(pluginFullPath + "plugin.ini", "PluginConfig_1", "MarkdownStyle");
+            var optionsValue = {
+                MarkdownStyle : markdownStyle
+            };
+            return optionsValue;
         }
     });
 
