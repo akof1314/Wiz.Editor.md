@@ -119,6 +119,7 @@ $(function() {
         onsaveOptions : function(optionsValue) {
             var markdownStyle = optionsValue["MarkdownStyle"];
             objCommon.SetValueToIni(pluginFullPath + "plugin.ini", "PluginConfig_1", "MarkdownStyle", markdownStyle);
+            objApp.Window.ShowMessage("设置新选项后，您应该重新运行{p}。", "{p}", 0x00000040);
         },
         ongetOptions : function() {
             var markdownStyle = objCommon.GetValueFromIni(pluginFullPath + "plugin.ini", "PluginConfig_1", "MarkdownStyle");
@@ -402,7 +403,7 @@ $(function() {
 // 预防页面被跳转丢失编辑
 window.onbeforeunload = function () {
     if (modified) {
-        if (6 == objApp.Window.ShowMessage("是否保存？", "Wiz", 0x04 + 0x20)) {
+        if (6 == objApp.Window.ShowMessage("是否保存？", "{p}", 0x04 + 0x20)) {
             saveDocument();
         }
     }

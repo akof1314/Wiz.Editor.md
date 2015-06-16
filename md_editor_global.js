@@ -109,7 +109,7 @@
     try {
         var WizMD_pluginPath = objApp.GetPluginPathByScriptFileName("md_editor_global.js");
         var WizMD_style = objCommon.GetValueFromIni(WizMD_pluginPath + "plugin.ini", "PluginConfig_1", "MarkdownStyle");
-        if (WizMD_style == "WizDefault") {
+        if (WizMD_style != "Editor_md") {
             return;
         }
 

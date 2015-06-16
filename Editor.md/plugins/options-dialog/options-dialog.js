@@ -106,9 +106,9 @@
 
             var optionsNowValue = $.proxy(settings.ongetOptions, this)();
             var markdownStyle = optionsNowValue["MarkdownStyle"];
-            var markdownStyleChecked = 0;
-            if (markdownStyle == "WizDefault") {
-                markdownStyleChecked = 1;
+            var markdownStyleChecked = 1;
+            if (markdownStyle == "Editor_md") {
+                markdownStyleChecked = 0;
             }
             faBtns.find("[name=\"markdown-style\"]:checked").removeAttr("checked");
             faBtns.find("input#editormd-table-dialog-radio" + markdownStyleChecked).attr("checked", "checked").click();
