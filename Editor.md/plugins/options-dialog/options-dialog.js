@@ -11,8 +11,16 @@
                 dialog : {
                     options : {
                         title    : "选项",
-                        markdownStyle : "阅读时渲染风格",
+                        readTitle    : "阅读",
+                        editTitle    : "编辑",
+                        markdownStyle : "渲染风格",
                         selectStyle   : ["Editor.md 风格", "为知风格"],
+                        readTheme     : "主题风格",
+                        editToolbarButton : "工具栏按钮",
+                        toolbarButtonStyle   : ["default", "lite"],
+                        editToolbarTheme : "工具栏主题",
+                        editEditorTheme  : "编辑区主题",
+                        editPreviewTheme : "预览区主题",
                         tipContent : "*重启为知笔记生效"
                     },
                 }
@@ -35,8 +43,20 @@
 
             var dialogContent = [
                 "<div class=\"editormd-form\" style=\"padding: 13px 0;\">",
-                "<label style=\"width:110px;\">" + dialogLang.markdownStyle + "</label>",
+                "<h4 style=\"margin: 0 0px 10px;\">" + dialogLang.readTitle + "</h4>",
+                "<label style=\"width:94px;\">" + dialogLang.markdownStyle + "</label>",
                 "<div class=\"fa-btns\"></div><br/>",
+                "<label style=\"width:94px;\">" + dialogLang.readTheme + "</label>",
+                "<select id=\"read-preview-area-theme-select\"style=\"width:245px;\"></select><br/>",
+                "<h4 style=\"margin: 10px 0px 10px;\">" + dialogLang.editTitle + "</h4>",
+                "<label style=\"width:94px;\">" + dialogLang.editToolbarButton + "</label>",
+                "<select id=\"edit-toolbar-area-button-select\"style=\"width:245px;\"></select><br/>",
+                "<label style=\"width:94px;\">" + dialogLang.editToolbarTheme + "</label>",
+                "<select id=\"edit-toolbar-area-theme-select\"style=\"width:245px;\"></select><br/>",
+                "<label style=\"width:94px;\">" + dialogLang.editEditorTheme + "</label>",
+                "<select id=\"edit-editor-area-theme-select\"style=\"width:245px;\"></select><br/>",
+                "<label style=\"width:94px;\">" + dialogLang.editPreviewTheme + "</label>",
+                "<select id=\"edit-preview-area-theme-select\"style=\"width:245px;\"></select><br/>",
                 "</div>"
             ].join("\n");
 
@@ -54,7 +74,7 @@
                     name       : dialogName,
                     title      : dialogLang.title,
                     width      : 380,
-                    height     : 191,
+                    height     : 500,
                     mask       : settings.dialogShowMask,
                     drag       : settings.dialogDraggable,
                     content    : dialogContent,
@@ -65,9 +85,13 @@
                     },
                     buttons    : {
                         enter : [lang.buttons.enter, function() {
-                            var mdStyle  = this.find("[name=\"markdown-style\"]:checked").val().toString();
                             var optionsValue = {
-                                MarkdownStyle : mdStyle
+                                MarkdownStyle : this.find("[name=\"markdown-style\"]:checked").val().toString(),
+                                ReadTheme : this.find("#read-preview-area-theme-select").val(),
+                                EditToolbarButton : this.find("#edit-toolbar-area-button-select").val(),
+                                EditToolbarTheme : this.find("#edit-toolbar-area-theme-select").val(),
+                                EditEditorTheme : this.find("#edit-editor-area-theme-select").val(),
+                                EditPreviewTheme : this.find("#edit-preview-area-theme-select").val(),
                             };
                             $.proxy(settings.onsaveOptions, this)(optionsValue);
 
@@ -112,6 +136,34 @@
             }
             faBtns.find("[name=\"markdown-style\"]:checked").removeAttr("checked");
             faBtns.find("input#editormd-table-dialog-radio" + markdownStyleChecked).attr("checked", "checked").click();
+
+            function themeSelect(id, themes, curValue)
+            {
+                var select = dialog.find(id);
+
+                if (select.html() === "")
+                {
+                    for (var i = 0, len = themes.length; i < len; i ++)
+                    {
+                        var theme    = themes[i];
+                        var selected = (i == 0) ? " selected=\"selected\"" : "";
+
+                        select.append("<option value=\"" + theme + "\"" + selected + ">" + theme + "</option>");
+                    }
+                }
+
+                if (curValue != null)
+                {
+                    select.val(curValue);
+                }
+                return select;
+            }
+
+            themeSelect("#read-preview-area-theme-select", editormd.previewThemes, optionsNowValue["ReadTheme"]);
+            themeSelect("#edit-toolbar-area-button-select", dialogLang.toolbarButtonStyle, optionsNowValue["EditToolbarButton"]);
+            themeSelect("#edit-toolbar-area-theme-select", editormd.themes, optionsNowValue["EditToolbarTheme"]);
+            themeSelect("#edit-editor-area-theme-select", editormd.editorThemes, optionsNowValue["EditEditorTheme"]);
+            themeSelect("#edit-preview-area-theme-select", editormd.previewThemes, optionsNowValue["EditPreviewTheme"]);
         };
 
     };

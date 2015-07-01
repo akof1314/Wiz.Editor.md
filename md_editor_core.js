@@ -117,26 +117,55 @@ $(function() {
             fun($.parseJSON(objCommon.LoadTextFromFile(filename)));
         },
         onsaveOptions : function(optionsValue) {
-            var markdownStyle = optionsValue["MarkdownStyle"];
-            objCommon.SetValueToIni(pluginFullPath + "plugin.ini", "PluginConfig_1", "MarkdownStyle", markdownStyle);
-            objApp.Window.ShowMessage("设置新选项后，您应该重新运行{p}。", "{p}", 0x00000040);
+            setConfigValue("MarkdownStyle", optionsValue["MarkdownStyle"]);
+            setConfigValue("ReadTheme", optionsValue["ReadTheme"]);
+            setConfigValue("EditToolbarButton", optionsValue["EditToolbarButton"]);
+            setConfigValue("EditToolbarTheme", optionsValue["EditToolbarTheme"]);
+            setConfigValue("EditEditorTheme", optionsValue["EditEditorTheme"]);
+            setConfigValue("EditPreviewTheme", optionsValue["EditPreviewTheme"]);
+            if (objCommon != null) {
+                objApp.Window.ShowMessage("设置新选项后，您应该重新运行{p}。", "{p}", 0x00000040);
+            }
         },
         ongetOptions : function() {
-            if (objCommon == null) {
-                var markdownStyle = "Editor_md";
-                var optionsValue = {
-                    MarkdownStyle : markdownStyle
-                };
-                return optionsValue;
-            }
-
-            var markdownStyle = objCommon.GetValueFromIni(pluginFullPath + "plugin.ini", "PluginConfig_1", "MarkdownStyle");
             var optionsValue = {
-                MarkdownStyle : markdownStyle
+                MarkdownStyle : getConfigValue("MarkdownStyle", "WizDefault"),
+                ReadTheme : getConfigValue("ReadTheme", "default"),
+                EditToolbarButton : getConfigValue("EditToolbarButton", "default"),
+                EditToolbarTheme : getConfigValue("EditToolbarTheme", "default"),
+                EditEditorTheme : getConfigValue("EditEditorTheme", "midnight"),
+                EditPreviewTheme : getConfigValue("EditPreviewTheme", "default"),
             };
             return optionsValue;
         }
     });
+
+    ////////////////////////////////////////////////
+    // 获得配置值
+    function getConfigValue(key, defaultValue) {
+        var value = null;
+        if (objCommon == null) {
+            value = localStorage.getItem(key);
+        }
+        else {
+            value = objCommon.GetValueFromIni(pluginFullPath + "plugin.ini", "PluginConfig", key);
+        }
+        if (value == null || value == "") {
+            value = defaultValue;
+        }
+        return value;
+    };
+
+    ////////////////////////////////////////////////
+    // 设置配置值
+    function setConfigValue(key, value) {
+        if (objCommon == null) {
+            localStorage.setItem(key, value);
+        }
+        else {
+            objCommon.SetValueToIni(pluginFullPath + "plugin.ini", "PluginConfig", key, value);
+        }
+    };
 
     ////////////////////////////////////////////////
     // 获得为知常用操作对象
