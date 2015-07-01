@@ -122,6 +122,14 @@ $(function() {
             objApp.Window.ShowMessage("设置新选项后，您应该重新运行{p}。", "{p}", 0x00000040);
         },
         ongetOptions : function() {
+            if (objCommon == null) {
+                var markdownStyle = "Editor_md";
+                var optionsValue = {
+                    MarkdownStyle : markdownStyle
+                };
+                return optionsValue;
+            }
+
             var markdownStyle = objCommon.GetValueFromIni(pluginFullPath + "plugin.ini", "PluginConfig_1", "MarkdownStyle");
             var optionsValue = {
                 MarkdownStyle : markdownStyle
@@ -240,6 +248,7 @@ $(function() {
             doc = doc.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');   // 替换制表符
             doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
             doc += arrResult[1];
+            doc = "<!DOCTYPE html><html><head></head><body>" + doc + "</body></html>";
             objDocument.UpdateDocument3(doc, 0);
             modified = false;
         }
@@ -351,6 +360,7 @@ $(function() {
             objDocument = objDatabase.DocumentFromGUID(guid);
             document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
 
+            console.log(objDocument.GetHtml());
             code = objDocument.GetText(0);
             code = code.replace(/\u00a0/g, ' ');
 
