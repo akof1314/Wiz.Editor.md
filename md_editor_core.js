@@ -10,15 +10,16 @@ $(function() {
     var filesDirName = "index_files/";      // 本地文件目录名，不可更改
     var filesFullPath = getLocalFilesPath();
     var pluginFullPath = getPluginPath();
+    var optionSettings = getOptionSettings();
     var code = loadDocument();
 
     setEmojiFilePath();
     ////////////////////////////////////////////////
     // 配置编辑器功能
     wizEditor = editormd("test-editormd", {
-        theme           : "",                // 工具栏区域主题样式，见editormd.themes定义，夜间模式dark
-        editorTheme     : "default",         // 编辑器区域主题样式，见editormd.editorThemes定义，夜间模式pastel-on-dark
-        previewTheme    : "",                // 预览区区域主题样式，见editormd.previewThemes定义，夜间模式dark
+        theme           : optionSettings.EditToolbarTheme,        // 工具栏区域主题样式，见editormd.themes定义，夜间模式dark
+        editorTheme     : optionSettings.EditEditorTheme,         // 编辑器区域主题样式，见editormd.editorThemes定义，夜间模式pastel-on-dark
+        previewTheme    : optionSettings.EditPreviewTheme,        // 预览区区域主题样式，见editormd.previewThemes定义，夜间模式dark
         value           : code,
         path            : pluginFullPath + "Editor.md/lib/",
         htmlDecode      : "style,script,iframe",  // 开启HTML标签解析，为了安全性，默认不开启
@@ -36,13 +37,7 @@ $(function() {
             "F9", "F10", "F11"               // 禁用切换全屏状态，因为为知已经支持
         ],
         toolbarIcons : function() {
-            var arrayIcons = ["saveIcon", "|"];
-            arrayIcons = arrayIcons.concat(editormd.toolbarModes["full"]);
-            arrayIcons.splice($.inArray("fullscreen", arrayIcons), 1);  // 禁用切换全屏状态时移除按钮
-            arrayIcons.splice($.inArray("code", arrayIcons), 0, "captureIcon");  // 加入截取屏幕按钮
-            arrayIcons.splice($.inArray("link", arrayIcons), 0, "plainPasteIcon");  // 加入纯文本粘贴模式按钮
-            arrayIcons.splice($.inArray("help", arrayIcons), 0, "optionsIcon");  // 加入选项按钮
-            return arrayIcons;
+            return getEditToolbarButton(optionSettings.EditToolbarButton);
         },
         toolbarIconsClass : {
             saveIcon : "fa-floppy-o",  // 指定一个FontAawsome的图标类
@@ -117,26 +112,10 @@ $(function() {
             fun($.parseJSON(objCommon.LoadTextFromFile(filename)));
         },
         onsaveOptions : function(optionsValue) {
-            setConfigValue("MarkdownStyle", optionsValue["MarkdownStyle"]);
-            setConfigValue("ReadTheme", optionsValue["ReadTheme"]);
-            setConfigValue("EditToolbarButton", optionsValue["EditToolbarButton"]);
-            setConfigValue("EditToolbarTheme", optionsValue["EditToolbarTheme"]);
-            setConfigValue("EditEditorTheme", optionsValue["EditEditorTheme"]);
-            setConfigValue("EditPreviewTheme", optionsValue["EditPreviewTheme"]);
-            if (objCommon != null) {
-                objApp.Window.ShowMessage("设置新选项后，您应该重新运行{p}。", "{p}", 0x00000040);
-            }
+            setOptionSettings(optionsValue);
         },
         ongetOptions : function() {
-            var optionsValue = {
-                MarkdownStyle : getConfigValue("MarkdownStyle", "WizDefault"),
-                ReadTheme : getConfigValue("ReadTheme", "default"),
-                EditToolbarButton : getConfigValue("EditToolbarButton", "default"),
-                EditToolbarTheme : getConfigValue("EditToolbarTheme", "default"),
-                EditEditorTheme : getConfigValue("EditEditorTheme", "midnight"),
-                EditPreviewTheme : getConfigValue("EditPreviewTheme", "default"),
-            };
-            return optionsValue;
+            return optionSettings;
         }
     });
 
@@ -165,6 +144,81 @@ $(function() {
         else {
             objCommon.SetValueToIni(pluginFullPath + "plugin.ini", "PluginConfig", key, value);
         }
+    };
+
+    ////////////////////////////////////////////////
+    // 获得选项配置值
+    function getOptionSettings() {
+        var optionsValue = {
+            MarkdownStyle : getConfigValue("MarkdownStyle", "WizDefault"),
+            ReadTheme : getConfigValue("ReadTheme", "default"),
+            EditToolbarButton : getConfigValue("EditToolbarButton", "default"),
+            EditToolbarTheme : getConfigValue("EditToolbarTheme", "default"),
+            EditEditorTheme : getConfigValue("EditEditorTheme", "default"),
+            EditPreviewTheme : getConfigValue("EditPreviewTheme", "default"),
+        };
+        return optionsValue;
+    };
+
+    ////////////////////////////////////////////////
+    // 设置选项配置值
+    function setOptionSettings(optionsValue) {
+        if (optionSettings.EditToolbarButton != optionsValue.EditToolbarButton) {
+            setConfigValue("EditToolbarButton", optionsValue.EditToolbarButton);
+            wizEditor.config("toolbarIcons", getEditToolbarButton(optionsValue.EditToolbarButton));
+        }
+        if (optionSettings.EditToolbarTheme != optionsValue.EditToolbarTheme) {
+            setConfigValue("EditToolbarTheme", optionsValue.EditToolbarTheme);
+            wizEditor.setTheme(optionsValue.EditToolbarTheme);
+        }
+        if (optionSettings.EditEditorTheme != optionsValue.EditEditorTheme) {
+            setConfigValue("EditEditorTheme", optionsValue.EditEditorTheme);
+            wizEditor.setEditorTheme(optionsValue.EditEditorTheme);
+        }
+        if (optionSettings.EditPreviewTheme != optionsValue.EditPreviewTheme) {
+            setConfigValue("EditPreviewTheme", optionsValue.EditPreviewTheme);
+            wizEditor.setPreviewTheme(optionsValue.EditPreviewTheme);
+        }
+
+        var showMsg = false;
+        if (optionSettings.MarkdownStyle != optionsValue.MarkdownStyle) {
+            setConfigValue("MarkdownStyle", optionsValue.MarkdownStyle);
+            showMsg = true;
+        }
+        if (optionSettings.ReadTheme != optionsValue.ReadTheme) {
+            setConfigValue("ReadTheme", optionsValue.ReadTheme);
+            showMsg = true;
+        }
+        optionSettings = optionsValue;
+        if (objCommon != null && showMsg) {
+            objApp.Window.ShowMessage("设置新选项后，您应该重新运行{p}。", "{p}", 0x00000040);
+        }
+    };
+
+    ////////////////////////////////////////////////
+    // 获得工具栏按钮
+    function getEditToolbarButton(style) {
+        if (style == "lite") {
+            return [
+                "saveIcon", "|",
+                "bold", "italic", "|",
+                "link", "quote", "code", "image", "|",
+                "list-ol", "list-ul", "h1", "hr", "|",
+                "undo", "redo", "||",
+                "optionsIcon", "help", "info"
+            ];
+        } else{
+            return [
+                "saveIcon", "|",
+                "undo", "redo", "|",
+                "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+                "h1", "h2", "h3", "h4", "h5", "h6", "|",
+                "list-ul", "list-ol", "hr", "|",
+                "plainPasteIcon", "link", "reference-link", "image", "captureIcon", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
+                "goto-line", "watch", "preview", "clear", "search", "|",
+                "optionsIcon", "help", "info"
+            ];
+        };
     };
 
     ////////////////////////////////////////////////
