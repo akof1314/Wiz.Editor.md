@@ -3552,3 +3552,146 @@ hr.editormd-page-break {
   width: 100%;
   padding: 40px;
 }
+/* Preview dark theme */
+.editormd-preview-theme-dark {
+  color: #777;
+  background: #2C2827;
+}
+.editormd-preview-theme-dark .editormd-preview-container, .editormd-preview-theme-dark .editormd-html-preview {
+  color: #888;
+  background-color: #2C2827;
+}
+.editormd-preview-theme-dark .editormd-preview-container pre.prettyprint, .editormd-preview-theme-dark .editormd-html-preview pre.prettyprint {
+  border: none;
+}
+.editormd-preview-theme-dark .editormd-preview-container blockquote, .editormd-preview-theme-dark .editormd-html-preview blockquote {
+  color: #555;
+  padding: 0.5em;
+  background: #222;
+  border-color: #333;
+}
+.editormd-preview-theme-dark .editormd-preview-container abbr, .editormd-preview-theme-dark .editormd-html-preview abbr {
+  color: #fff;
+  padding: 1px 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+  background: #ff9900;
+}
+.editormd-preview-theme-dark .editormd-preview-container code, .editormd-preview-theme-dark .editormd-html-preview code {
+  color: #fff;
+  border: none;
+  padding: 1px 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+  background: #5A9600;
+}
+.editormd-preview-theme-dark .editormd-preview-container table, .editormd-preview-theme-dark .editormd-html-preview table {
+  border: none;
+}
+.editormd-preview-theme-dark .editormd-preview-container .fa-emoji, .editormd-preview-theme-dark .editormd-html-preview .fa-emoji {
+  color: #B4BF42;
+}
+.editormd-preview-theme-dark .editormd-preview-container .katex, .editormd-preview-theme-dark .editormd-html-preview .katex {
+  color: #FEC93F;
+}
+.editormd-preview-theme-dark .editormd-toc-menu > .markdown-toc {
+  background: #fff;
+  border: none;
+}
+.editormd-preview-theme-dark .editormd-toc-menu > .markdown-toc h1 {
+  border-color: #ddd;
+}
+.editormd-preview-theme-dark .markdown-body h1, .editormd-preview-theme-dark .markdown-body h2, .editormd-preview-theme-dark .markdown-body hr {
+  border-color: #222;
+}
+.editormd-preview-theme-dark pre {
+  color: #999;
+  background-color: #111;
+  background-color: rgba(0, 0, 0, 0.4);
+  /* plain text */
+}
+.editormd-preview-theme-dark pre .pln {
+  color: #999;
+}
+.editormd-preview-theme-dark li.L1, .editormd-preview-theme-dark li.L3, .editormd-preview-theme-dark li.L5, .editormd-preview-theme-dark li.L7, .editormd-preview-theme-dark li.L9 {
+  background: none;
+}
+.editormd-preview-theme-dark [class*=editormd-logo] {
+  color: #2196F3;
+}
+.editormd-preview-theme-dark .sequence-diagram text {
+  fill: #fff;
+}
+.editormd-preview-theme-dark .sequence-diagram rect, .editormd-preview-theme-dark .sequence-diagram path {
+  color: #fff;
+  fill: #64D1CB;
+  stroke: #64D1CB;
+}
+.editormd-preview-theme-dark .flowchart rect, .editormd-preview-theme-dark .flowchart path {
+  stroke: #A6C6FF;
+}
+.editormd-preview-theme-dark .flowchart rect {
+  fill: #A6C6FF;
+}
+.editormd-preview-theme-dark .flowchart text {
+  fill: #5879B4;
+}
+
+@media screen {
+  .editormd-preview-theme-dark {
+    /* string content */
+    /* a keyword */
+    /* a comment */
+    /* a type name */
+    /* a literal value */
+    /* punctuation, lisp open bracket, lisp close bracket */
+    /* a markup tag name */
+    /* a markup attribute name */
+    /* a markup attribute value */
+    /* a declaration; a variable name */
+    /* a function name */
+  }
+  .editormd-preview-theme-dark .str {
+    color: #080;
+  }
+  .editormd-preview-theme-dark .kwd {
+    color: #ff9900;
+  }
+  .editormd-preview-theme-dark .com {
+    color: #444444;
+  }
+  .editormd-preview-theme-dark .typ {
+    color: #606;
+  }
+  .editormd-preview-theme-dark .lit {
+    color: #066;
+  }
+  .editormd-preview-theme-dark .pun, .editormd-preview-theme-dark .opn, .editormd-preview-theme-dark .clo {
+    color: #660;
+  }
+  .editormd-preview-theme-dark .tag {
+    color: #ff9900;
+  }
+  .editormd-preview-theme-dark .atn {
+    color: #6C95F5;
+  }
+  .editormd-preview-theme-dark .atv {
+    color: #080;
+  }
+  .editormd-preview-theme-dark .dec, .editormd-preview-theme-dark .var {
+    color: #008BA7;
+  }
+  .editormd-preview-theme-dark .fun {
+    color: red;
+  }
+}
+
+.editormd-html-preview table {
+  border: none;
+}

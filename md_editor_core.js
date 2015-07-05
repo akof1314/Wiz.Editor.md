@@ -187,7 +187,6 @@ $(function() {
         }
         if (optionSettings.ReadTheme != optionsValue.ReadTheme) {
             setConfigValue("ReadTheme", optionsValue.ReadTheme);
-            showMsg = true;
         }
         optionSettings = optionsValue;
         if (objCommon != null && showMsg) {
