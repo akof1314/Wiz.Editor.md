@@ -442,7 +442,6 @@ $(function() {
             objDocument = objDatabase.DocumentFromGUID(guid);
             document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
 
-            console.log(objDocument.GetHtml());
             code = objDocument.GetText(0);
             code = code.replace(/\u00a0/g, ' ');
 
