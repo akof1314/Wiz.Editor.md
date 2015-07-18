@@ -83,6 +83,11 @@ $(function() {
             this.addKeyMap(keyMap);
             showPlainPasteMode();
 
+            // 监听文本变化事件
+            this.cm.on("change", function(_cm, changeObj) {
+                modified = true;
+            });
+
             // 监听粘贴事件
             this.cm.getInputField().addEventListener("paste", function (e) {
                 var clipboardData = event.clipboardData || window.clipboardData;
@@ -97,9 +102,6 @@ $(function() {
                     }
                 }
             });
-        },
-        onchange : function() {
-            modified = true;
         },
         onimageUploadButton : function() {
             var filename = objCommon.SelectWindowsFile(true, "Image Files(*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|");
