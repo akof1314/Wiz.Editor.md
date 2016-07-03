@@ -2,6 +2,7 @@
     function init() {
         var objApp = window.external;
         var themeValue = "";
+        var emojiSupport = true;
         try {
             var objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI");
             var pluginFullPath = objApp.GetPluginPathByScriptFileName("md_editor_global.js").replace(/\\/g, '/');
@@ -13,6 +14,10 @@
             if (themeValue != "") {
                 themeValue = "class=\"editormd-preview-theme-" + themeValue + "\"";
             };
+            var emojiSupportValue = objCommon.GetValueFromIni(pluginFullPath + "plugin.ini", "PluginConfig", "EmojiSupport");
+            if (emojiSupportValue == "0") {
+                emojiSupport = false;
+            }
         }
         catch (err) {
         }
@@ -28,7 +33,7 @@
             tocTitle        : "目录",
             tocDropdown     : false,
             autoLoadKaTeX   : false,
-            emoji           : true,
+            emoji           : emojiSupport,
             taskList        : true,
             tex             : true,
             flowChart       : true,

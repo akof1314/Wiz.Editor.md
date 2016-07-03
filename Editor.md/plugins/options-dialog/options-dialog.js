@@ -21,7 +21,10 @@
                         editToolbarTheme : "工具栏主题",
                         editEditorTheme  : "编辑区主题",
                         editPreviewTheme : "预览区主题",
-                        tipContent : "*重启为知笔记生效"
+                        tipContent : "*重启为知笔记生效",
+                        featuresOnOff : "功能",
+                        emojiSupport : "Emoji表情",
+                        selectFeatures : ["开", "关"],
                     },
                 }
             }
@@ -42,12 +45,15 @@
             var dialogLang  = lang.dialog.options;
 
             var dialogContent = [
-                "<div class=\"editormd-form\" style=\"padding: 13px 0;\">",
+                "<div class=\"editormd-form\" style=\"padding: 13px 0;height: 352px;overflow: hidden;overflow-y: auto;\">",
                 "<h4 style=\"margin: 0 0px 10px;\">" + dialogLang.readTitle + "</h4>",
                 "<label style=\"width:94px;\">" + dialogLang.markdownStyle + "</label>",
-                "<div class=\"fa-btns\"></div><br/>",
+                "<div class=\"fa-btns\" id=\"read-preview-area-markdown-style\"></div><br/>",
                 "<label style=\"width:94px;\">" + dialogLang.readTheme + "</label>",
                 "<select id=\"read-preview-area-theme-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
+                "<h4 style=\"margin: 0 0px 10px;\">" + dialogLang.featuresOnOff + "</h4>",
+                "<label style=\"width:94px;\">" + dialogLang.emojiSupport + "</label>",
+                "<div class=\"fa-btns\" id=\"edit-emoji-support\"></div><br/>",
                 "<h4 style=\"margin: 10px 0px 10px;\">" + dialogLang.editTitle + "</h4>",
                 "<label style=\"width:94px;\">" + dialogLang.editToolbarButton + "</label>",
                 "<select id=\"edit-toolbar-area-button-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
@@ -73,7 +79,7 @@
                 dialog = this.createDialog({
                     name       : dialogName,
                     title      : dialogLang.title,
-                    width      : 380,
+                    width      : 400,
                     height     : 473,
                     mask       : settings.dialogShowMask,
                     drag       : settings.dialogDraggable,
@@ -92,6 +98,7 @@
                                 EditToolbarTheme : this.find("#edit-toolbar-area-theme-select").val(),
                                 EditEditorTheme : this.find("#edit-editor-area-theme-select").val(),
                                 EditPreviewTheme : this.find("#edit-preview-area-theme-select").val(),
+                                EmojiSupport : this.find("[name=\"emojiSupport\"]:checked").val().toString(),
                             };
                             $.proxy(settings.onsaveOptions, this)(optionsValue);
 
@@ -109,8 +116,7 @@
                 });
             }
 
-            var faBtns = dialog.find(".fa-btns");
-
+            var faBtns = dialog.find("#read-preview-area-markdown-style");
             if (faBtns.html() === "")
             {
                 var _lang  = dialogLang.selectStyle;
@@ -128,6 +134,24 @@
                 }
             }
 
+            var faEmojiBtns = dialog.find("#edit-emoji-support");
+            if (faEmojiBtns.html() === "")
+            {
+                var _lang  = dialogLang.selectFeatures;
+                var values = ["1", "0"];
+
+                for (var i = 0; i < 2; i++)
+                {
+                    var checked = (i === 0) ? " checked=\"checked\"" : "";
+                    var btn = "<a href=\"javascript:;\"><label for=\"editormd-emoji-radio"+i+"\" >";
+                    btn += "<input type=\"radio\" name=\"emojiSupport\" id=\"editormd-emoji-radio"+i+"\" value=\"" + values[i] + "\"" +checked + " />&nbsp;";
+                    btn += _lang[i];
+                    btn += "</label></a>";
+
+                    faEmojiBtns.append(btn);
+                }
+            }
+
             var optionsNowValue = $.proxy(settings.ongetOptions, this)();
             var markdownStyle = optionsNowValue["MarkdownStyle"];
             var markdownStyleChecked = 1;
@@ -136,6 +160,14 @@
             }
             faBtns.find("[name=\"markdown-style\"]:checked").removeAttr("checked");
             faBtns.find("input#editormd-table-dialog-radio" + markdownStyleChecked).attr("checked", "checked").click();
+
+            var emojiSupport = optionsNowValue["EmojiSupport"];
+            var emojiSupportChecked = 0;
+            if (emojiSupport == "0") {
+                emojiSupportChecked = 1;
+            }
+            faEmojiBtns.find("[name=\"emojiSupport\"]:checked").removeAttr("checked");
+            faEmojiBtns.find("input#editormd-emoji-radio" + emojiSupportChecked).attr("checked", "checked").click();
 
             function themeSelect(id, themes, curValue)
             {

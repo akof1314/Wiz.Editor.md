@@ -31,7 +31,7 @@ $(function() {
         tocm            : false,             // [TOCM]自动生成下拉菜单的目录，默认关闭
         tocTitle        : "",                // 下拉菜单的目录的标题
         tocDropdown     : false,             // [TOC]自动生成下拉菜单的目录，默认关闭
-        emoji           : true,              // Emoji表情，默认关闭
+        emoji           : optionSettings.EmojiSupport == "1" ? true : false,              // Emoji表情，默认关闭
         taskList        : true,              // Task lists，默认关闭
         disabledKeyMaps : [
             "F9", "F10", "F11"               // 禁用切换全屏状态，因为为知已经支持
@@ -158,6 +158,7 @@ $(function() {
             EditToolbarTheme : getConfigValue("EditToolbarTheme", "default"),
             EditEditorTheme : getConfigValue("EditEditorTheme", "default"),
             EditPreviewTheme : getConfigValue("EditPreviewTheme", "default"),
+            EmojiSupport : getConfigValue("EmojiSupport", "1"),
         };
         return optionsValue;
     };
@@ -190,6 +191,11 @@ $(function() {
         if (optionSettings.ReadTheme != optionsValue.ReadTheme) {
             setConfigValue("ReadTheme", optionsValue.ReadTheme);
         }
+        if (optionSettings.EmojiSupport != optionsValue.EmojiSupport) {
+            setConfigValue("EmojiSupport", optionsValue.EmojiSupport);
+            wizEditor.config("emoji", optionsValue.EmojiSupport == "1" ? true : false);
+        }
+
         optionSettings = optionsValue;
         if (objCommon != null && showMsg) {
             objApp.Window.ShowMessage("设置新选项后，您应该重新运行{p}。", "{p}", 0x00000040);
