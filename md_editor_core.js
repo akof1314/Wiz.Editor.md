@@ -500,7 +500,9 @@ window.onbeforeunload = function () {
 // 为知回调
 // 关闭标签时会调用来判断是否需要保存
 function OnPluginQueryModified() {
-    return modified;
+    var modifiedTemp = modified;
+    modified = false; // 防止再次调用window.onbeforeunload
+    return modifiedTemp;
 };
 
 ////////////////////////////////////////////////
