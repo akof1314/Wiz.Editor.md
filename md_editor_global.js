@@ -113,13 +113,17 @@
             return;
         }
 
-        function onDocumentComplete(doc) {
+        function onDocumentComplete(objHtmlDocument, objWizDocument) {
+        	var doc = objHtmlDocument;
+        	if (doc.title == null) {
+        		doc = objWizDocument;
+        	}
             var mardown = new WizEditormdMarkdown(doc, WizMD_pluginPath);
             mardown.onDocumentComplete();
         }
 
-        if (eventsHtmlDocumentComplete) {
-            eventsHtmlDocumentComplete.add(onDocumentComplete);
+        if (eventsHtmlDocumentCompleteEx) {
+            eventsHtmlDocumentCompleteEx.add(onDocumentComplete);
         }
     }
     catch(e) {
