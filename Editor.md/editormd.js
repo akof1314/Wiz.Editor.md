@@ -4478,6 +4478,14 @@
             eventType = touchEventType;
         } catch(e) {}
 
+        // https://github.com/pandao/editor.md/issues/203
+        // https://github.com/pandao/editor.md/issues/246
+        // 工具栏按钮无法点击的修复
+        try {
+            document.createEvent("MouseEvent");
+            eventType = mouseEventType;
+        } catch(e) {}
+
         return eventType;
     };
     
