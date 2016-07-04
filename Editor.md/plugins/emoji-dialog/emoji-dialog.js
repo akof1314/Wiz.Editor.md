@@ -72,7 +72,8 @@
             
             if (!settings.emoji)
             {
-                alert("settings.emoji == false");
+                //alert("settings.emoji == false");
+				alert("Emoji表情关闭\r\n可以到选项对话框里进行开启。");
                 return ;
             }
             
