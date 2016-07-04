@@ -2672,7 +2672,7 @@
                 toolbar.find(".fa[name=fullscreen]").parent().removeClass("active"); 
             }
 
-            $("html,body").css("overflow", "");
+            $("html,body").css("overflow", "hidden");
 
             editor.css({
                 width    : editor.data("oldWidth"),
@@ -4209,7 +4209,7 @@
      */
     
     editormd.lockScreen = function(lock) {
-        $("html,body").css("overflow", (lock) ? "hidden" : "");
+        $("html,body").css("overflow", (lock) ? "hidden" : "hidden");
     };
         
     /**
@@ -4282,7 +4282,7 @@
         dialog.lockScreen = function(lock) {
             if (options.lockScreen)
             {                
-                $("html,body").css("overflow", (lock) ? "hidden" : "");
+                $("html,body").css("overflow", (lock) ? "hidden" : "hidden");
                 $this.resize();
             }
 
