@@ -1517,7 +1517,14 @@
                 return this;
             }
 
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.previewContainer[0]]);
+            MathJax.Hub.Queue(
+                ["Typeset", MathJax.Hub, this.previewContainer[0]],
+                function () {
+                    if (MathJax.InputJax.TeX.resetEquationNumbers) {
+                      MathJax.InputJax.TeX.resetEquationNumbers();
+                    }
+                  }
+            );
 
             return this;
         },
@@ -2037,7 +2044,7 @@
                     editormd.setMathJaxConfig(function() {
                         editormd.loadMathJax(settings.path, function() {
                             editormd.mathjaxLoaded = true;
-                            newMarkdownDoc = mdmj(cmValue, 3);
+                            _this.save();
                         });
                     });
                 }
@@ -4266,9 +4273,11 @@
         script.className = "mathjax-config";
         script.type      = "text/x-mathjax-config";
         script.text      = 'MathJax.Hub.Config({' +
+                                'showProcessingMessages: false,'+
                                 'extensions: ["tex2jax.js"],'+
                                 'jax: ["input/TeX","output/HTML-CSS"],'+
-                                'tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}'+
+                                'tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},'+
+                                'TeX: { equationNumbers: {autoNumber: "AMS"} }'+
                             '});';
 
         document.getElementsByTagName("head")[0].appendChild(script);
@@ -4278,6 +4287,7 @@
 
     // 注：国内可以采用这个CDN，http://cdn.bootcss.com/mathjax/2.4.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
     editormd.mathjaxURL  = "mathjax/MathJax.js?config=TeX-AMS_HTML";
+    //editormd.mathjaxURL  = "http://cdn.bootcss.com/mathjax/2.4.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
 
     editormd.mathjaxLoaded = false;
 
