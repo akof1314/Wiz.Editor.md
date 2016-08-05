@@ -2029,7 +2029,27 @@
 
             marked.setOptions(markedOptions);
 
-            var newMarkdownDoc = editormd.$marked(cmValue, markedOptions);
+            var newMarkdownDoc = "";
+            if((settings.watch || (!settings.watch && state.preview)) && settings.tex)
+            {
+                if (!editormd.mathjaxLoaded && settings.autoLoadModules)
+                {
+                    editormd.setMathJaxConfig(function() {
+                        editormd.loadMathJax(settings.path, function() {
+                            editormd.mathjaxLoaded = true;
+                            newMarkdownDoc = mdmj(cmValue, 3);
+                        });
+                    });
+                }
+                else
+                {
+                    newMarkdownDoc = mdmj(cmValue, 3);
+                }
+            }
+            else
+            {
+                newMarkdownDoc = editormd.$marked(cmValue, markedOptions);
+            }
 
             //console.info("cmValue", cmValue, newMarkdownDoc);
 
@@ -2092,7 +2112,6 @@
                     //     editormd.$katex = katex;
                     //     this.katexRender();
                     // }
-                    console.info(editormd.mathjaxLoaded);
 
                     if (!editormd.mathjaxLoaded && settings.autoLoadModules)
                     {
@@ -3520,6 +3539,10 @@
                     });
 
                     text = text.replace(atLinkReg, function($1, $2) {
+                        // 过滤掉，防止数学公式占位符出问题
+                        if (/@(\d+)$/.test($1)) {
+                            return $1;
+                        }
                         return "<a target=\"_blank\" href=\"" + editormd.urls.atLinkBase + "" + $2 + "\" title=\"&#64;" + $2 + "\" class=\"at-link\">" + $1 + "</a>";
                     }).replace(/_#_&#64;_#_/g, "@");
                 }
@@ -4264,30 +4287,9 @@
      */
 
     editormd.loadMathJax = function (path, callback) {
-        callback = callback || function() {};
-
-        var script       = document.createElement("script");
-        script.type      = "text/javascript";
-        script.className = "mathjax-script";
-
-        script.onload    = script.onreadystatechange = function() {
-            if (script.readyState)
-            {
-                if (script.readyState === "loaded" || script.readyState === "complete")
-                {
-                    script.onreadystatechange = null;
-                    callback();
-                }
-            }
-            else
-            {
-                callback();
-            }
-        };
-
-        script.src       = path + editormd.mathjaxURL;
-
-        document.getElementsByTagName("head")[0].appendChild(script);
+        editormd.loadScript(path + "mathjax/mdmj", function(){
+            editormd.loadScript(path + editormd.mathjaxURL, callback || function(){});
+        });
     };
 
     /**
