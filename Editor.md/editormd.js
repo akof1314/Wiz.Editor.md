@@ -1510,6 +1510,18 @@
             return this;
         },
 
+        mathjaxRender : function() {
+
+            if (timer === null)
+            {
+                return this;
+            }
+
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.previewContainer[0]]);
+
+            return this;
+        },
+
         /**
          * 解析和渲染流程图及时序图
          * FlowChart and SequenceDiagram Renderer
@@ -2067,18 +2079,33 @@
 
                 if (settings.tex)
                 {
-                    if (!editormd.kaTeXLoaded && settings.autoLoadModules)
+                    // if (!editormd.kaTeXLoaded && settings.autoLoadModules)
+                    // {
+                    //     editormd.loadKaTeX(settings.path, function() {
+                    //         editormd.$katex = katex;
+                    //         editormd.kaTeXLoaded = true;
+                    //         _this.katexRender();
+                    //     });
+                    // }
+                    // else
+                    // {
+                    //     editormd.$katex = katex;
+                    //     this.katexRender();
+                    // }
+                    console.info(editormd.mathjaxLoaded);
+
+                    if (!editormd.mathjaxLoaded && settings.autoLoadModules)
                     {
-                        editormd.loadKaTeX(settings.path, function() {
-                            editormd.$katex = katex;
-                            editormd.kaTeXLoaded = true;
-                            _this.katexRender();
+                        editormd.setMathJaxConfig(function() {
+                            editormd.loadMathJax(settings.path, function() {
+                                editormd.mathjaxLoaded = true;
+                                _this.mathjaxRender();
+                            });
                         });
                     }
                     else
                     {
-                        editormd.$katex = katex;
-                        this.katexRender();
+                        this.mathjaxRender();
                     }
                 }
 
@@ -3604,16 +3631,16 @@
             var isToC           = (settings.tocm) ? /^(\[TOC\]|\[TOCM\])$/.test(text) : /^\[TOC\]$/.test(text);
             var isToCMenu       = /^\[TOCM\]$/.test(text);
 
-            if (!isTeXLine && isTeXInline)
-            {
-                text = text.replace(/(\$\$([^\$]*)\$\$)+/g, function($1, $2) {
-                    return "<span class=\"" + editormd.classNames.tex + "\">" + $2.replace(/\$/g, "") + "</span>";
-                });
-            }
-            else
-            {
-                text = (isTeXLine) ? text.replace(/\$/g, "") : text;
-            }
+            // if (!isTeXLine && isTeXInline)
+            // {
+            //     text = text.replace(/(\$\$([^\$]*)\$\$)+/g, function($1, $2) {
+            //         return "<span class=\"" + editormd.classNames.tex + "\">" + $2.replace(/\$/g, "") + "</span>";
+            //     });
+            // }
+            // else
+            // {
+            //     text = (isTeXLine) ? text.replace(/\$/g, "") : text;
+            // }
 
             var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
 
@@ -4014,26 +4041,30 @@
 
         if (settings.tex)
         {
-            var katexHandle = function() {
-                div.find("." + editormd.classNames.tex).each(function(){
-                    var tex  = $(this);
-                    katex.render(tex.html().replace(/&lt;/g, "<").replace(/&gt;/g, ">"), tex[0]);
-                    tex.find(".katex").css("font-size", "1.6em");
-                });
-            };
+            // var katexHandle = function() {
+            //     div.find("." + editormd.classNames.tex).each(function(){
+            //         var tex  = $(this);
+            //         katex.render(tex.html().replace(/&lt;/g, "<").replace(/&gt;/g, ">"), tex[0]);
+            //         tex.find(".katex").css("font-size", "1.6em");
+            //     });
+            // };
 
-            if (settings.autoLoadKaTeX && !editormd.$katex && !editormd.kaTeXLoaded)
-            {
-                this.loadKaTeX(function() {
-                    editormd.$katex      = katex;
-                    editormd.kaTeXLoaded = true;
-                    katexHandle();
-                });
-            }
-            else
-            {
-                katexHandle();
-            }
+            // if (settings.autoLoadKaTeX && !editormd.$katex && !editormd.kaTeXLoaded)
+            // {
+            //     this.loadKaTeX(function() {
+            //         editormd.$katex      = katex;
+            //         editormd.kaTeXLoaded = true;
+            //         katexHandle();
+            //     });
+            // }
+            // else
+            // {
+            //     katexHandle();
+            // }
+
+            editormd.setMathJaxConfig(function() {
+                editormd.loadMathJax(settings.path);
+            });
         }
 
         div.getMarkdown = function() {
@@ -4198,6 +4229,65 @@
         editormd.loadCSS(path + editormd.katexURL.css, function(){
             editormd.loadScript(path + editormd.katexURL.js, callback || function(){});
         });
+    };
+
+    /**
+     * MathJax配置信息
+     * @param {Function} [callback=function()]  加载成功后执行的回调函数
+     */
+
+    editormd.setMathJaxConfig = function (callback) {
+        callback         = callback || function() {};
+
+        var script       = document.createElement("script");
+        script.className = "mathjax-config";
+        script.type      = "text/x-mathjax-config";
+        script.text      = 'MathJax.Hub.Config({' +
+                                'extensions: ["tex2jax.js"],'+
+                                'jax: ["input/TeX","output/HTML-CSS"],'+
+                                'tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}'+
+                            '});';
+
+        document.getElementsByTagName("head")[0].appendChild(script);
+
+        callback();
+    };
+
+    // 注：国内可以采用这个CDN，http://cdn.bootcss.com/mathjax/2.4.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+    editormd.mathjaxURL  = "mathjax/MathJax.js?config=TeX-AMS_HTML";
+
+    editormd.mathjaxLoaded = false;
+
+    /**
+     * 加载MathJax文件
+     * @param {Function} [callback=function()]  加载成功后执行的回调函数
+     */
+
+    editormd.loadMathJax = function (path, callback) {
+        callback = callback || function() {};
+
+        var script       = document.createElement("script");
+        script.type      = "text/javascript";
+        script.className = "mathjax-script";
+
+        script.onload    = script.onreadystatechange = function() {
+            if (script.readyState)
+            {
+                if (script.readyState === "loaded" || script.readyState === "complete")
+                {
+                    script.onreadystatechange = null;
+                    callback();
+                }
+            }
+            else
+            {
+                callback();
+            }
+        };
+
+        script.src       = path + editormd.mathjaxURL;
+
+        document.getElementsByTagName("head")[0].appendChild(script);
     };
 
     /**
