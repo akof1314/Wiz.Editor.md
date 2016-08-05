@@ -16,6 +16,14 @@
         return false;
     }
 
+    function deleteElem(part, elem_type, callbackfunc) {
+        var oPart = doc.getElementsByTagName(part).item(0);
+        var oElem = doc.createElement(elem_type);
+        callbackfunc(oElem);
+        oPart.insertBefore(oElem, null);
+        return oElem;
+    }
+
     function insertElem(part, elem_type, callbackfunc) {
         var oPart = doc.getElementsByTagName(part).item(0);
         var oElem = doc.createElement(elem_type);
@@ -73,11 +81,19 @@
 
     function initMarkdown() {
         doc.title = doc.title.replace(new RegExp(".md", "gi"), "");
+        return;
         appendCssSrc("Editor.md/css/editormd.preview.css");
-        appendCssSrc("Editor.md/lib/katex/katex.min.css");
         appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/marked.min.js");
         appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/prettify.min.js");
-        appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/katex/katex.min.js");
+        appendScriptInnerHtml('HEAD', "text/x-mathjax-config", 'MathJax.Hub.Config({' +
+                                'showProcessingMessages: false,'+
+                                'extensions: ["tex2jax.js"],'+
+                                'jax: ["input/TeX","output/HTML-CSS"],'+
+                                'tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},'+
+                                'TeX: { equationNumbers: {autoNumber: "AMS"} }'+
+                            '});');
+        appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/mathjax/mdmj.js");
+        appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/mathjax/MathJax.js?config=TeX-AMS_HTML.js");
 
         appendScriptSrc2('HEAD', "text/javascript", "Editor.md/examples/js/jquery.min.js", false, function() {
             appendScriptSrc2('HEAD', "text/javascript", "Editor.md/lib/raphael.min.js", false, function() {
@@ -113,17 +129,16 @@
             return;
         }
 
-        function onDocumentComplete(objHtmlDocument, objWizDocument) {
-        	var doc = objHtmlDocument;
-        	if (doc.title == null) {
-        		doc = objWizDocument;
-        	}
+        function onDocumentComplete(doc) {
+            if (doc == null) {
+                doc = objWindow.CurrentDocumentHtmlDocument;
+            }
             var mardown = new WizEditormdMarkdown(doc, WizMD_pluginPath);
             mardown.onDocumentComplete();
         }
 
-        if (eventsHtmlDocumentCompleteEx) {
-            eventsHtmlDocumentCompleteEx.add(onDocumentComplete);
+        if (eventsHtmlDocumentComplete) {
+            eventsHtmlDocumentComplete.add(onDocumentComplete);
         }
     }
     catch(e) {

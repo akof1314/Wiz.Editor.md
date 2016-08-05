@@ -3657,7 +3657,8 @@
         markedRenderer.paragraph = function(text) {
             var isTeXInline     = /\$\$(.*)\$\$/g.test(text);
             var isTeXLine       = /^\$\$(.*)\$\$$/.test(text);
-            var isTeXAddClass   = (isTeXLine)     ? " class=\"" + editormd.classNames.tex + "\"" : "";
+            //var isTeXAddClass   = (isTeXLine)     ? " class=\"" + editormd.classNames.tex + "\"" : "";
+            var isTeXAddClass   = "";
             var isToC           = (settings.tocm) ? /^(\[TOC\]|\[TOCM\])$/.test(text) : /^\[TOC\]$/.test(text);
             var isToCMenu       = /^\[TOCM\]$/.test(text);
 
@@ -4018,7 +4019,16 @@
 
 		markdownDoc = new String(markdownDoc);
 
-        var markdownParsed = marked(markdownDoc, markedOptions);
+        var markdownParsed = "";
+        if(settings.tex)
+        {
+            marked.setOptions(markedOptions);
+            markdownParsed = mdmj(markdownDoc, 3);
+        }
+        else
+        {
+            markdownParsed = marked(markdownDoc, markedOptions);
+        }
 
         markdownParsed = editormd.filterHTMLTags(markdownParsed, settings.htmlDecode);
 
@@ -4092,9 +4102,17 @@
             //     katexHandle();
             // }
 
-            editormd.setMathJaxConfig(function() {
-                editormd.loadMathJax(settings.path);
-            });
+            // editormd.setMathJaxConfig(function() {
+            //     editormd.loadMathJax(settings.path);
+            // });
+            MathJax.Hub.Queue(
+                ["Typeset", MathJax.Hub, div.find("." + editormd.classNames.tex)],
+                function () {
+                    if (MathJax.InputJax.TeX.resetEquationNumbers) {
+                      MathJax.InputJax.TeX.resetEquationNumbers();
+                    }
+                  }
+            );
         }
 
         div.getMarkdown = function() {
