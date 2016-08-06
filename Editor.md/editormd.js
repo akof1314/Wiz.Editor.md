@@ -1517,6 +1517,7 @@
                 return this;
             }
 
+            MathJax.Hub.processSectionDelay = 0;
             MathJax.Hub.Queue(
                 ["Typeset", MathJax.Hub, this.previewContainer[0]],
                 function () {
@@ -4097,6 +4098,7 @@
             //     katexHandle();
             // }
 
+            MathJax.Hub.processSectionDelay = 0;
             MathJax.Hub.Queue(
                 function () {
                     try {
@@ -4286,7 +4288,7 @@
         var script       = document.createElement("script");
         script.className = "mathjax-config";
         script.type      = "text/x-mathjax-config";
-        script.text      = 'MathJax.Hub.Config({' +
+        script.text      = 'MathJax.Hub.Config({' +        
                                 'showProcessingMessages: false,'+
                                 'extensions: ["tex2jax.js"],'+
                                 'jax: ["input/TeX","output/HTML-CSS"],'+
@@ -4301,7 +4303,7 @@
 
     // 注：国内可以采用这个CDN，http://cdn.bootcss.com/mathjax/2.4.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
     editormd.mathjaxURL  = "mathjax/MathJax.js?config=TeX-AMS_HTML";
-    //editormd.mathjaxURL  = "http://cdn.bootcss.com/mathjax/2.4.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    //editormd.mathjaxURL  = "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
 
     editormd.mathjaxLoaded = false;
 
