@@ -4100,11 +4100,7 @@
 
             MathJax.Hub.processSectionDelay = 0;
             MathJax.Hub.Queue(
-                function () {
-                    try {
-                        MathJax.Hub.Typeset(div.find("." + editormd.classNames.tex));
-                    } catch(e) {}
-                },
+                ["Typeset", MathJax.Hub, div[0]],
                 function () {
                     if (MathJax.InputJax.TeX.resetEquationNumbers) {
                       MathJax.InputJax.TeX.resetEquationNumbers();
@@ -4289,11 +4285,13 @@
         script.className = "mathjax-config";
         script.type      = "text/x-mathjax-config";
         script.text      = 'MathJax.Hub.Config({' +        
+                                'skipStartupTypeset: true,'+
                                 'showProcessingMessages: false,'+
                                 'extensions: ["tex2jax.js"],'+
                                 'jax: ["input/TeX","output/HTML-CSS"],'+
                                 'tex2jax: {inlineMath: [["$","$"],["\\\\(","\\\\)"]]},'+
-                                'TeX: { equationNumbers: {autoNumber: "AMS"} }'+
+                                'TeX: { equationNumbers: {autoNumber: "AMS"} },'+
+                                'messageStyle: "none"'+
                             '});';
 
         document.getElementsByTagName("head")[0].appendChild(script);
