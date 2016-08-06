@@ -4102,11 +4102,12 @@
             //     katexHandle();
             // }
 
-            // editormd.setMathJaxConfig(function() {
-            //     editormd.loadMathJax(settings.path);
-            // });
             MathJax.Hub.Queue(
-                ["Typeset", MathJax.Hub, div.find("." + editormd.classNames.tex)],
+                function () {
+                    try {
+                        MathJax.Hub.Typeset(div.find("." + editormd.classNames.tex));
+                    } catch(e) {}
+                },
                 function () {
                     if (MathJax.InputJax.TeX.resetEquationNumbers) {
                       MathJax.InputJax.TeX.resetEquationNumbers();

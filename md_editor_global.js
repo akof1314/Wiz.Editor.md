@@ -16,14 +16,6 @@
         return false;
     }
 
-    function deleteElem(part, elem_type, callbackfunc) {
-        var oPart = doc.getElementsByTagName(part).item(0);
-        var oElem = doc.createElement(elem_type);
-        callbackfunc(oElem);
-        oPart.insertBefore(oElem, null);
-        return oElem;
-    }
-
     function insertElem(part, elem_type, callbackfunc) {
         var oPart = doc.getElementsByTagName(part).item(0);
         var oElem = doc.createElement(elem_type);
@@ -52,12 +44,25 @@
       );
     }
 
-    function appendScriptInnerHtml(part, script_type, innerHtmlStr) {
+    function appendScriptInnerHtml(part, class_Name, script_type, innerHtmlStr) {
         insertElem(part, "script", function(oScript) {
+            oScript.className = class_Name;
             oScript.type = script_type;
             oScript.innerHTML = innerHtmlStr;
         }
       );
+    }
+
+    function appendScriptInnerHtml2(part, class_Name, script_type, innerHtmlStr, onLoadFunc) {
+        var oPart = doc.getElementsByTagName(part).item(0);
+        var oElem = doc.createElement('script');
+
+        oElem.className = class_Name;
+        oElem.type = script_type;
+        oElem.innerHTML = innerHtmlStr;
+        oPart.insertBefore(oElem, null);
+        onLoadFunc();
+        return oElem;
     }
 
     function appendScriptSrc2(part, script_type, str, isServer, onLoadFunc) {
@@ -81,20 +86,9 @@
 
     function initMarkdown() {
         doc.title = doc.title.replace(new RegExp(".md", "gi"), "");
-        return;
         appendCssSrc("Editor.md/css/editormd.preview.css");
         appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/marked.min.js");
         appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/prettify.min.js");
-        appendScriptInnerHtml('HEAD', "text/x-mathjax-config", 'MathJax.Hub.Config({' +
-                                'showProcessingMessages: false,'+
-                                'extensions: ["tex2jax.js"],'+
-                                'jax: ["input/TeX","output/HTML-CSS"],'+
-                                'tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},'+
-                                'TeX: { equationNumbers: {autoNumber: "AMS"} }'+
-                            '});');
-        appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/mathjax/mdmj.js");
-        appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/mathjax/MathJax.js?config=TeX-AMS_HTML.js");
-
         appendScriptSrc2('HEAD', "text/javascript", "Editor.md/examples/js/jquery.min.js", false, function() {
             appendScriptSrc2('HEAD', "text/javascript", "Editor.md/lib/raphael.min.js", false, function() {
                 appendScriptSrc2('HEAD', "text/javascript", "Editor.md/lib/underscore.min.js", false, function() {
