@@ -228,7 +228,7 @@ $(function() {
         };
 
         var saveText = null;
-        var addText = "return false;";
+        var addText = "return WizIsMarkdownByTitle(doc);";
         var addIndex = findIndex + findText.length;
         var alreadyText = hookText.substring(addIndex, addIndex + addText.length);
         if (alreadyText == addText) {
