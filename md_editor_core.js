@@ -187,6 +187,7 @@ $(function() {
         if (optionSettings.MarkdownStyle != optionsValue.MarkdownStyle) {
             setConfigValue("MarkdownStyle", optionsValue.MarkdownStyle);
             showMsg = true;
+            setHookRead(optionsValue.MarkdownStyle == "Editor_md");
         }
         if (optionSettings.ReadTheme != optionsValue.ReadTheme) {
             setConfigValue("ReadTheme", optionsValue.ReadTheme);
@@ -199,6 +200,51 @@ $(function() {
         optionSettings = optionsValue;
         if (objCommon != null && showMsg) {
             objApp.Window.ShowMessage("设置新选项后，您应该重新运行{p}。", "{p}", 0x00000040);
+        }
+    };
+
+    ////////////////////////////////////////////////
+    // 设置拦截原本的Markdown渲染
+    function setHookRead(isHook) {
+        var appPath = objApp.AppPath;
+        var hookPath = appPath + "WizTools/htmleditor/utils.js";
+        if (!objCommon.PathFileExists(hookPath)) {
+            return;
+        };
+        var hookText = objCommon.LoadTextFromFile(hookPath);
+        if (!hookText) {
+            return;
+        }
+        var findText = "function WizIsMarkdown(doc) {";
+        var findIndex = hookText.indexOf(findText);
+        if (findIndex == -1) {
+            return;
+        }
+
+        // 备份
+        var bakPath = hookPath + ".bak";
+        if (!objCommon.PathFileExists(bakPath)) {
+            objCommon.SaveTextToFile(bakPath, hookText, "utf-8-bom");
+        };
+
+        var saveText = null;
+        var addText = "return false;";
+        var addIndex = findIndex + findText.length;
+        var alreadyText = hookText.substring(addIndex, addIndex + addText.length);
+        if (alreadyText == addText) {
+            if (!isHook) {
+                saveText = hookText.substring(0, addIndex) + hookText.substring(addIndex + addText.length);
+            }
+        }
+        else {
+            if (isHook) {
+                saveText = hookText.substring(0, addIndex) + addText + hookText.substring(addIndex);
+            }
+        }
+
+        if (saveText != null) {
+            objCommon.SaveTextToFile(hookPath, saveText, "utf-8-bom");
+            objApp.Window.ShowMessage("Markdown渲染模式已被修改，如出现问题可用\n" + bakPath + "\n文件进行还原。", "{p}", 0x00000040);
         }
     };
 
