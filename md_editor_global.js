@@ -124,7 +124,7 @@
         }
 
         function onDocumentComplete(doc) {
-            if (doc == null) {
+            if (doc == null || doc.title == null || doc.GUID != null) {
                 doc = objWindow.CurrentDocumentHtmlDocument;
             }
             var mardown = new WizEditormdMarkdown(doc, WizMD_pluginPath);

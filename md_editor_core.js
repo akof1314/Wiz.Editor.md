@@ -215,6 +215,9 @@ $(function() {
         if (!hookText) {
             return;
         }
+        if (hookText.indexOf("WizIsMarkdownByTitle") == -1) {
+            return;
+        }
         var findText = "function WizIsMarkdown(doc) {";
         var findIndex = hookText.indexOf(findText);
         if (findIndex == -1) {

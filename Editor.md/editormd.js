@@ -2047,6 +2047,7 @@
                             _this.save();
                         });
                     });
+                    return;
                 }
                 else
                 {
@@ -2122,12 +2123,6 @@
 
                     if (!editormd.mathjaxLoaded && settings.autoLoadModules)
                     {
-                        editormd.setMathJaxConfig(function() {
-                            editormd.loadMathJax(settings.path, function() {
-                                editormd.mathjaxLoaded = true;
-                                _this.mathjaxRender();
-                            });
-                        });
                     }
                     else
                     {
