@@ -43,7 +43,8 @@ $(function() {
             saveIcon : "fa-floppy-o",  // 指定一个FontAawsome的图标类
             captureIcon : "fa-scissors",
             plainPasteIcon : "fa-clipboard",
-            optionsIcon : "fa-gear"
+            optionsIcon : "fa-gear",
+            outlineIcon : "fa-list"
         },
         toolbarHandlers : {
             saveIcon : function() {
@@ -58,7 +59,10 @@ $(function() {
             },
             optionsIcon : function() {
                 this.executePlugin("optionsDialog", "options-dialog/options-dialog");
-            }
+            },
+            outlineIcon : function() {
+                this.executePlugin("outlineDialog", "outline-dialog/outline-dialog");
+            },
         },
         lang : {
             toolbar : {
@@ -66,6 +70,7 @@ $(function() {
                 captureIcon : "截取屏幕",
                 plainPasteIcon : "纯文本粘贴模式",
                 optionsIcon : "选项",
+                outlineIcon : "内容目录",
             }
         },
         onload : function() {
@@ -98,6 +103,7 @@ $(function() {
                     else if ($.inArray("text/html", clipboardData.types) != -1) {
                         if (!plainPasteMode && clipboardHTMLToMd(clipboardData.getData("text/html"))) {
                             e.preventDefault();
+
                         }
                     }
                 }
@@ -272,7 +278,8 @@ $(function() {
                 "list-ul", "list-ol", "hr", "|",
                 "plainPasteIcon", "link", "reference-link", "image", "captureIcon", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
                 "goto-line", "watch", "preview", "clear", "search", "|",
-                "optionsIcon", "help", "info"
+                "optionsIcon", "help", "info", "||",
+                "outlineIcon"
             ];
         };
     };
