@@ -80,6 +80,34 @@
 			            $("." + dialogName).hide();
 			        }
 	            });
+	            
+	            var preview = this.preview;
+	            var codeMirror = this.codeMirror;
+	            var mouseOrTouch = editormd.mouseOrTouch;
+	            var dialogBody = $("#outline-toc-container");
+	            
+	            var previewBindScroll = function() {
+
+	                dialogBody.bind(mouseOrTouch("click", "touchend"), function(event) {
+
+	                    var height    = preview.height();
+	                    var scrollTop = preview.scrollTop();
+	                    //var percent   = (scrollTop / preview.get(0).scrollHeight);
+	                    console.info(scrollTop);
+	                    //console.info(percent);	                    
+	                });
+	            };
+	
+	            var previewUnbindScroll = function() {
+	                dialogBody.unbind(mouseOrTouch("click", "touchend"));
+	            };
+	            
+	            dialogBody.bind({
+					mouseover  : previewBindScroll,
+					mouseout   : previewUnbindScroll,
+					touchstart : previewBindScroll,
+					touchend   : previewUnbindScroll
+				});
             }
 
             var markdownToC = [];
