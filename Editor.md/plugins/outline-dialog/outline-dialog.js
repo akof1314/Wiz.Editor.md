@@ -9,38 +9,91 @@
         var langs = {
             "zh-cn" : {
                 dialog : {
-                    options : {
-                        title    : "选项",
-                        readTitle    : "阅读",
-                        editTitle    : "编辑",
-                        markdownStyle : "渲染风格",
-                        selectStyle   : ["Editor.md 风格", "为知风格"],
-                        readTheme     : "主题风格",
-                        editToolbarButton : "工具栏按钮",
-                        toolbarButtonStyle   : ["default", "lite"],
-                        editToolbarTheme : "工具栏主题",
-                        editEditorTheme  : "编辑区主题",
-                        editPreviewTheme : "预览区主题",
-                        tipContent : "*重启为知笔记生效",
-                        featuresOnOff : "功能",
-                        emojiSupport : "Emoji表情",
-                        selectFeatures : ["开", "关"],
+                    outline : {
+                        title    : "内容目录"
                     },
                 }
             }
         };
 
         exports.fn.outlineDialog = function() {
-        	console.info(232323);
-        	var objApp = window.external;
-        	var pluginPath = objApp.GetPluginPathByScriptFileName("WizOutline.js");
-		    var bookmarksListHtmlFileName = pluginPath + "Outline.htm";
-		    //
-		    var offset = $('.pull-right').offset();
-		    console.info(offset);
-		    var X = offset.top;
-			var Y = offset.left;
-		    objApp.Window.ShowSelectorWindow(bookmarksListHtmlFileName, X, Y, 300, 500, "");
+        	var _this       = this;
+            var cm          = this.cm;
+            var editor      = this.editor;
+            var settings    = this.settings;
+            var path        = settings.path + "../plugins/" + pluginName +"/";
+            var classPrefix = this.classPrefix;
+            var dialogName  = classPrefix + pluginName, dialog;
+
+            $.extend(true, this.lang, langs[this.lang.name]);
+
+            var lang        = this.lang;
+            var dialogLang  = lang.dialog.outline;
+
+            var dialogContent = [
+                "<div class=\"markdown-body editormd-preview-container\" id=\"outline-toc-container\" previewcontainer=\"false\" style=\"padding: 0px 0;height: 418px;overflow: hidden;overflow-y: auto;\">",
+                "</div>"
+            ].join("\n");
+
+            if (editor.find("." + dialogName).length > 0)
+            {
+                dialog = editor.find("." + dialogName);
+
+                dialog.show();
+            }
+            else
+            {
+                dialog = this.createDialog({
+                    name       : dialogName,
+                    title      : dialogLang.title,
+                    width      : 330,
+                    height     : 500,
+                    mask       : false,
+                    drag       : false,
+                    closed     : false,
+                    content    : dialogContent,
+                    lockScreen : false,
+                    footer     : false,
+                    buttons    : false
+                });                
+                
+                var dialogPosition = function(){
+                	var offset = $('.fa-list').offset();
+		            dialog.css({
+		                top  : (offset.top + 10) + "px",
+	            		left : (offset.left  - dialog.width()) + "px"
+		            });
+		        };
+		
+		        dialogPosition();
+		
+		        $(window).resize(dialogPosition);
+                
+                document.onmouseup = function(e) {
+	                if($(e.target).parents("." + dialogName).length == 0)
+			        {
+			            $("." + dialogName).hide();
+			        }
+	            };
+            }
+            
+            var markdownToC = [];
+            var previewContainer = this.previewContainer;
+            previewContainer.find(":header").each(function(){
+				var hd = $(this);
+				var txt = hd.text();
+				var escapedText = txt.toLowerCase().replace(/[^\w]+/g, "-");
+				
+				var toc = {
+	                text  : txt,
+	                level : hd.get(0).tagName.substring(1),
+	                slug  : escapedText
+	            };
+	            markdownToC.push(toc);
+			});
+			
+			var tocContainer = $("#outline-toc-container");
+            editormd.markdownToCRenderer(markdownToC, tocContainer, false, 1);
         };
     };
     

@@ -267,7 +267,7 @@ $(function() {
                 "link", "quote", "code", "image", "|",
                 "list-ol", "list-ul", "h1", "hr", "|",
                 "undo", "redo", "||",
-                "optionsIcon", "help", "info"
+                "outlineIcon", "optionsIcon", "help", "info"
             ];
         } else{
             return [
@@ -278,8 +278,7 @@ $(function() {
                 "list-ul", "list-ol", "hr", "|",
                 "plainPasteIcon", "link", "reference-link", "image", "captureIcon", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
                 "goto-line", "watch", "preview", "clear", "search", "|",
-                "optionsIcon", "help", "info", "||",
-                "outlineIcon"
+                "outlineIcon", "optionsIcon", "help", "info"                
             ];
         };
     };
