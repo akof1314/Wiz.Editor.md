@@ -4,19 +4,19 @@
     var factory = function (exports) {
 
         var $            = jQuery;
-        var pluginName   = "outline-dialog";
+        var pluginName   = "counter-dialog";
 
         var langs = {
             "zh-cn" : {
                 dialog : {
-                    outline : {
-                        title    : "内容目录"
+                    counterDlg : {
+                        title    : "文章信息"
                     },
                 }
             }
         };
 
-        exports.fn.outlineDialog = function() {
+        exports.fn.counterDialog = function() {
         	var _this       = this;
             var cm          = this.cm;
             var editor      = this.editor;
@@ -28,10 +28,10 @@
             $.extend(true, this.lang, langs[this.lang.name]);
 
             var lang        = this.lang;
-            var dialogLang  = lang.dialog.outline;
+            var dialogLang  = lang.dialog.counterDlg;
 
             var dialogContent = [
-                "<div class=\"markdown-body editormd-preview-container\" id=\"outline-toc-container\" previewcontainer=\"false\" style=\"padding: 0px 0;height: 418px;overflow: hidden;overflow-y: auto;\">",
+                "<div class=\"editormd-form\" id=\"counter-container\" style=\"padding: 0px 0;height: 63px;overflow: hidden;overflow-y: auto;\">",
                 "</div>"
             ].join("\n");
 
@@ -46,8 +46,8 @@
                 dialog = this.createDialog({
                     name       : dialogName,
                     title      : dialogLang.title,
-                    width      : 330,
-                    height     : 500,
+                    width      : 260,
+                    height     : 145,
                     mask       : false,
                     drag       : false,
                     closed     : false,
@@ -58,8 +58,8 @@
                 });
 
                 var dialogPosition = function(){
-                	var offset = $('.fa-list').offset();
-		            var leftPos = offset.left  - dialog.width();
+                	var offset = $('.fa-th-large').offset();
+                	var leftPos = offset.left  - dialog.width();
                 	if (leftPos < 0)
                 	{
                 		leftPos = 0;
@@ -82,23 +82,39 @@
 	            });
             }
 
-            var markdownToC = [];
-            var previewContainer = this.previewContainer;
-            previewContainer.find(":header").each(function(){
-				var hd = $(this);
-				var txt = hd.text();
-				var escapedText = txt.toLowerCase().replace(/[^\w]+/g, "-");
+            var wholeContent = cm.getValue();
+            var numChars = wholeContent.length;
 
-				var toc = {
-	                text  : txt,
-	                level : hd.get(0).tagName.substring(1),
-	                slug  : escapedText
-	            };
-	            markdownToC.push(toc);
-			});
+	        wholeContent = wholeContent.replace(/(^\s*)|(\s*$)/gi,"");
+	        wholeContent = wholeContent.replace(/[ ]{2,}/gi," ");
+	        wholeContent = wholeContent.replace(/\n /,"\n");
+	        wholeContent = wholeContent.split(' ');
 
-			var tocContainer = $("#outline-toc-container");
-            editormd.markdownToCRenderer(markdownToC, tocContainer, false, 1);
+	        var numWords = wholeContent.length;
+	        var numNoSpace = wholeContent.join('').length;
+
+	        var timeCreated = "";
+	        var timeModified = "";
+	        var objDocument = $.proxy(settings.ongetObjDocument, this)();
+	        var objCommon = $.proxy(settings.ongetObjCommon, this)();
+	        if (objDocument != null && objCommon != null)
+	        {
+	        	var dtCreated = new Date(objDocument.DateCreated);
+	        	timeCreated = objCommon.ToLocalDateString(dtCreated, false) + " " + objCommon.ToLocalTimeString(dtCreated);
+	        	var dtModified = new Date(objDocument.DateModified);
+	        	timeModified = objCommon.ToLocalDateString(dtModified, false) + " " + objCommon.ToLocalTimeString(dtModified);
+	        }
+
+	        var dialogContent2 = [
+                "<label\">文章字数：" + numNoSpace,
+                "</label><br/>",
+                "<label\">创建时间：" + timeCreated,
+                "</label><br/>",
+                "<label\">修改时间：" + timeModified,
+                "</label><br/>",
+            ].join("\n");
+	        var counterContainer = $("#counter-container");
+	        counterContainer.html(dialogContent2);
         };
     };
 

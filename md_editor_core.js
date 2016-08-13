@@ -44,7 +44,8 @@ $(function() {
             captureIcon : "fa-scissors",
             plainPasteIcon : "fa-clipboard",
             optionsIcon : "fa-gear",
-            outlineIcon : "fa-list"
+            outlineIcon : "fa-list",
+            counterIcon : "fa-th-large",
         },
         toolbarHandlers : {
             saveIcon : function() {
@@ -63,6 +64,9 @@ $(function() {
             outlineIcon : function() {
                 this.executePlugin("outlineDialog", "outline-dialog/outline-dialog");
             },
+            counterIcon : function() {
+                this.executePlugin("counterDialog", "counter-dialog/counter-dialog");
+            },
         },
         lang : {
             toolbar : {
@@ -71,6 +75,7 @@ $(function() {
                 plainPasteIcon : "纯文本粘贴模式",
                 optionsIcon : "选项",
                 outlineIcon : "内容目录",
+                counterIcon : "文章信息",
             }
         },
         onload : function() {
@@ -124,6 +129,12 @@ $(function() {
         },
         ongetOptions : function() {
             return optionSettings;
+        },
+        ongetObjDocument : function() {
+            return objDocument;
+        },
+        ongetObjCommon : function() {
+            return objCommon;
         }
     });
 
@@ -267,7 +278,7 @@ $(function() {
                 "link", "quote", "code", "image", "|",
                 "list-ol", "list-ul", "h1", "hr", "|",
                 "undo", "redo", "||",
-                "outlineIcon", "optionsIcon", "help", "info"
+                "outlineIcon", "counterIcon", "optionsIcon", "help", "info"
             ];
         } else{
             return [
@@ -278,7 +289,7 @@ $(function() {
                 "list-ul", "list-ol", "hr", "|",
                 "plainPasteIcon", "link", "reference-link", "image", "captureIcon", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
                 "goto-line", "watch", "preview", "clear", "search", "|",
-                "outlineIcon", "optionsIcon", "help", "info"                
+                "outlineIcon", "counterIcon", "optionsIcon", "help", "info"                
             ];
         };
     };
