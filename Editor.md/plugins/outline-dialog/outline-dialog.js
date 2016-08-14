@@ -99,57 +99,7 @@
 
 			var tocContainer = $("#outline-toc-container");
             editormd.markdownToCRenderer(markdownToC, tocContainer, false, 1);
-
-            var preview = this.preview;
-            var codeMirror = this.codeMirror;
-            tocContainer.find('a').on('click', function () {
-                var $el = $(this);
-                var id = $el.attr('href');
-                var lev = $el.attr('level');
-
-                preview.scrollTop(0);
-                var topOrg = preview.offset().top;
-
-                var hdName = id.substring(1);
-                var ref = previewContainer.find('a[name="' + hdName + '"]');
-                var topPos = ref.offset().top - topOrg;
-                preview.scrollTop(topPos);
-
-                var esPos = hdName.indexOf('   ');
-                if (esPos != -1)
-                {
-                    hdName = hdName.substring(0, esPos);
-                }
-
-                var cmValue = cm.getValue();
-                var tokens;
-                try {
-                    tokens = marked.lexer(cmValue, marked.options);
-                } catch (e) {
-                    return false;
-                }
-
-                var depth = parseInt(lev);
-                var token;
-                for (var i = 0, len = tokens.length; i < len; i++)
-                {
-                    token = tokens[i];
-                    if (token.type == 'heading' && token.depth == depth && token.text.indexOf(hdName) != -1)
-                    {
-                        var charPos = cmValue.indexOf(token.text);
-                        if (charPos != -1)
-                        {
-                            var cmPos = cm.posFromIndex(charPos);
-                            var coords = cm.charCoords({line : cmPos.line, ch : 0}, "local");
-
-                            cm.scrollTo(null, coords.top);
-                        }
-                        break;
-                    }
-                }
-             
-                return false;
-            });
+            this.bindTocScrollEvent(tocContainer);
         };
     };
 

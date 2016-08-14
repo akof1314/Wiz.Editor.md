@@ -1779,6 +1779,72 @@
             return this;
         },
 
+        bindTocScrollEvent : function(tocContainer) {
+
+            var _this       = this;
+            var cm          = this.cm;
+            var preview     = this.preview;
+            var settings         = this.settings;
+            var previewContainer = this.previewContainer;
+
+            if (!settings.syncScrolling) {
+                return this;
+            }
+
+            tocContainer.find('a').on('click', function () {
+                var $el = $(this);
+                var id = $el.attr('href');
+                var lev = $el.attr('level');
+
+                preview.scrollTop(0);
+                var topOrg = preview.offset().top;
+
+                var hdName = id.substring(1);
+                var ref = previewContainer.find('a[name="' + hdName + '"]');
+                var topPos = ref.offset().top - topOrg;
+                preview.scrollTop(topPos);
+
+                var esPos = hdName.indexOf('   ');
+                if (esPos != -1)
+                {
+                    hdName = hdName.substring(0, esPos);
+                }
+
+                var cmValue = cm.getValue();
+                var tokens;
+                try {
+                    tokens = marked.lexer(cmValue, marked.options);
+                } catch (e) {
+                    return false;
+                }
+
+                var depth = parseInt(lev);
+                var token;
+                for (var i = 0, len = tokens.length; i < len; i++)
+                {
+                    token = tokens[i];
+                    if (token.type == 'heading' && token.depth == depth && token.text.indexOf(hdName) != -1)
+                    {
+                        var charPos = cmValue.indexOf(token.text);
+                        if (charPos != -1)
+                        {
+                            var cmPos = cm.posFromIndex(charPos);
+                            var coords = cm.charCoords({line : cmPos.line, ch : 0}, "local");
+
+                            setTimeout(function() {
+                                cm.scrollTo(null, coords.top);
+                            }, 10);
+                        }
+                        break;
+                    }
+                }
+             
+                return false;
+            });
+
+            return this;
+        },
+
         bindChangeEvent : function() {
 
             var _this            = this;
@@ -2094,6 +2160,7 @@
                     }
 
                     editormd.markdownToCRenderer(markdownToC, tocContainer, settings.tocDropdown, settings.tocStartLevel);
+                    this.bindTocScrollEvent(tocContainer);
 
                     if (settings.tocDropdown || tocContainer.find("." + this.classPrefix + "toc-menu").length > 0)
                     {
