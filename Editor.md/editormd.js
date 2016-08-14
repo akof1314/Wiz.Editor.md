@@ -2159,8 +2159,8 @@
                         tocMenu.remove();
                     }
 
-                    editormd.markdownToCRenderer(markdownToC, tocContainer, settings.tocDropdown, settings.tocStartLevel);
-                    this.bindTocScrollEvent(tocContainer);
+                    var tocContainerInternal = editormd.markdownToCRenderer(markdownToC, tocContainer, settings.tocDropdown, settings.tocStartLevel);
+                    this.bindTocScrollEvent(tocContainerInternal);
 
                     if (settings.tocDropdown || tocContainer.find("." + this.classPrefix + "toc-menu").length > 0)
                     {
