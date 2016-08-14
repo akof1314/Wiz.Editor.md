@@ -3411,7 +3411,9 @@
         twemoji       : /:(tw-([\w]+)-?(\w+)?):/g,
         fontAwesome   : /:(fa-([\w]+)(-(\w+)){0,}):/g,
         editormdLogo  : /:(editormd-logo-?(\w+)?):/g,
-        pageBreak     : /^\[[=]{8,}\]$/
+        pageBreak     : /^\[[=]{8,}\]$/,
+        footNoteRef   : /\[\^(.+?)\]/,
+        footNoteDef   : /^\[\^(.+?)\]\:/,
     };
 
     // Emoji graphics files url path
@@ -3463,6 +3465,8 @@
         var faIconReg       = regexs.fontAwesome;
         var editormdLogoReg = regexs.editormdLogo;
         var pageBreakReg    = regexs.pageBreak;
+        var footNoteRefReg  = regexs.footNoteRef;
+        var footNoteDefReg  = regexs.footNoteDef;
 
         markedRenderer.emoji = function(text) {
 
@@ -3563,6 +3567,39 @@
             return text;
         };
 
+        markedRenderer.footNote = function(text) {
+
+            if (footNoteRefReg.test(text))
+            {
+                if (footNoteDefReg.test(text))
+                {
+                    var footNoteDefReg2 = /^\[\^(.+?)\]\:/g;
+                    text = text.replace(footNoteDefReg2, function(wholeMatch, m1) {
+                        var id = escape(m1);
+                        var html = '<a href="#fnref:' + id + '" id="fn:' + id
+                          + '" title="Return to article" class="reversefootnote">[' + m1
+                          + ']:</a>';
+                        return html;
+                    });
+
+                    return text;
+                }
+
+                var footNoteRefReg2 = /\[\^(.+?)\]/g;
+                text = text.replace(footNoteRefReg2, function(wholeMatch, m1) {
+                    var id = escape(m1);
+                    var html = '<sup><a href="#fn:' + id + '" id="fnref:' + id
+                      + '" title="See footnote" class="footnote">[' + m1
+                      + ']</a></sup>';
+                    return html;
+                });
+
+                return text;
+            }
+
+            return text;
+        };
+
         markedRenderer.link = function (href, title, text) {
 
             if (this.options.sanitize) {
@@ -3635,7 +3672,7 @@
 
             headingHTML    += "<a name=\"" + text + "\" class=\"reference-link\"></a>";
             headingHTML    += "<span class=\"header-link octicon octicon-link\"></span>";
-            headingHTML    += (hasLinkReg) ? this.atLink(this.emoji(linkText)) : this.atLink(this.emoji(text));
+            headingHTML    += (hasLinkReg) ? this.atLink(this.emoji(this.footNote(linkText))) : this.atLink(this.emoji(this.footNote(text)));
             headingHTML    += "</h" + level + ">";
 
             return headingHTML;
@@ -3672,7 +3709,7 @@
             var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
 
             return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
-                           : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(text)) + "</p>\n" );
+                           : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(this.footNote(text))) + "</p>\n" );
         };
 
         markedRenderer.code = function (code, lang, escaped) {
