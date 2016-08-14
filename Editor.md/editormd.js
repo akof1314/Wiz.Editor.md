@@ -3724,7 +3724,7 @@
             }
             else if ( lang === "math" || lang === "latex" || lang === "katex")
             {
-                return "<p class=\"" + editormd.classNames.tex + "\">" + code + "</p>";
+                return "$$" + code + "$$";
             }
             else
             {
