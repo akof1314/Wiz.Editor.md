@@ -3861,6 +3861,11 @@
             if (level > lastLevel)
             {
                 html += "";
+
+                if (level > (lastLevel + 1) )
+                {
+                    html += (new Array(level - lastLevel)).join("<ul>");
+                }
             }
             else if (level < lastLevel)
             {
