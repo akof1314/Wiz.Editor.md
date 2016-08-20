@@ -3681,7 +3681,13 @@
                 }
             }
 
-            var out = "<a target=\"_blank\" href=\"" + href + "\"";
+            var targetAttr = "target=\"_blank\"";
+            if (href.length > 0 && href[0] == '#')
+            {
+                targetAttr = "";
+            }
+
+            var out = "<a " + targetAttr + " href=\"" + href + "\"";
 
             if (atLinkReg.test(title) || atLinkReg.test(text))
             {
