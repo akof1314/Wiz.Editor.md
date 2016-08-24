@@ -113,6 +113,14 @@ $(function() {
                     }
                 }
             });
+
+            var isWebPage = true;
+            if (isWebPage)
+            {
+                $.get('Editor.md/examples/test.md', function(md){
+                    wizEditor.setMarkdown(md);
+                });
+            }
         },
         onimageUploadButton : function() {
             var filename = objCommon.SelectWindowsFile(true, "Image Files(*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|");
