@@ -288,8 +288,8 @@ $(function() {
                 "h1", "h2", "h3", "h4", "h5", "h6", "|",
                 "list-ul", "list-ol", "hr", "|",
                 "plainPasteIcon", "link", "reference-link", "image", "captureIcon", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
-                "goto-line", "watch", "preview", "clear", "search", "|",
-                "outlineIcon", "counterIcon", "optionsIcon", "help", "info"                
+                "goto-line", "watch", "preview", "clear", "search", "||",
+                "outlineIcon", "counterIcon", "optionsIcon", "help", "info"
             ];
         };
     };
