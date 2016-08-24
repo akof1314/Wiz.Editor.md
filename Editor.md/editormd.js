@@ -1838,7 +1838,7 @@
                         break;
                     }
                 }
-             
+
                 return false;
             });
 
@@ -4399,7 +4399,7 @@
         var script       = document.createElement("script");
         script.className = "mathjax-config";
         script.type      = "text/x-mathjax-config";
-        script.text      = 'MathJax.Hub.Config({' +        
+        script.text      = 'MathJax.Hub.Config({' +
                                 'skipStartupTypeset: true,'+
                                 'showProcessingMessages: false,'+
                                 'extensions: ["tex2jax.js"],'+
@@ -4415,7 +4415,7 @@
     };
 
     // 注：国内可以采用这个CDN，http://cdn.bootcss.com/mathjax/2.4.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
-    editormd.mathjaxURL  = "mathjax/MathJax.js?config=TeX-AMS_HTML";
+    editormd.mathjaxURL  = "mathJax/MathJax.js?config=TeX-AMS_HTML";
     //editormd.mathjaxURL  = "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
 
     editormd.mathjaxLoaded = false;
@@ -4426,7 +4426,7 @@
      */
 
     editormd.loadMathJax = function (path, callback) {
-        editormd.loadScript(path + "mathjax/mdmj", function(){
+        editormd.loadScript(path + "mathJax/mdmj", function(){
             editormd.loadScript(path + editormd.mathjaxURL, callback || function(){});
         });
     };
