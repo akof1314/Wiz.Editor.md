@@ -565,34 +565,35 @@
                 editormd.loadScript(loadPath + "codemirror/modes.min", function() {
 
                     editormd.loadScript(loadPath + "codemirror/addons.min", function() {
+                        editormd.loadScript(loadPath + "codemirror/addon/scroll/scrollpastend", function() {
 
-                        _this.setCodeMirror();
+                            _this.setCodeMirror();
 
-                        if (settings.mode !== "gfm" && settings.mode !== "markdown")
-                        {
-                            _this.loadedDisplay();
-
-                            return false;
-                        }
-
-                        _this.setToolbar();
-
-                        editormd.loadScript(loadPath + "marked.min", function() {
-
-                            editormd.$marked = marked;
-
-                            if (settings.previewCodeHighlight)
+                            if (settings.mode !== "gfm" && settings.mode !== "markdown")
                             {
-                                editormd.loadScript(loadPath + "prettify.min", function() {
+                                _this.loadedDisplay();
+
+                                return false;
+                            }
+
+                            _this.setToolbar();
+
+                            editormd.loadScript(loadPath + "marked.min", function() {
+
+                                editormd.$marked = marked;
+
+                                if (settings.previewCodeHighlight)
+                                {
+                                    editormd.loadScript(loadPath + "prettify.min", function() {
+                                        loadFlowChartOrSequenceDiagram();
+                                    });
+                                }
+                                else
+                                {
                                     loadFlowChartOrSequenceDiagram();
-                                });
-                            }
-                            else
-                            {
-                                loadFlowChartOrSequenceDiagram();
-                            }
+                                }
+                            });
                         });
-
                     });
 
                 });
@@ -714,7 +715,8 @@
                 styleSelectedText         : settings.styleSelectedText,
                 autoCloseBrackets         : settings.autoCloseBrackets,
                 showTrailingSpace         : settings.showTrailingSpace,
-                highlightSelectionMatches : ( (!settings.matchWordHighlight) ? false : { showToken: (settings.matchWordHighlight === "onselected") ? false : /\w/ } )
+                highlightSelectionMatches : ( (!settings.matchWordHighlight) ? false : { showToken: (settings.matchWordHighlight === "onselected") ? false : /\w/ } ),
+                scrollPastEnd             : true
             };
 
             this.codeEditor = this.cm        = editormd.$CodeMirror.fromTextArea(this.markdownTextarea[0], codeMirrorConfig);
@@ -1683,6 +1685,7 @@
         bindScrollEvent : function() {
 
             var _this            = this;
+            var cm               = this.cm;
             var preview          = this.preview;
             var settings         = this.settings;
             var codeMirror       = this.codeMirror;
@@ -1695,30 +1698,53 @@
             var cmBindScroll = function() {
                 codeMirror.find(".CodeMirror-scroll").bind(mouseOrTouch("scroll", "touchmove"), function(event) {
                     var height    = $(this).height();
-                    var scrollTop = $(this).scrollTop();
-                    var percent   = (scrollTop / $(this)[0].scrollHeight);
-
-                    var tocHeight = 0;
-
-                    preview.find(".markdown-toc-list").each(function(){
-                        tocHeight += $(this).height();
+                    var scrollInfo = cm.getScrollInfo();
+                    var cmPos = cm.coordsChar(scrollInfo, "local");
+                    var line_markers = preview.find('* [data-source-line]');
+                    var lines = [];
+                    line_markers.each(function() {
+                        lines.push($(this).data('source-line'));
                     });
 
-                    var tocMenuHeight = preview.find(".editormd-toc-menu").height();
-                    tocMenuHeight = (!tocMenuHeight) ? 0 : tocMenuHeight;
+                    var currentLine = cmPos.line;
+                    var lastMarker = false;
+                    var nextMarker = false;
+                    for (var i = 0; i < lines.length; i++) {
+                        if (lines[i] < currentLine)
+                        {
+                            lastMarker = i;
+                        }
+                        else
+                        {
+                            nextMarker = i;
+                            break;
+                        }
+                    }
 
-                    if (scrollTop === 0)
+                    var lastLine = 0;
+                    if (lastMarker !== false)
                     {
-                        preview.scrollTop(0);
+                        lastLine = lines[lastMarker];
                     }
-                    else if (scrollTop + height >= $(this)[0].scrollHeight - 16)
+                    var nextLine = cm.lastLine();
+                    if (nextMarker !== false)
                     {
-                        preview.scrollTop(preview[0].scrollHeight);
+                        nextLine = lines[nextMarker];
                     }
-                    else
+                    var percentage = 0;
+                    if (lastLine != nextLine) 
                     {
-                        preview.scrollTop((preview[0].scrollHeight  + tocHeight + tocMenuHeight) * percent);
+                        percentage = (currentLine - lastLine) / (nextLine - lastLine);
                     }
+
+                    var lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
+                    var nextPosition = preview.height();
+                    if (nextMarker !== false)
+                    {
+                        nextPosition = preview.find('[data-source-line="' + nextLine + '"]').get(0).offsetTop;
+                    }
+                    var scrollTop = lastPosition + (nextPosition - lastPosition) * percentage;
+                    preview.scrollTop(scrollTop);
 
                     $.proxy(settings.onscroll, _this)(event);
                 });
@@ -1732,22 +1758,51 @@
 
                 preview.bind(mouseOrTouch("scroll", "touchmove"), function(event) {
                     var height    = $(this).height();
-                    var scrollTop = $(this).scrollTop();
-                    var percent   = (scrollTop / $(this)[0].scrollHeight);
-                    var codeView  = codeMirror.find(".CodeMirror-scroll");
+                    var scroll = preview.scrollTop();
+                    var lastMarker = false;
+                    var nextMarker = false;
+                    var line_markers = preview.find('* [data-source-line]');
+                    for(var i = 0; i < line_markers.length; i++)
+                    {
+                        if(line_markers[i].offsetTop < scroll)
+                        {
+                            lastMarker = i;
+                        }
+                        else
+                        {
+                            nextMarker = i;
+                            break;
+                        }
+                    }
 
-                    if(scrollTop === 0)
+                    var lastLine = 0;
+                    if (lastMarker !== false)
                     {
-                        codeView.scrollTop(0);
+                        lastLine = line_markers[lastMarker].offsetTop;
                     }
-                    else if (scrollTop + height >= $(this)[0].scrollHeight)
+                    var nextLine = height;
+                    if (nextMarker !== false)
                     {
-                        codeView.scrollTop(codeView[0].scrollHeight);
+                        nextLine = line_markers[nextMarker].offsetTop;
                     }
-                    else
+                    var percentage = 0;
+                    if (lastLine != nextLine) 
                     {
-                        codeView.scrollTop(codeView[0].scrollHeight * percent);
+                        percentage = (scroll - lastLine) / (nextLine - lastLine);
                     }
+                    if (lastMarker !== false)
+                    {
+                        lastLine = line_markers[lastMarker].attributes["data-source-line"].value;
+                    }
+                    if (nextMarker !== false)
+                    {
+                        nextLine = line_markers[nextMarker].attributes["data-source-line"].value;
+                    }
+
+                    var lastCoords = cm.charCoords({line : lastLine, ch : 0}, "local");
+                    var nextCoords = cm.charCoords({line : nextLine, ch : 0}, "local");
+                    var scrollTop = (nextCoords.top - lastCoords.top) * percentage + lastCoords.top;
+                    cm.scrollTo(null, scrollTop);
 
                     $.proxy(settings.onpreviewscroll, _this)(event);
                 });
@@ -1804,40 +1859,9 @@
                 var topPos = ref.offset().top - topOrg;
                 preview.scrollTop(topPos);
 
-                var esPos = hdName.indexOf('   ');
-                if (esPos != -1)
-                {
-                    hdName = hdName.substring(0, esPos);
-                }
-
-                var cmValue = cm.getValue();
-                var tokens;
-                try {
-                    tokens = marked.lexer(cmValue, marked.options);
-                } catch (e) {
-                    return false;
-                }
-
-                var depth = parseInt(lev);
-                var token;
-                for (var i = 0, len = tokens.length; i < len; i++)
-                {
-                    token = tokens[i];
-                    if (token.type == 'heading' && token.depth == depth && token.text.indexOf(hdName) != -1)
-                    {
-                        var charPos = cmValue.indexOf(token.text);
-                        if (charPos != -1)
-                        {
-                            var cmPos = cm.posFromIndex(charPos);
-                            var coords = cm.charCoords({line : cmPos.line, ch : 0}, "local");
-
-                            setTimeout(function() {
-                                cm.scrollTo(null, coords.top);
-                            }, 10);
-                        }
-                        break;
-                    }
-                }
+                var currentLine = ref.parent().attr('data-source-line');
+                var coords = cm.charCoords({line : currentLine, ch : 0}, "local");
+                cm.scrollTo(null, coords.top);
              
                 return false;
             });
@@ -3708,7 +3732,7 @@
             return out;
         };
 
-        markedRenderer.heading = function(text, level, raw) {
+        markedRenderer.heading = function(text, level, raw, line) {
 
             var linkText       = text;
             var hasLinkReg     = /\s*\<a\s*target=\"_blank\"\s*href\=\"(.*)\"\s*([^\>]*)\>(.*)\<\/a\>\s*/;
@@ -3741,7 +3765,7 @@
 
             markdownToC.push(toc);
 
-            var headingHTML = "<h" + level + " id=\"h"+ level + "-" + this.options.headerPrefix + id +"\">";
+            var headingHTML = "<h" + level + " id=\"h"+ level + "-" + this.options.headerPrefix + id + "\" data-source-line=\"" + line + "\">";
 
             headingHTML    += "<a name=\"" + text + "\" class=\"reference-link\"></a>";
             headingHTML    += "<span class=\"header-link octicon octicon-link\"></span>";
@@ -3760,7 +3784,7 @@
             return text;
         };
 
-        markedRenderer.paragraph = function(text) {
+        markedRenderer.paragraph = function(text, line) {
             var isTeXInline     = /\$\$(.*)\$\$/g.test(text);
             var isTeXLine       = /^\$\$(.*)\$\$$/.test(text);
             //var isTeXAddClass   = (isTeXLine)     ? " class=\"" + editormd.classNames.tex + "\"" : "";
@@ -3782,7 +3806,7 @@
             var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
 
             return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
-                           : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(this.footNote(text))) + "</p>\n" );
+                           : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + " data-source-line=\"" + line +  "\">" + this.atLink(this.emoji(this.footNote(text))) + "</p>\n" );
         };
 
         markedRenderer.code = function (code, lang, escaped) {
