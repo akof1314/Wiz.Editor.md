@@ -119,6 +119,7 @@ $(function() {
             {
                 $.get('Editor.md/examples/test.md', function(md){
                     wizEditor.setMarkdown(md);
+                    wizEditor.save();
                 });
             }
         },
@@ -518,8 +519,25 @@ $(function() {
             objDocument = objDatabase.DocumentFromGUID(guid);
             document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
 
-            code = objDocument.GetText(0);
-            code = code.replace(/\u00a0/g, ' ');
+            var htmlText = objDocument.GetHtml();
+            htmlText = htmlText.substring(htmlText.indexOf("<body"));
+            var htmlNode = $('<div/>').append(htmlText);
+            htmlNode.find("img").each(function() {
+                var $this = $(this);
+                if ($this.parent().attr("name") == "markdownimage") {
+                    return;
+                }
+
+                $this.text("![](" + $this.attr("src") + ")");
+            });
+            htmlNode.find("div").each(function() {
+                var $this = $(this);
+                $this.before("<br>");
+            });
+            code = htmlNode[0].innerText;
+
+            //code = objDocument.GetText(0);
+            //code = code.replace(/\u00a0/g, ' ');
 
             // 如果用原生编辑器保存过图片，会被替换成错的图片路径
             var imgErrorPath = guid + "_128_files/";
