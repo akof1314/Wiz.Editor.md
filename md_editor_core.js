@@ -114,7 +114,7 @@ $(function() {
                 }
             });
 
-            var isWebPage = true;
+            var isWebPage = false;
             if (isWebPage)
             {
                 $.get('Editor.md/examples/test.md', function(md){

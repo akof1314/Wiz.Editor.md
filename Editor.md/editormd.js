@@ -1554,9 +1554,9 @@
             }
 
             if (settings.flowChart) {
-                if (flowchartTimer === null) {
-                    return this;
-                }
+                // if (flowchartTimer === null) {
+                //     return this;
+                // }
 
                 previewContainer.find(".flowchart").flowChart();
             }
@@ -1566,33 +1566,59 @@
             }
 
             var preview    = $this.preview;
-            var codeMirror = $this.codeMirror;
-            var codeView   = codeMirror.find(".CodeMirror-scroll");
+            var cm         = this.cm;
 
-            var height    = codeView.height();
-            var scrollTop = codeView.scrollTop();
-            var percent   = (scrollTop / codeView[0].scrollHeight);
-            var tocHeight = 0;
-
-            preview.find(".markdown-toc-list").each(function(){
-                tocHeight += $(this).height();
+            var scrollInfo = cm.getScrollInfo();
+            var cmPos = cm.coordsChar(scrollInfo, "local");
+            var line_markers = preview.find('* [data-source-line]');
+            var lines = [];
+            line_markers.each(function() {
+                lines.push($(this).data('source-line'));
             });
 
-            var tocMenuHeight = preview.find(".editormd-toc-menu").height();
-            tocMenuHeight = (!tocMenuHeight) ? 0 : tocMenuHeight;
+            var currentLine = cmPos.line;
+            var lastMarker = false;
+            var nextMarker = false;
+            for (var i = 0; i < lines.length; i++) {
+                if (lines[i] < currentLine)
+                {
+                    lastMarker = i;
+                }
+                else
+                {
+                    nextMarker = i;
+                    break;
+                }
+            }
 
-            if (scrollTop === 0)
+            var lastLine = 0;
+            if (lastMarker !== false)
             {
-                preview.scrollTop(0);
+                lastLine = lines[lastMarker];
             }
-            else if (scrollTop + height >= codeView[0].scrollHeight - 16)
+            var nextLine = cm.lastLine();
+            if (nextMarker !== false)
             {
-                preview.scrollTop(preview[0].scrollHeight);
+                nextLine = lines[nextMarker];
             }
-            else
+            var percentage = 0;
+            if (lastLine != nextLine)
             {
-                preview.scrollTop((preview[0].scrollHeight + tocHeight + tocMenuHeight) * percent);
+                percentage = (currentLine - lastLine) / (nextLine - lastLine);
             }
+
+            var lastPosition = 0;
+            if (lastMarker !== false)
+            {
+                lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
+            }
+            var nextPosition = preview.height();
+            if (nextMarker !== false)
+            {
+                nextPosition = preview.find('[data-source-line="' + nextLine + '"]').get(0).offsetTop;
+            }
+            var scrollTop = lastPosition + (nextPosition - lastPosition) * percentage;
+            preview.scrollTop(scrollTop);
 
             return this;
         },
@@ -1737,12 +1763,16 @@
                         nextLine = lines[nextMarker];
                     }
                     var percentage = 0;
-                    if (lastLine != nextLine) 
+                    if (lastLine != nextLine)
                     {
                         percentage = (currentLine - lastLine) / (nextLine - lastLine);
                     }
 
-                    var lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
+                    var lastPosition = 0;
+                    if (lastMarker !== false)
+                    {
+                        lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
+                    }
                     var nextPosition = preview.height();
                     if (nextMarker !== false)
                     {
@@ -1791,7 +1821,7 @@
                         nextLine = line_markers[nextMarker].offsetTop;
                     }
                     var percentage = 0;
-                    if (lastLine != nextLine) 
+                    if (lastLine != nextLine)
                     {
                         percentage = (scroll - lastLine) / (nextLine - lastLine);
                     }
@@ -1867,7 +1897,7 @@
                 var currentLine = ref.parent().attr('data-source-line');
                 var coords = cm.charCoords({line : currentLine, ch : 0}, "local");
                 cm.scrollTo(null, coords.top);
-             
+
                 return false;
             });
 
@@ -2229,11 +2259,12 @@
 
                 if (settings.flowChart || settings.sequenceDiagram)
                 {
-                    flowchartTimer = setTimeout(function(){
-                        clearTimeout(flowchartTimer);
-                        _this.flowChartAndSequenceDiagramRender();
-                        flowchartTimer = null;
-                    }, 10);
+                    // flowchartTimer = setTimeout(function(){
+                    //     clearTimeout(flowchartTimer);
+                    //     _this.flowChartAndSequenceDiagramRender();
+                    //     flowchartTimer = null;
+                    // }, 10);
+                    this.flowChartAndSequenceDiagramRender();
                 }
 
                 if (state.loaded)
@@ -4428,7 +4459,7 @@
         var script       = document.createElement("script");
         script.className = "mathjax-config";
         script.type      = "text/x-mathjax-config";
-        script.text      = 'MathJax.Hub.Config({' +        
+        script.text      = 'MathJax.Hub.Config({' +
                                 'skipStartupTypeset: true,'+
                                 'showProcessingMessages: false,'+
                                 'extensions: ["tex2jax.js"],'+
