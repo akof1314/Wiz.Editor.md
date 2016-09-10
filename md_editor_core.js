@@ -69,6 +69,7 @@ $(function() {
             },
         },
         lang : {
+            description : "为知笔记Markdown编辑器，基于 Editor.md 构建。",
             toolbar : {
                 saveIcon : "保存 (Ctrl+S)",
                 captureIcon : "截取屏幕",
