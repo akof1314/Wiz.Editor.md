@@ -1191,6 +1191,11 @@
             }
 
             toolbarMenu.html(menu);
+            var rlist = toolbarMenu.find("li.pull-right").detach();
+            if (rlist)
+            {
+                rlist.appendTo(toolbarMenu);
+            }
 
             toolbarMenu.find("[title=\"Lowercase\"]").attr("title", settings.lang.toolbar.lowercase);
             toolbarMenu.find("[title=\"ucwords\"]").attr("title", settings.lang.toolbar.ucwords);
