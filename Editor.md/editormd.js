@@ -1774,11 +1774,15 @@
                     {
                         lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
                     }
-                    var nextPosition = preview.height();
+                    var nextPosition = preview.get(0).scrollHeight;
                     if (nextMarker !== false)
                     {
                         nextPosition = preview.find('[data-source-line="' + nextLine + '"]').get(0).offsetTop;
                     }
+                    //else if (nextPosition < lastPosition && lastMarker !== false)
+                    //{
+                    //    nextPosition = lastPosition + preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetHeight;
+                    //}
                     var scrollTop = lastPosition + (nextPosition - lastPosition) * percentage;
                     preview.scrollTop(scrollTop);
 
