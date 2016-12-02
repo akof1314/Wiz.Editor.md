@@ -1319,12 +1319,12 @@
             var infoDialogHTML = [
                 "<div class=\"" + classPrefix + "dialog " + classPrefix + "dialog-info\" style=\"\">",
                 "<div class=\"" + classPrefix + "dialog-container\">",
-                "<h1><i class=\"editormd-logo editormd-logo-lg editormd-logo-color\"></i> Wiz." + editormd.title + "<small>v2.0</small></h1>",
+                "<h1><i class=\"editormd-logo editormd-logo-lg editormd-logo-color\"></i> Wiz." + editormd.title + "<small>v2.1</small></h1>",
                 "<p>" + this.lang.description + "</p>",
                 "<p style=\"margin: 10px 0 20px 0;\">",
 				"<a href=\"https://github.com/akof1314/Wiz.Editor.md\" target=\"_blank\">https://github.com/akof1314/Wiz.Editor.md/ <i class=\"fa fa-external-link\"></i></a>",
 				"<br>最新版本:<img src=\"https://img.shields.io/github/release/akof1314/Wiz.Editor.md.svg\" style=\"vertical-align:middle\"/></p>",
-                "<p style=\"font-size: 0.85em;\">Copyright &copy; 2016 <a href=\"https://github.com/pandao\" target=\"_blank\" class=\"hover-link\">Pandao</a> ",
+                "<p style=\"font-size: 0.85em;\">Copyright &copy; 2017 ",
                 "<a href=\"https://github.com/akof1314\" target=\"_blank\" class=\"hover-link\">akof1314</a>, The <a href=\"https://github.com/pandao/editor.md/blob/master/LICENSE\" target=\"_blank\" class=\"hover-link\">MIT</a> License.</p>",
                 "</div>",
                 "<a href=\"javascript:;\" class=\"fa fa-close " + classPrefix + "dialog-close\"></a>",
@@ -1774,11 +1774,15 @@
                     {
                         lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
                     }
-                    var nextPosition = preview.height();
+                    var nextPosition = preview.get(0).scrollHeight;
                     if (nextMarker !== false)
                     {
                         nextPosition = preview.find('[data-source-line="' + nextLine + '"]').get(0).offsetTop;
                     }
+                    //else if (nextPosition < lastPosition && lastMarker !== false)
+                    //{
+                    //    nextPosition = lastPosition + preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetHeight;
+                    //}
                     var scrollTop = lastPosition + (nextPosition - lastPosition) * percentage;
                     preview.scrollTop(scrollTop);
 
@@ -3673,11 +3677,15 @@
                         return $1.replace(/@/g, "_#_&#64;_#_");
                     });
 
-                    text = text.replace(atLinkReg, function($1, $2) {
+                    text = text.replace(atLinkReg, function($1, $2, index, originalText) {
                         // 过滤掉，防止数学公式占位符出问题
                         if (/@(\d+)$/.test($1)) {
                             return $1;
                         }
+                        if (index >= 2 && /(\d)@$/.test(originalText.substring(index - 2, index))) {
+                            return $1;
+                        }
+
                         return "<a target=\"_blank\" href=\"" + editormd.urls.atLinkBase + "" + $2 + "\" title=\"&#64;" + $2 + "\" class=\"at-link\">" + $1 + "</a>";
                     }).replace(/_#_&#64;_#_/g, "@");
                 }

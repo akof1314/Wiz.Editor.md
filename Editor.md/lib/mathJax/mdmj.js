@@ -60,7 +60,10 @@ function mdmj(text,dlimit) {
     ;
     if (HUB.Browser.isMSIE) {block = block.replace(/(%[^\n]*)\n/g,"$1<br/>\n")}
     while (j > i) {blocks[j] = ""; j--}
-    blocks[i] = "@@"+math.length+"@@"; math.push(block);
+	var lined = block.split('\n').length;
+	var lineStr = "";
+	if (lined > 1) {lineStr = (new Array(lined)).join('\n');}
+    blocks[i] = "@@"+math.length+"@@"+lineStr; math.push(block);
     start = end = last = null;
   }
   
