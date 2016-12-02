@@ -1,5 +1,11 @@
 ##更新日志
 
+####v2.1
+
+- 新增支持为知4.5版本[#82](https://github.com/akof1314/Wiz.Editor.md/issues/82)
+- 修复预览同步滚动问题[#72](https://github.com/akof1314/Wiz.Editor.md/issues/72)[#73](https://github.com/akof1314/Wiz.Editor.md/issues/73)
+- 修复数学公式渲染问题[#78](https://github.com/akof1314/Wiz.Editor.md/issues/78)
+
 ####v2.0
 
 - 修改预览同步滚动
