@@ -6,6 +6,9 @@
 
 **Wiz.Editor.md** 是一个基于 Editor.md 构建的为知笔记 Markdown 插件。
 
+#### 在线示例
+[http://akof1314.github.io/Wiz.Editor.md/](http://akof1314.github.io/Wiz.Editor.md/)
+
 #### 主要特性
 
 - 多种样式主题
