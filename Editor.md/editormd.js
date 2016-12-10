@@ -4471,7 +4471,7 @@
                                 'showProcessingMessages: false,'+
                                 'extensions: ["tex2jax.js"],'+
                                 'jax: ["input/TeX","output/HTML-CSS"],'+
-                                'tex2jax: {inlineMath: [["$","$"],["\\\\(","\\\\)"]]},'+
+                                'tex2jax: {inlineMath: [["$","$"],["\\\\(","\\\\)"]], processEscapes: true},'+
                                 'TeX: { equationNumbers: {autoNumber: "AMS"} },'+
                                 'messageStyle: "none"'+
                             '});';
