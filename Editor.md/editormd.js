@@ -2162,7 +2162,8 @@
                 pedantic    : false,
                 sanitize    : (settings.htmlDecode) ? false : true,  // 关闭忽略HTML标签，即开启识别HTML标签，默认为false
                 smartLists  : true,
-                smartypants : false
+                smartypants : false,
+                mathDelimiters : [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
             };
 
             marked.setOptions(markedOptions);
@@ -2182,7 +2183,7 @@
                 }
                 else
                 {
-                    newMarkdownDoc = mdmj(cmValue, 3);
+                    newMarkdownDoc = editormd.$marked(cmValue, markedOptions);
                 }
             }
             else
@@ -3896,6 +3897,11 @@
             }
         };
 
+        /*markedRenderer.math = function(text) {
+            console.info(text);
+            return text;
+        };*/
+
         return markedRenderer;
     };
 
@@ -4194,21 +4200,13 @@
             pedantic    : false,
             sanitize    : (settings.htmlDecode) ? false : true, // 是否忽略HTML标签，即是否开启HTML标签解析，为了安全性，默认不开启
             smartLists  : true,
-            smartypants : false
+            smartypants : false,
+            mathDelimiters : [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
         };
 
 		markdownDoc = new String(markdownDoc);
 
-        var markdownParsed = "";
-        if(settings.tex)
-        {
-            marked.setOptions(markedOptions);
-            markdownParsed = mdmj(markdownDoc, 3);
-        }
-        else
-        {
-            markdownParsed = marked(markdownDoc, markedOptions);
-        }
+        var markdownParsed = markdownParsed = marked(markdownDoc, markedOptions);
 
         markdownParsed = editormd.filterHTMLTags(markdownParsed, settings.htmlDecode);
 
@@ -4495,9 +4493,7 @@
      */
 
     editormd.loadMathJax = function (path, callback) {
-        editormd.loadScript(path + "mathJax/mdmj", function(){
-            editormd.loadScript(path + editormd.mathjaxURL, callback || function(){});
-        });
+        editormd.loadScript(path + editormd.mathjaxURL, callback || function(){});
     };
 
     /**
