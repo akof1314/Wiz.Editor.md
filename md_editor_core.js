@@ -539,8 +539,8 @@ $(function() {
             document.body.innerHTML = tempBody;
             code = content;
 
-            /*code = objDocument.GetText(0);
-            code = code.replace(/\u00a0/g, ' ');*/
+            /*code = objDocument.GetText(0);*/
+            code = code.replace(/\u00a0/g, ' ');
 
             // 如果用原生编辑器保存过图片，会被替换成错的图片路径
             var imgErrorPath = guid + "_128_files/";
