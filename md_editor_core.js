@@ -520,25 +520,27 @@ $(function() {
             objDocument = objDatabase.DocumentFromGUID(guid);
             document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
 
-            var htmlText = objDocument.GetHtml();
-            htmlText = htmlText.substring(htmlText.indexOf("<body"));
-            var htmlNode = $('<div/>').append(htmlText);
-            htmlNode.find("img").each(function() {
-                var $this = $(this);
-                if ($this.parent().attr("name") == "markdownimage") {
-                    return;
+            var content = objDocument.GetHtml();
+            var tempBody = document.body.innerHTML;
+            document.body.innerHTML = content;
+
+            var imgs = document.body.getElementsByTagName('img');
+            if(imgs.length){
+                for (var i = 0; i < imgs.length; i++) {
+                    var pi = imgs[i];
+                    if(pi && pi.parentNode.getAttribute("name") != "markdownimage") {
+                        var imgmd = document.createTextNode("![](" + pi.getAttribute("src") + ")");
+                        pi.parentNode.appendChild(imgmd);
+                    }
                 }
+            }
 
-                $this.text("![](" + $this.attr("src") + ")");
-            });
-            htmlNode.find("div").each(function() {
-                var $this = $(this);
-                $this.before("<br>");
-            });
-            code = htmlNode[0].innerText;
+            content = document.body.innerText;
+            document.body.innerHTML = tempBody;
+            code = content;
 
-            //code = objDocument.GetText(0);
-            //code = code.replace(/\u00a0/g, ' ');
+            /*code = objDocument.GetText(0);
+            code = code.replace(/\u00a0/g, ' ');*/
 
             // 如果用原生编辑器保存过图片，会被替换成错的图片路径
             var imgErrorPath = guid + "_128_files/";
