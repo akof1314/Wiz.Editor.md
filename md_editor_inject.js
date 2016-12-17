@@ -4,9 +4,16 @@
         var libPath = "";
         var themeValue = "";
         var emojiSupport = true;
+        var pluginFullPath = "";
+        try {
+            pluginFullPath = objApp.GetPluginPathByScriptFileName("md_editor_global.js")
+        }
+        catch (err) {
+            pluginFullPath = objApp.SettingsPath + "Plugins/Wiz.Editor.md/";
+        }
         try {
             var objCommon = objApp.CreateWizObject("WizKMControls.WizCommonUI");
-            var pluginFullPath = objApp.GetPluginPathByScriptFileName("md_editor_global.js").replace(/\\/g, '/');
+            pluginFullPath = pluginFullPath.replace(/\\/g, '/');
             editormd.emoji.path = pluginFullPath + "Editor.md/emoji/emojis/";
             editormd.twemoji.path = pluginFullPath + "Editor.md/emoji/twemoji/36x36/";
             libPath = pluginFullPath + "Editor.md/lib/";
