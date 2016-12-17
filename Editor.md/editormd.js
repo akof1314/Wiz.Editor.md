@@ -3850,9 +3850,13 @@
             // }
 
             var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
+            var dsl = "";
+            if (typeof(line) != "undefined") {
+                dsl = " data-source-line=\"" + line;
+            }
 
             return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
-                           : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + " data-source-line=\"" + line +  "\">" + this.atLink(this.emoji(this.footNote(text))) + "</p>\n" );
+                           : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + dsl +  "\">" + this.atLink(this.emoji(this.footNote(text))) + "</p>\n" );
         };
 
         markedRenderer.code = function (code, lang, escaped) {
@@ -3883,6 +3887,16 @@
             return tag + this.atLink(this.emoji(content)) + "</" + type + ">\n";
         };
 
+        markedRenderer.list = function(body, ordered, line) {
+            var dsl = "";
+            if (typeof(line) != "undefined") {
+                dsl = " data-source-line=\"" + line + "\"";
+            }
+
+            var type = ordered ? 'ol' : 'ul';
+            return '<' + type + dsl + '>\n' + body + '</' + type + '>\n';
+        };
+
         markedRenderer.listitem = function(text) {
             if (settings.taskList && /^\s*\[[x\s]\]\s*/.test(text))
             {
@@ -3895,6 +3909,22 @@
             {
                 return "<li>" + this.atLink(this.emoji(text)) + "</li>";
             }
+        };
+
+        markedRenderer.table = function(header, body, line) {
+            var dsl = "";
+            if (typeof(line) != "undefined") {
+                dsl = " data-source-line=\"" + line + "\"";
+            }
+
+            return '<table' + dsl + '>\n'
+                + '<thead>\n'
+                + header
+                + '</thead>\n'
+                + '<tbody>\n'
+                + body
+                + '</tbody>\n'
+                + '</table>\n';
         };
 
         /*markedRenderer.math = function(text) {
