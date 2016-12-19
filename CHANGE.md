@@ -1,5 +1,13 @@
 ##更新日志
 
+####v2.2
+
+- 修复为知4.5版本阅读模式
+- 修复载入空行问题[#88](https://github.com/akof1314/Wiz.Editor.md/issues/88)
+- 修复同步滚动问题[#87](https://github.com/akof1314/Wiz.Editor.md/issues/87)
+- 修复载入伪空格问题[#76](https://github.com/akof1314/Wiz.Editor.md/issues/76)
+- 修复关闭时自动保存问题[#89](https://github.com/akof1314/Wiz.Editor.md/issues/89)
+
 ####v2.1
 
 - 新增支持为知4.5版本[#82](https://github.com/akof1314/Wiz.Editor.md/issues/82)
