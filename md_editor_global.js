@@ -112,6 +112,24 @@
     }
 }
 
+function WizMDEditorTabClose(objHtmlDocument, objWizDocument) {
+    if (objWizDocument)
+        return;
+    if (!objHtmlDocument)
+        return;
+
+    try {
+        if (objHtmlDocument.defaultView) {
+            objHtmlDocument.defaultView.eval("if (onBeforeCloseTab_MDEditor) onBeforeCloseTab_MDEditor();");
+        }
+        else { // 4.5 objBrowser
+            objHtmlDocument.ExecuteScript("if (onBeforeCloseTab_MDEditor) onBeforeCloseTab_MDEditor();", null);
+        }
+    }
+    catch (err) {
+    }
+}
+
 (function() {
     try {
         var WizMD_pluginPath = objApp.GetPluginPathByScriptFileName("md_editor_global.js");
@@ -127,7 +145,6 @@
             }
             if (doc == null) {
                 doc = objBrowser; // 4.5
-                console.info(objBrowser);
                 objBrowser.ExecuteScript(WizEditormdMarkdown.toString(), function(ret) {
                     objBrowser.ExecuteFunction2("WizEditormdMarkdown", null, WizMD_pluginPath, function(ret) {
                     });
@@ -145,4 +162,6 @@
     catch(e) {
         WizEditormdMarkdown(document, "");
     }
+
+    eventsTabClose.add(WizMDEditorTabClose);
 })();

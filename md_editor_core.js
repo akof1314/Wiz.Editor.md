@@ -1,6 +1,7 @@
 var modified = false;
 var objApp = window.external;
 var wizEditor;
+var docTitle = "";
 
 $(function() {
     var objDatabase = null;
@@ -518,6 +519,7 @@ $(function() {
         var code = "";
         try {
             objDocument = objDatabase.DocumentFromGUID(guid);
+            docTitle = objDocument.Title;
             document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
 
             var content = objDocument.GetHtml();
@@ -590,11 +592,7 @@ $(function() {
 ////////////////////////////////////////////////
 // 预防页面被跳转丢失编辑
 window.onbeforeunload = function () {
-    if (modified) {
-        if (6 == objApp.Window.ShowMessage("是否保存？", "{p}", 0x04 + 0x20)) {
-            saveDocument();
-        }
-    }
+    onBeforeCloseTab_MDEditor();
 };
 
 ////////////////////////////////////////////////
@@ -613,3 +611,14 @@ function OnPluginSave() {
     saveDocument();
     return true;
 };
+
+////////////////////////////////////////////////
+// 关闭标签前的事件
+function onBeforeCloseTab_MDEditor() {
+    if (modified) {
+        modified = false;
+        if (6 == objApp.Window.ShowMessage("是否将更改保存到 " + docTitle + " ？", "{p}", 0x04 + 0x20)) {
+            saveDocument();
+        }
+    }
+}
