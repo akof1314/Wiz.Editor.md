@@ -1,6 +1,7 @@
 var modified = false;
 var objApp = window.external;
 var wizEditor;
+var docTitle = "";
 
 $(function() {
     var objDatabase = null;
@@ -12,6 +13,16 @@ $(function() {
     var pluginFullPath = getPluginPath();
     var optionSettings = getOptionSettings();
     var code = loadDocument();
+
+    //缓存前一次保存的，解决为知4.5版本自动保存问题
+    var wizVerisonGreaterThan45 = null;
+    var savePreHtml = null;
+    var savePreTime = null;
+    try {
+        wizVerisonGreaterThan45 = objApp.Window.CurrentDocumentBrowserObject != null;
+    }
+    catch (err) {
+    }
 
     setEmojiFilePath();
     ////////////////////////////////////////////////
@@ -258,7 +269,7 @@ $(function() {
         };
 
         var saveText = null;
-        var addText = "return WizIsMarkdownByTitle(doc);";
+        var addText = wizVerisonGreaterThan45 ? "return false;" : "return WizIsMarkdownByTitle(doc);";
         var addIndex = findIndex + findText.length;
         var alreadyText = hookText.substring(addIndex, addIndex + addText.length);
         if (alreadyText == addText) {
@@ -415,6 +426,36 @@ $(function() {
     };
 
     ////////////////////////////////////////////////
+    // Ctrl+S保存调用
+    OnPluginSaveMDEditor = function () {
+        savePreHtml = null;
+        if (modified) {
+            if (wizVerisonGreaterThan45) {
+                savePreHtml = objDocument.GetHtml();
+            }
+            saveDocument();
+        }
+
+        if (wizVerisonGreaterThan45) {
+            savePreTime = new Date();
+        }
+    };
+
+    ////////////////////////////////////////////////
+    // 关闭标签前的事件
+    OnBeforeCloseTabMDEditor = function () {
+        if (wizVerisonGreaterThan45 && savePreHtml && savePreTime) {
+            var closeTime = new Date();
+            var spanTime = closeTime.getTime() - savePreTime.getTime();
+            if (spanTime < 800) { // 间隔太短表示自动保存了
+                if (6 != objApp.Window.ShowMessage("是否将更改保存到 " + objDocument.Title + " ？", "{p}", 0x04 + 0x20)) {
+                    objDocument.UpdateDocument3(savePreHtml, 0);
+                }
+            }
+        }
+    };
+
+    ////////////////////////////////////////////////
     // 处理带图片内容
     function dealImgDoc (doc) {
         var arrImgTags = "";
@@ -518,27 +559,30 @@ $(function() {
         var code = "";
         try {
             objDocument = objDatabase.DocumentFromGUID(guid);
+            docTitle = objDocument.Title;
             document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
 
-            var htmlText = objDocument.GetHtml();
-            htmlText = htmlText.substring(htmlText.indexOf("<body"));
-            var htmlNode = $('<div/>').append(htmlText);
-            htmlNode.find("img").each(function() {
-                var $this = $(this);
-                if ($this.parent().attr("name") == "markdownimage") {
-                    return;
+            var content = objDocument.GetHtml();
+            var tempBody = document.body.innerHTML;
+            document.body.innerHTML = content;
+
+            var imgs = document.body.getElementsByTagName('img');
+            if(imgs.length){
+                for (var i = 0; i < imgs.length; i++) {
+                    var pi = imgs[i];
+                    if(pi && pi.parentNode.getAttribute("name") != "markdownimage") {
+                        var imgmd = document.createTextNode("![](" + pi.getAttribute("src") + ")");
+                        pi.parentNode.appendChild(imgmd);
+                    }
                 }
+            }
 
-                $this.text("![](" + $this.attr("src") + ")");
-            });
-            htmlNode.find("div").each(function() {
-                var $this = $(this);
-                $this.before("<br>");
-            });
-            code = htmlNode[0].innerText;
+            content = document.body.innerText;
+            document.body.innerHTML = tempBody;
+            code = content;
 
-            //code = objDocument.GetText(0);
-            //code = code.replace(/\u00a0/g, ' ');
+            /*code = objDocument.GetText(0);*/
+            code = code.replace(/\u00a0/g, ' ');
 
             // 如果用原生编辑器保存过图片，会被替换成错的图片路径
             var imgErrorPath = guid + "_128_files/";
@@ -589,7 +633,8 @@ $(function() {
 // 预防页面被跳转丢失编辑
 window.onbeforeunload = function () {
     if (modified) {
-        if (6 == objApp.Window.ShowMessage("是否保存？", "{p}", 0x04 + 0x20)) {
+        modified = false;
+        if (6 == objApp.Window.ShowMessage("是否将更改保存到 " + docTitle + " ？", "{p}", 0x04 + 0x20)) {
             saveDocument();
         }
     }
@@ -608,6 +653,12 @@ function OnPluginQueryModified() {
 // 为知回调
 // 可响应Ctrl+S保存事件
 function OnPluginSave() {
-    saveDocument();
+    OnPluginSaveMDEditor();
     return true;
 };
+
+////////////////////////////////////////////////
+// 关闭标签前的事件
+function onBeforeCloseTab_MDEditor() {
+    OnBeforeCloseTabMDEditor();
+}

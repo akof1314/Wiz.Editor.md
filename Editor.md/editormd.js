@@ -1319,7 +1319,7 @@
             var infoDialogHTML = [
                 "<div class=\"" + classPrefix + "dialog " + classPrefix + "dialog-info\" style=\"\">",
                 "<div class=\"" + classPrefix + "dialog-container\">",
-                "<h1><i class=\"editormd-logo editormd-logo-lg editormd-logo-color\"></i> Wiz." + editormd.title + "<small>v2.1</small></h1>",
+                "<h1><i class=\"editormd-logo editormd-logo-lg editormd-logo-color\"></i> Wiz." + editormd.title + "<small>v2.2</small></h1>",
                 "<p>" + this.lang.description + "</p>",
                 "<p style=\"margin: 10px 0 20px 0;\">",
 				"<a href=\"https://github.com/akof1314/Wiz.Editor.md\" target=\"_blank\">https://github.com/akof1314/Wiz.Editor.md/ <i class=\"fa fa-external-link\"></i></a>",
@@ -2162,7 +2162,8 @@
                 pedantic    : false,
                 sanitize    : (settings.htmlDecode) ? false : true,  // 关闭忽略HTML标签，即开启识别HTML标签，默认为false
                 smartLists  : true,
-                smartypants : false
+                smartypants : false,
+                mathDelimiters : [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
             };
 
             marked.setOptions(markedOptions);
@@ -2182,7 +2183,7 @@
                 }
                 else
                 {
-                    newMarkdownDoc = mdmj(cmValue, 3);
+                    newMarkdownDoc = editormd.$marked(cmValue, markedOptions);
                 }
             }
             else
@@ -3677,15 +3678,7 @@
                         return $1.replace(/@/g, "_#_&#64;_#_");
                     });
 
-                    text = text.replace(atLinkReg, function($1, $2, index, originalText) {
-                        // 过滤掉，防止数学公式占位符出问题
-                        if (/@(\d+)$/.test($1)) {
-                            return $1;
-                        }
-                        if (index >= 2 && /(\d)@$/.test(originalText.substring(index - 2, index))) {
-                            return $1;
-                        }
-
+                    text = text.replace(atLinkReg, function($1, $2) {
                         return "<a target=\"_blank\" href=\"" + editormd.urls.atLinkBase + "" + $2 + "\" title=\"&#64;" + $2 + "\" class=\"at-link\">" + $1 + "</a>";
                     }).replace(/_#_&#64;_#_/g, "@");
                 }
@@ -3849,9 +3842,13 @@
             // }
 
             var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
+            var dsl = "";
+            if (typeof(line) != "undefined") {
+                dsl = " data-source-line=\"" + line;
+            }
 
             return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
-                           : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + " data-source-line=\"" + line +  "\">" + this.atLink(this.emoji(this.footNote(text))) + "</p>\n" );
+                           : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + dsl +  "\">" + this.atLink(this.emoji(this.footNote(text))) + "</p>\n" );
         };
 
         markedRenderer.code = function (code, lang, escaped) {
@@ -3882,6 +3879,16 @@
             return tag + this.atLink(this.emoji(content)) + "</" + type + ">\n";
         };
 
+        markedRenderer.list = function(body, ordered, line) {
+            var dsl = "";
+            if (typeof(line) != "undefined") {
+                dsl = " data-source-line=\"" + line + "\"";
+            }
+
+            var type = ordered ? 'ol' : 'ul';
+            return '<' + type + dsl + '>\n' + body + '</' + type + '>\n';
+        };
+
         markedRenderer.listitem = function(text) {
             if (settings.taskList && /^\s*\[[x\s]\]\s*/.test(text))
             {
@@ -3895,6 +3902,27 @@
                 return "<li>" + this.atLink(this.emoji(text)) + "</li>";
             }
         };
+
+        markedRenderer.table = function(header, body, line) {
+            var dsl = "";
+            if (typeof(line) != "undefined") {
+                dsl = " data-source-line=\"" + line + "\"";
+            }
+
+            return '<table' + dsl + '>\n'
+                + '<thead>\n'
+                + header
+                + '</thead>\n'
+                + '<tbody>\n'
+                + body
+                + '</tbody>\n'
+                + '</table>\n';
+        };
+
+        /*markedRenderer.math = function(text) {
+            console.info(text);
+            return text;
+        };*/
 
         return markedRenderer;
     };
@@ -4194,21 +4222,13 @@
             pedantic    : false,
             sanitize    : (settings.htmlDecode) ? false : true, // 是否忽略HTML标签，即是否开启HTML标签解析，为了安全性，默认不开启
             smartLists  : true,
-            smartypants : false
+            smartypants : false,
+            mathDelimiters : [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
         };
 
 		markdownDoc = new String(markdownDoc);
 
-        var markdownParsed = "";
-        if(settings.tex)
-        {
-            marked.setOptions(markedOptions);
-            markdownParsed = mdmj(markdownDoc, 3);
-        }
-        else
-        {
-            markdownParsed = marked(markdownDoc, markedOptions);
-        }
+        var markdownParsed = markdownParsed = marked(markdownDoc, markedOptions);
 
         markdownParsed = editormd.filterHTMLTags(markdownParsed, settings.htmlDecode);
 
@@ -4473,7 +4493,7 @@
                                 'showProcessingMessages: false,'+
                                 'extensions: ["tex2jax.js"],'+
                                 'jax: ["input/TeX","output/HTML-CSS"],'+
-                                'tex2jax: {inlineMath: [["$","$"],["\\\\(","\\\\)"]]},'+
+                                'tex2jax: {inlineMath: [["$","$"],["\\\\(","\\\\)"]], processEscapes: true},'+
                                 'TeX: { equationNumbers: {autoNumber: "AMS"} },'+
                                 'messageStyle: "none"'+
                             '});';
@@ -4495,9 +4515,7 @@
      */
 
     editormd.loadMathJax = function (path, callback) {
-        editormd.loadScript(path + "mathJax/mdmj", function(){
-            editormd.loadScript(path + editormd.mathjaxURL, callback || function(){});
-        });
+        editormd.loadScript(path + editormd.mathjaxURL, callback || function(){});
     };
 
     /**
