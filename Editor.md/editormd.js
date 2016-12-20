@@ -3678,15 +3678,7 @@
                         return $1.replace(/@/g, "_#_&#64;_#_");
                     });
 
-                    text = text.replace(atLinkReg, function($1, $2, index, originalText) {
-                        // 过滤掉，防止数学公式占位符出问题
-                        if (/@(\d+)$/.test($1)) {
-                            return $1;
-                        }
-                        if (index >= 2 && /(\d)@$/.test(originalText.substring(index - 2, index))) {
-                            return $1;
-                        }
-
+                    text = text.replace(atLinkReg, function($1, $2) {
                         return "<a target=\"_blank\" href=\"" + editormd.urls.atLinkBase + "" + $2 + "\" title=\"&#64;" + $2 + "\" class=\"at-link\">" + $1 + "</a>";
                     }).replace(/_#_&#64;_#_/g, "@");
                 }
