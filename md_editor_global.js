@@ -162,6 +162,6 @@ function WizMDEditorTabClose(objHtmlDocument, objWizDocument) {
     catch(e) {
         WizEditormdMarkdown(document, "");
     }
-
-    eventsTabClose.add(WizMDEditorTabClose);
 })();
+
+eventsTabClose.add(WizMDEditorTabClose);

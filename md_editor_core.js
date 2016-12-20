@@ -14,6 +14,16 @@ $(function() {
     var optionSettings = getOptionSettings();
     var code = loadDocument();
 
+    //缓存前一次保存的，解决为知4.5版本自动保存问题
+    var wizVerisonGreaterThan45 = null;
+    var savePreHtml = null;
+    var savePreTime = null;
+    try {
+        wizVerisonGreaterThan45 = objApp.Window.CurrentDocumentBrowserObject != null;
+    }
+    catch (err) {
+    }
+
     setEmojiFilePath();
     ////////////////////////////////////////////////
     // 配置编辑器功能
@@ -416,6 +426,36 @@ $(function() {
     };
 
     ////////////////////////////////////////////////
+    // Ctrl+S保存调用
+    OnPluginSaveMDEditor = function () {
+        savePreHtml = null;
+        if (modified) {
+            if (wizVerisonGreaterThan45) {
+                savePreHtml = objDocument.GetHtml();
+            }
+            saveDocument();
+        }
+
+        if (wizVerisonGreaterThan45) {
+            savePreTime = new Date();
+        }
+    };
+
+    ////////////////////////////////////////////////
+    // 关闭标签前的事件
+    OnBeforeCloseTabMDEditor = function () {
+        if (wizVerisonGreaterThan45 && savePreHtml && savePreTime) {
+            var closeTime = new Date();
+            var spanTime = closeTime.getTime() - savePreTime.getTime();
+            if (spanTime < 800) { // 间隔太短表示自动保存了
+                if (6 != objApp.Window.ShowMessage("是否将更改保存到 " + objDocument.Title + " ？", "{p}", 0x04 + 0x20)) {
+                    objDocument.UpdateDocument3(savePreHtml, 0);
+                }
+            }
+        }
+    };
+
+    ////////////////////////////////////////////////
     // 处理带图片内容
     function dealImgDoc (doc) {
         var arrImgTags = "";
@@ -592,7 +632,12 @@ $(function() {
 ////////////////////////////////////////////////
 // 预防页面被跳转丢失编辑
 window.onbeforeunload = function () {
-    onBeforeCloseTab_MDEditor();
+    if (modified) {
+        modified = false;
+        if (6 == objApp.Window.ShowMessage("是否将更改保存到 " + docTitle + " ？", "{p}", 0x04 + 0x20)) {
+            saveDocument();
+        }
+    }
 };
 
 ////////////////////////////////////////////////
@@ -608,17 +653,12 @@ function OnPluginQueryModified() {
 // 为知回调
 // 可响应Ctrl+S保存事件
 function OnPluginSave() {
-    saveDocument();
+    OnPluginSaveMDEditor();
     return true;
 };
 
 ////////////////////////////////////////////////
 // 关闭标签前的事件
 function onBeforeCloseTab_MDEditor() {
-    if (modified) {
-        modified = false;
-        if (6 == objApp.Window.ShowMessage("是否将更改保存到 " + docTitle + " ？", "{p}", 0x04 + 0x20)) {
-            saveDocument();
-        }
-    }
+    OnBeforeCloseTabMDEditor();
 }
