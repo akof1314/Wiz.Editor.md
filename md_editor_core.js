@@ -428,16 +428,16 @@ $(function() {
     ////////////////////////////////////////////////
     // Ctrl+S保存调用
     OnPluginSaveMDEditor = function () {
-        savePreHtml = null;
-        if (modified) {
-            if (wizVerisonGreaterThan45) {
-                savePreHtml = objDocument.GetHtml();
-            }
-            saveDocument();
-        }
-
         if (wizVerisonGreaterThan45) {
-            savePreTime = new Date();
+            savePreHtml = null;
+            if (modified) {
+                savePreHtml = objDocument.GetHtml();
+                saveDocument();
+                savePreTime = new Date();
+            }
+        }
+        else {
+            saveDocument();
         }
     };
 
