@@ -568,11 +568,11 @@ $(function() {
 
             var imgs = document.body.getElementsByTagName('img');
             if(imgs.length){
-                for (var i = 0; i < imgs.length; i++) {
+                for (var i = imgs.length - 1; i >= 0; i--) {
                     var pi = imgs[i];
                     if(pi && pi.parentNode.getAttribute("name") != "markdownimage") {
                         var imgmd = document.createTextNode("![](" + pi.getAttribute("src") + ")");
-                        pi.parentNode.appendChild(imgmd);
+                        $(pi).replaceWith(imgmd);
                     }
                 }
             }
