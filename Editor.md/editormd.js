@@ -565,7 +565,6 @@
                 editormd.loadScript(loadPath + "codemirror/modes.min", function() {
 
                     editormd.loadScript(loadPath + "codemirror/addons.min", function() {
-                        editormd.loadScript(loadPath + "codemirror/addon/scroll/scrollpastend", function() {
 
                             _this.setCodeMirror();
 
@@ -593,7 +592,6 @@
                                     loadFlowChartOrSequenceDiagram();
                                 }
                             });
-                        });
                     });
 
                 });
