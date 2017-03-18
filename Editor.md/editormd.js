@@ -857,23 +857,7 @@
 
             if (settings.watch)
             {
-                var cmScroll  = this.codeMirror.find(".CodeMirror-scroll")[0];
-                var height    = $(cmScroll).height();
-                var scrollTop = cmScroll.scrollTop;
-                var percent   = (scrollTop / cmScroll.scrollHeight);
-
-                if (scrollTop === 0)
-                {
-                    preview.scrollTop(0);
-                }
-                else if (scrollTop + height >= cmScroll.scrollHeight - 16)
-                {
-                    preview.scrollTop(preview[0].scrollHeight);
-                }
-                else
-                {
-                    preview.scrollTop(preview[0].scrollHeight * percent);
-                }
+                this.syncPreviewScrolling();
             }
 
             cm.focus();
@@ -1566,60 +1550,7 @@
                 previewContainer.find(".sequence-diagram").sequenceDiagram({theme: "simple"});
             }
 
-            var preview    = $this.preview;
-            var cm         = this.cm;
-
-            var scrollInfo = cm.getScrollInfo();
-            var cmPos = cm.coordsChar(scrollInfo, "local");
-            var line_markers = preview.find('* [data-source-line]');
-            var lines = [];
-            line_markers.each(function() {
-                lines.push($(this).data('source-line'));
-            });
-
-            var currentLine = cmPos.line;
-            var lastMarker = false;
-            var nextMarker = false;
-            for (var i = 0; i < lines.length; i++) {
-                if (lines[i] < currentLine)
-                {
-                    lastMarker = i;
-                }
-                else
-                {
-                    nextMarker = i;
-                    break;
-                }
-            }
-
-            var lastLine = 0;
-            if (lastMarker !== false)
-            {
-                lastLine = lines[lastMarker];
-            }
-            var nextLine = cm.lastLine();
-            if (nextMarker !== false)
-            {
-                nextLine = lines[nextMarker];
-            }
-            var percentage = 0;
-            if (lastLine != nextLine)
-            {
-                percentage = (currentLine - lastLine) / (nextLine - lastLine);
-            }
-
-            var lastPosition = 0;
-            if (lastMarker !== false)
-            {
-                lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
-            }
-            var nextPosition = preview.height();
-            if (nextMarker !== false)
-            {
-                nextPosition = preview.find('[data-source-line="' + nextLine + '"]').get(0).offsetTop;
-            }
-            var scrollTop = lastPosition + (nextPosition - lastPosition) * percentage;
-            preview.scrollTop(scrollTop);
+            $this.syncPreviewScrolling();
 
             return this;
         },
@@ -1709,6 +1640,71 @@
         },
 
         /**
+         * 同步预览进行滚动
+         *
+         * @returns {editormd} return this
+         */
+        syncPreviewScrolling : function () {
+            var _this            = this;
+            var cm               = this.cm;
+            var preview          = this.preview;
+
+            var scrollInfo = cm.getScrollInfo();
+            var cmPos = cm.coordsChar(scrollInfo, "local");
+            var line_markers = preview.find('* [data-source-line]');
+            var lines = [];
+            line_markers.each(function() {
+                lines.push($(this).data('source-line'));
+            });
+
+            var currentLine = cmPos.line;
+            var lastMarker = false;
+            var nextMarker = false;
+            for (var i = 0; i < lines.length; i++) {
+                if (lines[i] < currentLine)
+                {
+                    lastMarker = i;
+                }
+                else
+                {
+                    nextMarker = i;
+                    break;
+                }
+            }
+
+            var lastLine = 0;
+            if (lastMarker !== false)
+            {
+                lastLine = lines[lastMarker];
+            }
+            var nextLine = cm.lastLine();
+            if (nextMarker !== false)
+            {
+                nextLine = lines[nextMarker];
+            }
+            var percentage = 0;
+            if (lastLine != nextLine)
+            {
+                percentage = (currentLine - lastLine) / (nextLine - lastLine);
+            }
+
+            var lastPosition = 0;
+            if (lastMarker !== false)
+            {
+                lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
+            }
+            var nextPosition = preview.get(0).scrollHeight;
+            if (nextMarker !== false)
+            {
+                nextPosition = preview.find('[data-source-line="' + nextLine + '"]').get(0).offsetTop;
+            }
+            var scrollTop = lastPosition + (nextPosition - lastPosition) * percentage;
+            preview.scrollTop(scrollTop);
+
+            return this;
+        },
+
+        /**
          * 绑定同步滚动
          *
          * @returns {editormd} return this
@@ -1729,62 +1725,7 @@
 
             var cmBindScroll = function() {
                 codeMirror.find(".CodeMirror-scroll").bind(mouseOrTouch("scroll", "touchmove"), function(event) {
-                    var height    = $(this).height();
-                    var scrollInfo = cm.getScrollInfo();
-                    var cmPos = cm.coordsChar(scrollInfo, "local");
-                    var line_markers = preview.find('* [data-source-line]');
-                    var lines = [];
-                    line_markers.each(function() {
-                        lines.push($(this).data('source-line'));
-                    });
-
-                    var currentLine = cmPos.line;
-                    var lastMarker = false;
-                    var nextMarker = false;
-                    for (var i = 0; i < lines.length; i++) {
-                        if (lines[i] < currentLine)
-                        {
-                            lastMarker = i;
-                        }
-                        else
-                        {
-                            nextMarker = i;
-                            break;
-                        }
-                    }
-
-                    var lastLine = 0;
-                    if (lastMarker !== false)
-                    {
-                        lastLine = lines[lastMarker];
-                    }
-                    var nextLine = cm.lastLine();
-                    if (nextMarker !== false)
-                    {
-                        nextLine = lines[nextMarker];
-                    }
-                    var percentage = 0;
-                    if (lastLine != nextLine)
-                    {
-                        percentage = (currentLine - lastLine) / (nextLine - lastLine);
-                    }
-
-                    var lastPosition = 0;
-                    if (lastMarker !== false)
-                    {
-                        lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
-                    }
-                    var nextPosition = preview.get(0).scrollHeight;
-                    if (nextMarker !== false)
-                    {
-                        nextPosition = preview.find('[data-source-line="' + nextLine + '"]').get(0).offsetTop;
-                    }
-                    //else if (nextPosition < lastPosition && lastMarker !== false)
-                    //{
-                    //    nextPosition = lastPosition + preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetHeight;
-                    //}
-                    var scrollTop = lastPosition + (nextPosition - lastPosition) * percentage;
-                    preview.scrollTop(scrollTop);
+                    _this.syncPreviewScrolling();
 
                     $.proxy(settings.onscroll, _this)(event);
                 });
@@ -1797,6 +1738,12 @@
             var previewBindScroll = function() {
 
                 preview.bind(mouseOrTouch("scroll", "touchmove"), function(event) {
+                    if (_this.state.preview)
+                    {
+                        $.proxy(settings.onpreviewscroll, _this)(event);
+                        return;
+                    }
+
                     var height    = $(this).height();
                     var scroll = preview.scrollTop();
                     var lastMarker = false;
@@ -2781,6 +2728,8 @@
                 height     : (settings.autoHeight && !this.state.fullscreen) ? "auto" : editor.height() - toolbar.height(),
                 top        : (settings.toolbar)    ? toolbar.height() : 0
             });
+
+            this.syncPreviewScrolling();
 
             if (this.state.loaded)
             {
