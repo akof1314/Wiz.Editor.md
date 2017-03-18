@@ -101,7 +101,7 @@
         height               : "100%",
         path                 : "./lib/",       // Dependents module file directory
         pluginPath           : "",             // If this empty, default use settings.path + "../plugins/"
-        delay                : 300,            // Delay parse markdown to html, Uint : ms
+        delay                : 3000,           // Max Delay parse markdown to html, Uint : ms
         autoLoadModules      : true,           // Automatic load dependent module files
         watch                : true,
         placeholder          : "Enjoy Markdown! coding now...",
@@ -335,7 +335,7 @@
     editormd.$CodeMirror  = null;
     editormd.$prettyPrint = null;
 
-    var timer, flowchartTimer;
+    var timer, flowchartTimer, elapsedSaveTime = 500;
 
     editormd.prototype    = editormd.fn = {
         state : {
@@ -1926,11 +1926,24 @@
                     _this.previewContainer.css("padding", settings.autoHeight ? "20px 20px 50px 40px" : "20px");
                 }
 
-                timer = setTimeout(function() {
+                if (timer) {
                     clearTimeout(timer);
+                    timer = undefined;
+                }
+
+                var delay = elapsedSaveTime;
+                if (delay > settings.delay) {
+                    delay = settings.delay;
+                }
+
+                timer = setTimeout(function() {
+                    timer = undefined;
+
+                    var prevTime = new Date().getTime();
                     _this.save();
-                    timer = null;
-                }, settings.delay);
+                    var currTime = new Date().getTime();
+                    elapsedSaveTime = currTime - prevTime;
+                }, delay);
             });
 
             return this;
