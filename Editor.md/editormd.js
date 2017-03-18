@@ -1837,12 +1837,23 @@
                 var $el = $(this);
                 var id = $el.attr('href');
                 var lev = $el.attr('level');
+                var line = $el.attr('lineIdx');
 
                 preview.scrollTop(0);
                 var topOrg = preview.offset().top;
 
                 var hdName = id.substring(1);
-                var ref = previewContainer.find('a[name="' + hdName + '"]');
+                var refs = previewContainer.find('a[name="' + hdName + '"]');
+                var ref = refs;
+                if (line && refs.length > 1) {
+                    // 解决相同标题时跳转错误
+                    refs.each(function () {
+                        if ($(this).parent().attr('data-source-line') == line) {
+                            ref = $(this);
+                            return false;
+                        }
+                    })
+                }
                 var topPos = ref.offset().top - topOrg;
                 preview.scrollTop(topPos);
 
@@ -3757,7 +3768,8 @@
             var toc = {
                 text  : text,
                 level : level,
-                slug  : escapedText
+                slug  : escapedText,
+                lineIdx : line
             };
 
             var isChinese = /^[\u4e00-\u9fa5]+$/.test(text);
@@ -3912,6 +3924,7 @@
         {
             var text  = toc[i].text;
             var level = toc[i].level;
+            var line = toc[i].lineIdx;
 
             if (level < startLevel) {
                 continue;
@@ -3935,7 +3948,7 @@
                 html += "</ul></li>";
             }
 
-            html += "<li><a class=\"toc-level-" + level + "\" href=\"#" + text + "\" level=\"" + level + "\">" + text + "</a><ul>";
+            html += "<li><a class=\"toc-level-" + level + "\" href=\"#" + text + "\" level=\"" + level + "\" lineIdx=\"" + line + "\">" + text + "</a><ul>";
             lastLevel = level;
         }
 

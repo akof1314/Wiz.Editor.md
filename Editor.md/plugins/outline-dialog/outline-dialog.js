@@ -88,11 +88,13 @@
 				var hd = $(this);
 				var txt = hd.find('a').attr("name");
 				var escapedText = txt.toLowerCase().replace(/[^\w]+/g, "-");
+                var line = hd.attr('data-source-line');
 
 				var toc = {
 	                text  : txt,
 	                level : hd.get(0).tagName.substring(1),
-	                slug  : escapedText
+	                slug  : escapedText,
+                    lineIdx : line
 	            };
 	            markdownToC.push(toc);
 			});
