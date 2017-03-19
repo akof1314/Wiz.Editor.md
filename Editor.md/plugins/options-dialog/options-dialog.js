@@ -25,6 +25,7 @@
                         featuresOnOff : "功能",
                         emojiSupport : "Emoji表情",
                         selectFeatures : ["开", "关"],
+                        keymapModes : "键盘模式",
                     },
                 }
             }
@@ -52,6 +53,8 @@
                 "<label style=\"width:94px;\">" + dialogLang.readTheme + "</label>",
                 "<select id=\"read-preview-area-theme-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
                 "<h4 style=\"margin: 0 0px 10px;\">" + dialogLang.featuresOnOff + "</h4>",
+                "<label style=\"width:94px;\">" + dialogLang.keymapModes + "</label>",
+                "<select id=\"edit-toolbar-area-keymapmodes-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
                 "<label style=\"width:94px;\">" + dialogLang.emojiSupport + "</label>",
                 "<div class=\"fa-btns\" id=\"edit-emoji-support\"></div><br/>",
                 "<h4 style=\"margin: 10px 0px 10px;\">" + dialogLang.editTitle + "</h4>",
@@ -99,6 +102,7 @@
                                 EditEditorTheme : this.find("#edit-editor-area-theme-select").val(),
                                 EditPreviewTheme : this.find("#edit-preview-area-theme-select").val(),
                                 EmojiSupport : this.find("[name=\"emojiSupport\"]:checked").val().toString(),
+                                KeymapMode : this.find("#edit-toolbar-area-keymapmodes-select").val(),
                             };
                             $.proxy(settings.onsaveOptions, this)(optionsValue);
 
@@ -196,6 +200,7 @@
             themeSelect("#edit-toolbar-area-theme-select", editormd.themes, optionsNowValue["EditToolbarTheme"]);
             themeSelect("#edit-editor-area-theme-select", editormd.editorThemes, optionsNowValue["EditEditorTheme"]);
             themeSelect("#edit-preview-area-theme-select", editormd.previewThemes, optionsNowValue["EditPreviewTheme"]);
+            themeSelect("#edit-toolbar-area-keymapmodes-select", editormd.keymapModes, optionsNowValue["KeymapMode"]);
         };
 
     };

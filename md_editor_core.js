@@ -47,6 +47,7 @@ $(function() {
         disabledKeyMaps : [
             "F9", "F10", "F11"               // 禁用切换全屏状态，因为为知已经支持
         ],
+        keymapMode      : optionSettings.KeymapMode,              // 键盘映射模式
         toolbarIcons : function() {
             return getEditToolbarButton(optionSettings.EditToolbarButton);
         },
@@ -197,6 +198,7 @@ $(function() {
             EditEditorTheme : getConfigValue("EditEditorTheme", "default"),
             EditPreviewTheme : getConfigValue("EditPreviewTheme", "default"),
             EmojiSupport : getConfigValue("EmojiSupport", "1"),
+            KeymapMode : getConfigValue("KeymapMode", "default"),
         };
         return optionsValue;
     };
@@ -233,6 +235,10 @@ $(function() {
         if (optionSettings.EmojiSupport != optionsValue.EmojiSupport) {
             setConfigValue("EmojiSupport", optionsValue.EmojiSupport);
             wizEditor.config("emoji", optionsValue.EmojiSupport == "1" ? true : false);
+        }
+        if (optionSettings.KeymapMode != optionsValue.KeymapMode) {
+            setConfigValue("KeymapMode", optionsValue.KeymapMode);
+            wizEditor.setKeymapMode(optionsValue.KeymapMode);
         }
 
         optionSettings = optionsValue;
@@ -306,7 +312,7 @@ $(function() {
                 "saveIcon", "|",
                 "undo", "redo", "|",
                 "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
-                "h1", "h2", "h3", "h4", "h5", "h6", "|",
+                "h1", "h2", "h3", "|",
                 "list-ul", "list-ol", "hr", "|",
                 "plainPasteIcon", "link", "reference-link", "image", "captureIcon", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
                 "goto-line", "watch", "preview", "clear", "search", "||",

@@ -132,6 +132,7 @@
         fontSize             : "13px",
         saveHTMLToTextarea   : false,
         disabledKeyMaps      : [],
+        keymapMode           : "default",
 
         onload               : function() {},
         onresize             : function() {},
@@ -565,7 +566,7 @@
                 editormd.loadScript(loadPath + "codemirror/modes.min", function() {
 
                     editormd.loadScript(loadPath + "codemirror/addons.min", function() {
-
+                        var funLoad = function () {
                             _this.setCodeMirror();
 
                             if (settings.mode !== "gfm" && settings.mode !== "markdown")
@@ -592,6 +593,18 @@
                                     loadFlowChartOrSequenceDiagram();
                                 }
                             });
+                        };
+
+                        if (settings.keymapMode !== "default")
+                        {
+                            editormd.loadScript(loadPath + "codemirror/keymap/" + settings.keymapMode, function() {
+                                funLoad();
+                            });
+                        }
+                        else
+                        {
+                            funLoad();
+                        }
                     });
 
                 });
@@ -674,6 +687,32 @@
         },
 
         /**
+         * 设置键盘映射模式
+         * Setting Keymap mode
+         *
+         * @returns {editormd}  返回editormd的实例对象
+         */
+
+        setKeymapMode : function(mode) {
+            var _this      = this;
+            var settings   = this.settings;
+            settings.keymapMode = mode;
+
+            if (mode !== "default")
+            {
+                editormd.loadScript(settings.path + "codemirror/keymap/" + settings.keymapMode, function() {
+                    _this.cm.setOption("keyMap", mode);
+                });
+            }
+            else
+            {
+                _this.cm.setOption("keyMap", mode);
+            }
+
+            return this;
+        },
+
+        /**
          * 配置和初始化CodeMirror组件
          * CodeMirror initialization
          *
@@ -714,7 +753,8 @@
                 autoCloseBrackets         : settings.autoCloseBrackets,
                 showTrailingSpace         : settings.showTrailingSpace,
                 highlightSelectionMatches : ( (!settings.matchWordHighlight) ? false : { showToken: (settings.matchWordHighlight === "onselected") ? false : /\w/ } ),
-                scrollPastEnd             : true
+                scrollPastEnd             : true,
+                keyMap                    : settings.keymapMode
             };
 
             this.codeEditor = this.cm        = editormd.$CodeMirror.fromTextArea(this.markdownTextarea[0], codeMirrorConfig);
@@ -4324,6 +4364,9 @@
         "yeti",
         "zenburn"
     ];
+
+    // 键盘模式
+    editormd.keymapModes = ["default", "vim", "emacs", "sublime"];
 
     editormd.loadPlugins = {};
 
