@@ -336,7 +336,7 @@
     editormd.$CodeMirror  = null;
     editormd.$prettyPrint = null;
 
-    var timer, flowchartTimer, elapsedSaveTime = 500;
+    var timer, flowchartTimer, elapsedSaveTime = 500, cacheKeymaps;
 
     editormd.prototype    = editormd.fn = {
         state : {
@@ -753,8 +753,7 @@
                 autoCloseBrackets         : settings.autoCloseBrackets,
                 showTrailingSpace         : settings.showTrailingSpace,
                 highlightSelectionMatches : ( (!settings.matchWordHighlight) ? false : { showToken: (settings.matchWordHighlight === "onselected") ? false : /\w/ } ),
-                scrollPastEnd             : true,
-                keyMap                    : settings.keymapMode
+                scrollPastEnd             : true
             };
 
             this.codeEditor = this.cm        = editormd.$CodeMirror.fromTextArea(this.markdownTextarea[0], codeMirrorConfig);
@@ -1626,6 +1625,7 @@
             }
             else
             {
+                cacheKeymaps = [];
                 for (var k in editormd.keyMaps)
                 {
                     var _keyMap = editormd.keyMaps[k];
@@ -1637,6 +1637,8 @@
                         _map[k] = handle;
 
                         cm.addKeyMap(_map);
+
+                        cacheKeymaps.push(_map);
                     }
                 }
 
@@ -1673,6 +1675,29 @@
                     }
                 });
             }
+
+            return this;
+        },
+
+        /**
+         * 取消注册键盘快捷键处理
+         * UnRegister CodeMirror keyMaps (keyboard shortcuts).
+         *
+         * @returns {editormd}              return this
+         */
+        unregisterKeyMaps : function() {
+
+            var _this           = this;
+            var cm              = this.cm;
+
+            if (cacheKeymaps)
+            {
+                for (var i in cacheKeymaps)
+                {
+                    cm.removeKeyMap(cacheKeymaps[i]);
+                }
+            }
+            cacheKeymaps = null;
 
             return this;
         },
@@ -1945,6 +1970,32 @@
             return this;
         },
 
+        bindVimModeChangeEvent : function() {
+
+            var _this            = this;
+            var cm               = this.cm;
+            var state            = this.state;
+            var settings         = this.settings;
+
+            cm.on("vim-mode-change", function(changeObj) {
+                // 禁用掉快捷键加粗斜体等
+                if (changeObj.mode === "insert") {
+                    if (!cacheKeymaps) {
+                        _this.registerKeyMaps();
+                    }
+                }
+                else {
+                    _this.unregisterKeyMaps();
+                }
+            });
+
+            if (settings.keymapMode !== "default") {
+                _this.cm.setOption("keyMap", settings.keymapMode);
+            }
+
+            return this;
+        },
+
         /**
          * 加载队列完成之后的显示处理
          * Display handle of the module queues loaded after.
@@ -1979,7 +2030,7 @@
                 _this.resize();
             });
 
-            this.bindScrollEvent().bindChangeEvent();
+            this.bindScrollEvent().bindChangeEvent().bindVimModeChangeEvent();
 
             if (!recreate)
             {
