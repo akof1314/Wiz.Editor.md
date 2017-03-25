@@ -1,5 +1,15 @@
 ##更新日志
 
+####v2.3
+
+- 新增Vim键盘模式支持[Keymap](https://github.com/akof1314/Wiz.Editor.md/wiki/Keymap)
+- 修复连续输入卡顿问题
+- 修复公式begin卡死问题[#101](https://github.com/akof1314/Wiz.Editor.md/issues/101)
+- 修复搜索快捷键无效问题[#93](https://github.com/akof1314/Wiz.Editor.md/issues/93)
+- 修复相同标题跳转错误问题[#99](https://github.com/akof1314/Wiz.Editor.md/issues/99)
+- 修复原生编辑器图片位置错乱问题[#100](https://github.com/akof1314/Wiz.Editor.md/issues/100)
+- 修复全窗口预览复位后位置错位问题[#97](https://github.com/akof1314/Wiz.Editor.md/issues/97)
+
 ####v2.2
 
 - 修复为知4.5版本阅读模式
