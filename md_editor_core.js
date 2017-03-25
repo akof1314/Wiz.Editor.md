@@ -101,6 +101,9 @@ $(function() {
                 },
                 "F1": function(cm) {
                     wizEditor.cm.execCommand("defaultTab");
+                },
+                "Ctrl-Alt-F": function(cm) {
+                    wizEditor.cm.execCommand("find");
                 }
             };
             this.addKeyMap(keyMap);
@@ -121,11 +124,16 @@ $(function() {
                     else if ($.inArray("text/html", clipboardData.types) != -1) {
                         if (!plainPasteMode && clipboardHTMLToMd(clipboardData.getData("text/html"))) {
                             e.preventDefault();
-
                         }
+                    }
+                    else {
+                        //类型为"text/plain"，快捷键Ctrl+Shift+V
                     }
                 }
             });
+
+            // 绑定Ctrl-S快捷键和Vim的w命令保存
+            CodeMirror.commands.save = OnPluginSaveMDEditor;
 
             var isWebPage = false;
             if (isWebPage)

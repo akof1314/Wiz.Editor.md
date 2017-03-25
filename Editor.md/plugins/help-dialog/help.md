@@ -13,15 +13,16 @@
 
 | Keyboard shortcuts (键盘快捷键)                 |   说明                            | Description                                        |
 | :---------------------------------------------- |:--------------------------------- | :------------------------------------------------- |
+| F1                                              | 插入Tab                           | Insert Tab                                         |
 | Ctrl + F9                                       | 切换实时预览                      | Switch watch/unwatch                               |
 | Ctrl + F10                                      | 全屏HTML预览                      | Full preview HTML                                  |
 | F11                                             | 切换全屏状态                      | Switch fullscreen                                  |
-| Ctrl + 1~6 / Command + 1~6                      | 插入标题1~6                       | Insert heading 1~6                                 |
+| Ctrl + 1-6 / Command + 1-6                      | 插入标题1-6                       | Insert heading 1-6                                 |
 | Ctrl + A / Command + A                          | 全选                              | Select all                                         |
 | Ctrl + B / Command + B                          | 插入粗体                          | Insert bold                                        |
 | Ctrl + D / Command + D                          | 插入日期时间                      | Insert datetime                                    |
 | Ctrl + E / Command + E                          | 插入Emoji符号                     | Insert &#58;emoji&#58;                             |
-| Ctrl + F / Command + F                          | 查找/搜索                         | Start searching                                    |
+| Ctrl + Alt + F / Command + Alt + F              | 查找/搜索                         | Start searching                                    |
 | Ctrl + G / Command + G                          | 切换到下一个搜索结果项            | Find next search results                           |
 | Ctrl + H / Command + H                          | 插入水平线                        | Insert horizontal rule                             |
 | Ctrl + I / Command + I                          | 插入斜体                          | Insert italic                                      |
@@ -31,6 +32,7 @@
 | Ctrl + Q                                        | 代码折叠切换                      | Switch code fold                                   |
 | Ctrl + Z / Command + Z                          | 撤销                              | Undo                                               |
 | Ctrl + Y / Command + Y                          | 重做                              | Redo                                               |
+| Ctrl + Shift + V                                | 纯文本粘贴                        | Plain paste                                   |
 | Ctrl + Shift + A                                | 插入@链接                         | Insert &#64;link                                   |
 | Ctrl + Shift + C                                | 插入行内代码                      | Insert inline code                                 |
 | Ctrl + Shift + E                                | 打开插入Emoji表情对话框           | Open emoji dialog                                  |
@@ -47,16 +49,27 @@
 | Ctrl + Shift + S                                | 插入删除线                        | Insert strikethrough                               |
 | Ctrl + Shift + T                                | 打开插入表格对话框                | Open table dialog                                  |
 | Ctrl + Shift + U                                | 将所选文字转成大写                | Selection text convert to uppercase                |
-| Shift + Alt + C                                 | 插入```代码                       | Insert code blocks (```)                           |
+| Shift + Alt + C                                 | 插入块代码                         | Insert code blocks                            |
 | Shift + Alt + H                                 | 打开使用帮助对话框                | Open help dialog                                   |
 | Shift + Alt + L                                 | 将所选文本转成小写                | Selection text convert to lowercase                |
 | Shift + Alt + P                                 | 插入分页符                        | Insert page break                                  |
-| Alt + L                                         | 将所选文本转成小写                | Selection text convert to lowercase                |
 | Shift + Alt + U                                 | 将所选的每个单词的首字母转成大写  | Selection words first letter convert to Uppercase  |
 | Ctrl + Shift + Alt + C                          | 打开插入代码块对话框层            | Open code blocks dialog                            |
 | Ctrl + Shift + Alt + I                          | 打开插入图片对话框层              | Open image dialog                                  |
 | Ctrl + Shift + Alt + U                          | 将所选文本的第一个首字母转成大写  | Selection text first letter convert to uppercase   |
 | Ctrl + Alt + G                                  | 跳转到指定的行                    | Goto line                                          |
+
+
+##### Vim 键盘模式 ( Vim Keyboard shortcuts)
+
+| Keyboard shortcuts (键盘快捷键)                 |   说明                                                                  |
+| :---------------------------------------------- |:--------------------------------- |
+| Ctrl + [                                        | 正常模式                           |
+| i / I / a / A                                   | 插入模式                           |
+| :                                               | 命令模式                           |
+| v / V / Ctrl + v                                | 可视模式                           |
+
+其余快捷键参见`Wiz.Editor.md\Editor.md\lib\codemirror\keymap\vim.js`文件
 
 ##### Emoji表情参考 (Emoji reference)
 
