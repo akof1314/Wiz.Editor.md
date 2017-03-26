@@ -1,6 +1,7 @@
 var modified = false;
 var objApp = window.external;
 var wizEditor;
+var docTitle = "";
 
 $(function() {
     var objDatabase = null;
@@ -12,6 +13,16 @@ $(function() {
     var pluginFullPath = getPluginPath();
     var optionSettings = getOptionSettings();
     var code = loadDocument();
+
+    //缓存前一次保存的，解决为知4.5版本自动保存问题
+    var wizVerisonGreaterThan45 = null;
+    var savePreHtml = null;
+    var savePreTime = null;
+    try {
+        wizVerisonGreaterThan45 = objApp.Window.CurrentDocumentBrowserObject != null;
+    }
+    catch (err) {
+    }
 
     setEmojiFilePath();
     ////////////////////////////////////////////////
@@ -36,6 +47,7 @@ $(function() {
         disabledKeyMaps : [
             "F9", "F10", "F11"               // 禁用切换全屏状态，因为为知已经支持
         ],
+        keymapMode      : optionSettings.KeymapMode,              // 键盘映射模式
         toolbarIcons : function() {
             return getEditToolbarButton(optionSettings.EditToolbarButton);
         },
@@ -89,6 +101,9 @@ $(function() {
                 },
                 "F1": function(cm) {
                     wizEditor.cm.execCommand("defaultTab");
+                },
+                "Ctrl-Alt-F": function(cm) {
+                    wizEditor.cm.execCommand("find");
                 }
             };
             this.addKeyMap(keyMap);
@@ -109,13 +124,18 @@ $(function() {
                     else if ($.inArray("text/html", clipboardData.types) != -1) {
                         if (!plainPasteMode && clipboardHTMLToMd(clipboardData.getData("text/html"))) {
                             e.preventDefault();
-
                         }
+                    }
+                    else {
+                        //类型为"text/plain"，快捷键Ctrl+Shift+V
                     }
                 }
             });
 
-            var isWebPage = true;
+            // 绑定Ctrl-S快捷键和Vim的w命令保存
+            CodeMirror.commands.save = OnPluginSaveMDEditor;
+
+            var isWebPage = false;
             if (isWebPage)
             {
                 $.get('Editor.md/examples/test.md', function(md){
@@ -186,6 +206,7 @@ $(function() {
             EditEditorTheme : getConfigValue("EditEditorTheme", "default"),
             EditPreviewTheme : getConfigValue("EditPreviewTheme", "default"),
             EmojiSupport : getConfigValue("EmojiSupport", "1"),
+            KeymapMode : getConfigValue("KeymapMode", "default"),
         };
         return optionsValue;
     };
@@ -223,6 +244,10 @@ $(function() {
             setConfigValue("EmojiSupport", optionsValue.EmojiSupport);
             wizEditor.config("emoji", optionsValue.EmojiSupport == "1" ? true : false);
         }
+        if (optionSettings.KeymapMode != optionsValue.KeymapMode) {
+            setConfigValue("KeymapMode", optionsValue.KeymapMode);
+            wizEditor.setKeymapMode(optionsValue.KeymapMode);
+        }
 
         optionSettings = optionsValue;
         if (objCommon != null && showMsg) {
@@ -258,7 +283,7 @@ $(function() {
         };
 
         var saveText = null;
-        var addText = "return WizIsMarkdownByTitle(doc);";
+        var addText = wizVerisonGreaterThan45 ? "return false;" : "return WizIsMarkdownByTitle(doc);";
         var addIndex = findIndex + findText.length;
         var alreadyText = hookText.substring(addIndex, addIndex + addText.length);
         if (alreadyText == addText) {
@@ -295,7 +320,7 @@ $(function() {
                 "saveIcon", "|",
                 "undo", "redo", "|",
                 "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
-                "h1", "h2", "h3", "h4", "h5", "h6", "|",
+                "h1", "h2", "h3", "|",
                 "list-ul", "list-ol", "hr", "|",
                 "plainPasteIcon", "link", "reference-link", "image", "captureIcon", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
                 "goto-line", "watch", "preview", "clear", "search", "||",
@@ -415,6 +440,36 @@ $(function() {
     };
 
     ////////////////////////////////////////////////
+    // Ctrl+S保存调用
+    OnPluginSaveMDEditor = function () {
+        if (wizVerisonGreaterThan45) {
+            savePreHtml = null;
+            if (modified) {
+                savePreHtml = objDocument.GetHtml();
+                saveDocument();
+                savePreTime = new Date();
+            }
+        }
+        else {
+            saveDocument();
+        }
+    };
+
+    ////////////////////////////////////////////////
+    // 关闭标签前的事件
+    OnBeforeCloseTabMDEditor = function () {
+        if (wizVerisonGreaterThan45 && savePreHtml && savePreTime) {
+            var closeTime = new Date();
+            var spanTime = closeTime.getTime() - savePreTime.getTime();
+            if (spanTime < 800) { // 间隔太短表示自动保存了
+                if (6 != objApp.Window.ShowMessage("是否将更改保存到 " + objDocument.Title + " ？", "{p}", 0x04 + 0x20)) {
+                    objDocument.UpdateDocument3(savePreHtml, 0);
+                }
+            }
+        }
+    };
+
+    ////////////////////////////////////////////////
     // 处理带图片内容
     function dealImgDoc (doc) {
         var arrImgTags = "";
@@ -518,27 +573,30 @@ $(function() {
         var code = "";
         try {
             objDocument = objDatabase.DocumentFromGUID(guid);
+            docTitle = objDocument.Title;
             document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
 
-            var htmlText = objDocument.GetHtml();
-            htmlText = htmlText.substring(htmlText.indexOf("<body"));
-            var htmlNode = $('<div/>').append(htmlText);
-            htmlNode.find("img").each(function() {
-                var $this = $(this);
-                if ($this.parent().attr("name") == "markdownimage") {
-                    return;
+            var content = objDocument.GetHtml();
+            var tempBody = document.body.innerHTML;
+            document.body.innerHTML = content;
+
+            var imgs = document.body.getElementsByTagName('img');
+            if(imgs.length){
+                for (var i = imgs.length - 1; i >= 0; i--) {
+                    var pi = imgs[i];
+                    if(pi && pi.parentNode.getAttribute("name") != "markdownimage") {
+                        var imgmd = document.createTextNode("![](" + pi.getAttribute("src") + ")");
+                        $(pi).replaceWith(imgmd);
+                    }
                 }
+            }
 
-                $this.text("![](" + $this.attr("src") + ")");
-            });
-            htmlNode.find("div").each(function() {
-                var $this = $(this);
-                $this.before("<br>");
-            });
-            code = htmlNode[0].innerText;
+            content = document.body.innerText;
+            document.body.innerHTML = tempBody;
+            code = content;
 
-            //code = objDocument.GetText(0);
-            //code = code.replace(/\u00a0/g, ' ');
+            /*code = objDocument.GetText(0);*/
+            code = code.replace(/\u00a0/g, ' ');
 
             // 如果用原生编辑器保存过图片，会被替换成错的图片路径
             var imgErrorPath = guid + "_128_files/";
@@ -589,7 +647,8 @@ $(function() {
 // 预防页面被跳转丢失编辑
 window.onbeforeunload = function () {
     if (modified) {
-        if (6 == objApp.Window.ShowMessage("是否保存？", "{p}", 0x04 + 0x20)) {
+        modified = false;
+        if (6 == objApp.Window.ShowMessage("是否将更改保存到 " + docTitle + " ？", "{p}", 0x04 + 0x20)) {
             saveDocument();
         }
     }
@@ -608,6 +667,12 @@ function OnPluginQueryModified() {
 // 为知回调
 // 可响应Ctrl+S保存事件
 function OnPluginSave() {
-    saveDocument();
+    OnPluginSaveMDEditor();
     return true;
 };
+
+////////////////////////////////////////////////
+// 关闭标签前的事件
+function onBeforeCloseTab_MDEditor() {
+    OnBeforeCloseTabMDEditor();
+}

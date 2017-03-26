@@ -101,7 +101,7 @@
         height               : "100%",
         path                 : "./lib/",       // Dependents module file directory
         pluginPath           : "",             // If this empty, default use settings.path + "../plugins/"
-        delay                : 300,            // Delay parse markdown to html, Uint : ms
+        delay                : 3000,           // Max Delay parse markdown to html, Uint : ms
         autoLoadModules      : true,           // Automatic load dependent module files
         watch                : true,
         placeholder          : "Enjoy Markdown! coding now...",
@@ -132,6 +132,7 @@
         fontSize             : "13px",
         saveHTMLToTextarea   : false,
         disabledKeyMaps      : [],
+        keymapMode           : "default",
 
         onload               : function() {},
         onresize             : function() {},
@@ -335,7 +336,7 @@
     editormd.$CodeMirror  = null;
     editormd.$prettyPrint = null;
 
-    var timer, flowchartTimer;
+    var timer, flowchartTimer, elapsedSaveTime = 500, cacheKeymaps;
 
     editormd.prototype    = editormd.fn = {
         state : {
@@ -565,8 +566,7 @@
                 editormd.loadScript(loadPath + "codemirror/modes.min", function() {
 
                     editormd.loadScript(loadPath + "codemirror/addons.min", function() {
-                        editormd.loadScript(loadPath + "codemirror/addon/scroll/scrollpastend", function() {
-
+                        var funLoad = function () {
                             _this.setCodeMirror();
 
                             if (settings.mode !== "gfm" && settings.mode !== "markdown")
@@ -593,7 +593,18 @@
                                     loadFlowChartOrSequenceDiagram();
                                 }
                             });
-                        });
+                        };
+
+                        if (settings.keymapMode !== "default")
+                        {
+                            editormd.loadScript(loadPath + "codemirror/keymap/" + settings.keymapMode, function() {
+                                funLoad();
+                            });
+                        }
+                        else
+                        {
+                            funLoad();
+                        }
                     });
 
                 });
@@ -671,6 +682,32 @@
             preview.removeClass(themePrefix + oldTheme).addClass(themePrefix + theme);
 
             this.settings.previewTheme = theme;
+
+            return this;
+        },
+
+        /**
+         * 设置键盘映射模式
+         * Setting Keymap mode
+         *
+         * @returns {editormd}  返回editormd的实例对象
+         */
+
+        setKeymapMode : function(mode) {
+            var _this      = this;
+            var settings   = this.settings;
+            settings.keymapMode = mode;
+
+            if (mode !== "default")
+            {
+                editormd.loadScript(settings.path + "codemirror/keymap/" + settings.keymapMode, function() {
+                    _this.cm.setOption("keyMap", mode);
+                });
+            }
+            else
+            {
+                _this.cm.setOption("keyMap", mode);
+            }
 
             return this;
         },
@@ -857,23 +894,7 @@
 
             if (settings.watch)
             {
-                var cmScroll  = this.codeMirror.find(".CodeMirror-scroll")[0];
-                var height    = $(cmScroll).height();
-                var scrollTop = cmScroll.scrollTop;
-                var percent   = (scrollTop / cmScroll.scrollHeight);
-
-                if (scrollTop === 0)
-                {
-                    preview.scrollTop(0);
-                }
-                else if (scrollTop + height >= cmScroll.scrollHeight - 16)
-                {
-                    preview.scrollTop(preview[0].scrollHeight);
-                }
-                else
-                {
-                    preview.scrollTop(preview[0].scrollHeight * percent);
-                }
+                this.syncPreviewScrolling();
             }
 
             cm.focus();
@@ -1319,7 +1340,7 @@
             var infoDialogHTML = [
                 "<div class=\"" + classPrefix + "dialog " + classPrefix + "dialog-info\" style=\"\">",
                 "<div class=\"" + classPrefix + "dialog-container\">",
-                "<h1><i class=\"editormd-logo editormd-logo-lg editormd-logo-color\"></i> Wiz." + editormd.title + "<small>v2.1</small></h1>",
+                "<h1><i class=\"editormd-logo editormd-logo-lg editormd-logo-color\"></i> Wiz." + editormd.title + "<small>v2.3</small></h1>",
                 "<p>" + this.lang.description + "</p>",
                 "<p style=\"margin: 10px 0 20px 0;\">",
 				"<a href=\"https://github.com/akof1314/Wiz.Editor.md\" target=\"_blank\">https://github.com/akof1314/Wiz.Editor.md/ <i class=\"fa fa-external-link\"></i></a>",
@@ -1566,8 +1587,130 @@
                 previewContainer.find(".sequence-diagram").sequenceDiagram({theme: "simple"});
             }
 
-            var preview    = $this.preview;
-            var cm         = this.cm;
+            $this.syncPreviewScrolling();
+
+            return this;
+        },
+
+        /**
+         * 注册键盘快捷键处理
+         * Register CodeMirror keyMaps (keyboard shortcuts).
+         *
+         * @param   {Object}    keyMap      KeyMap key/value {"(Ctrl/Shift/Alt)-Key" : function(){}}
+         * @returns {editormd}              return this
+         */
+
+        registerKeyMaps : function(keyMap) {
+
+            var _this           = this;
+            var cm              = this.cm;
+            var settings        = this.settings;
+            var toolbarHandlers = editormd.toolbarHandlers;
+            var disabledKeyMaps = settings.disabledKeyMaps;
+
+            keyMap              = keyMap || null;
+
+            if (keyMap)
+            {
+                for (var i in keyMap)
+                {
+                    if ($.inArray(i, disabledKeyMaps) < 0)
+                    {
+                        var map = {};
+                        map[i]  = keyMap[i];
+
+                        cm.addKeyMap(keyMap);
+                    }
+                }
+            }
+            else
+            {
+                cacheKeymaps = [];
+                for (var k in editormd.keyMaps)
+                {
+                    var _keyMap = editormd.keyMaps[k];
+                    var handle = (typeof _keyMap === "string") ? $.proxy(toolbarHandlers[_keyMap], _this) : $.proxy(_keyMap, _this);
+
+                    if ($.inArray(k, ["F9", "F10", "F11"]) < 0 && $.inArray(k, disabledKeyMaps) < 0)
+                    {
+                        var _map = {};
+                        _map[k] = handle;
+
+                        cm.addKeyMap(_map);
+
+                        cacheKeymaps.push(_map);
+                    }
+                }
+
+                $(window).keydown(function(event) {
+
+                    var keymaps = {
+                        "120" : "F9",
+                        "121" : "F10",
+                        "122" : "F11"
+                    };
+
+                    if ( $.inArray(keymaps[event.keyCode], disabledKeyMaps) < 0 )
+                    {
+                        switch (event.keyCode)
+                        {
+                            case 120:
+                                    $.proxy(toolbarHandlers["watch"], _this)();
+                                    return false;
+                                break;
+
+                            case 121:
+                                    $.proxy(toolbarHandlers["preview"], _this)();
+                                    return false;
+                                break;
+
+                            case 122:
+                                    $.proxy(toolbarHandlers["fullscreen"], _this)();
+                                    return false;
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
+                });
+            }
+
+            return this;
+        },
+
+        /**
+         * 取消注册键盘快捷键处理
+         * UnRegister CodeMirror keyMaps (keyboard shortcuts).
+         *
+         * @returns {editormd}              return this
+         */
+        unregisterKeyMaps : function() {
+
+            var _this           = this;
+            var cm              = this.cm;
+
+            if (cacheKeymaps)
+            {
+                for (var i in cacheKeymaps)
+                {
+                    cm.removeKeyMap(cacheKeymaps[i]);
+                }
+            }
+            cacheKeymaps = null;
+
+            return this;
+        },
+
+        /**
+         * 同步预览进行滚动
+         *
+         * @returns {editormd} return this
+         */
+        syncPreviewScrolling : function () {
+            var _this            = this;
+            var cm               = this.cm;
+            var preview          = this.preview;
 
             var scrollInfo = cm.getScrollInfo();
             var cmPos = cm.coordsChar(scrollInfo, "local");
@@ -1613,97 +1756,13 @@
             {
                 lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
             }
-            var nextPosition = preview.height();
+            var nextPosition = preview.get(0).scrollHeight;
             if (nextMarker !== false)
             {
                 nextPosition = preview.find('[data-source-line="' + nextLine + '"]').get(0).offsetTop;
             }
             var scrollTop = lastPosition + (nextPosition - lastPosition) * percentage;
             preview.scrollTop(scrollTop);
-
-            return this;
-        },
-
-        /**
-         * 注册键盘快捷键处理
-         * Register CodeMirror keyMaps (keyboard shortcuts).
-         *
-         * @param   {Object}    keyMap      KeyMap key/value {"(Ctrl/Shift/Alt)-Key" : function(){}}
-         * @returns {editormd}              return this
-         */
-
-        registerKeyMaps : function(keyMap) {
-
-            var _this           = this;
-            var cm              = this.cm;
-            var settings        = this.settings;
-            var toolbarHandlers = editormd.toolbarHandlers;
-            var disabledKeyMaps = settings.disabledKeyMaps;
-
-            keyMap              = keyMap || null;
-
-            if (keyMap)
-            {
-                for (var i in keyMap)
-                {
-                    if ($.inArray(i, disabledKeyMaps) < 0)
-                    {
-                        var map = {};
-                        map[i]  = keyMap[i];
-
-                        cm.addKeyMap(keyMap);
-                    }
-                }
-            }
-            else
-            {
-                for (var k in editormd.keyMaps)
-                {
-                    var _keyMap = editormd.keyMaps[k];
-                    var handle = (typeof _keyMap === "string") ? $.proxy(toolbarHandlers[_keyMap], _this) : $.proxy(_keyMap, _this);
-
-                    if ($.inArray(k, ["F9", "F10", "F11"]) < 0 && $.inArray(k, disabledKeyMaps) < 0)
-                    {
-                        var _map = {};
-                        _map[k] = handle;
-
-                        cm.addKeyMap(_map);
-                    }
-                }
-
-                $(window).keydown(function(event) {
-
-                    var keymaps = {
-                        "120" : "F9",
-                        "121" : "F10",
-                        "122" : "F11"
-                    };
-
-                    if ( $.inArray(keymaps[event.keyCode], disabledKeyMaps) < 0 )
-                    {
-                        switch (event.keyCode)
-                        {
-                            case 120:
-                                    $.proxy(toolbarHandlers["watch"], _this)();
-                                    return false;
-                                break;
-
-                            case 121:
-                                    $.proxy(toolbarHandlers["preview"], _this)();
-                                    return false;
-                                break;
-
-                            case 122:
-                                    $.proxy(toolbarHandlers["fullscreen"], _this)();
-                                    return false;
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
-                });
-            }
 
             return this;
         },
@@ -1729,62 +1788,7 @@
 
             var cmBindScroll = function() {
                 codeMirror.find(".CodeMirror-scroll").bind(mouseOrTouch("scroll", "touchmove"), function(event) {
-                    var height    = $(this).height();
-                    var scrollInfo = cm.getScrollInfo();
-                    var cmPos = cm.coordsChar(scrollInfo, "local");
-                    var line_markers = preview.find('* [data-source-line]');
-                    var lines = [];
-                    line_markers.each(function() {
-                        lines.push($(this).data('source-line'));
-                    });
-
-                    var currentLine = cmPos.line;
-                    var lastMarker = false;
-                    var nextMarker = false;
-                    for (var i = 0; i < lines.length; i++) {
-                        if (lines[i] < currentLine)
-                        {
-                            lastMarker = i;
-                        }
-                        else
-                        {
-                            nextMarker = i;
-                            break;
-                        }
-                    }
-
-                    var lastLine = 0;
-                    if (lastMarker !== false)
-                    {
-                        lastLine = lines[lastMarker];
-                    }
-                    var nextLine = cm.lastLine();
-                    if (nextMarker !== false)
-                    {
-                        nextLine = lines[nextMarker];
-                    }
-                    var percentage = 0;
-                    if (lastLine != nextLine)
-                    {
-                        percentage = (currentLine - lastLine) / (nextLine - lastLine);
-                    }
-
-                    var lastPosition = 0;
-                    if (lastMarker !== false)
-                    {
-                        lastPosition = preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetTop;
-                    }
-                    var nextPosition = preview.get(0).scrollHeight;
-                    if (nextMarker !== false)
-                    {
-                        nextPosition = preview.find('[data-source-line="' + nextLine + '"]').get(0).offsetTop;
-                    }
-                    //else if (nextPosition < lastPosition && lastMarker !== false)
-                    //{
-                    //    nextPosition = lastPosition + preview.find('[data-source-line="' + lastLine + '"]').get(0).offsetHeight;
-                    //}
-                    var scrollTop = lastPosition + (nextPosition - lastPosition) * percentage;
-                    preview.scrollTop(scrollTop);
+                    _this.syncPreviewScrolling();
 
                     $.proxy(settings.onscroll, _this)(event);
                 });
@@ -1797,6 +1801,12 @@
             var previewBindScroll = function() {
 
                 preview.bind(mouseOrTouch("scroll", "touchmove"), function(event) {
+                    if (_this.state.preview)
+                    {
+                        $.proxy(settings.onpreviewscroll, _this)(event);
+                        return;
+                    }
+
                     var height    = $(this).height();
                     var scroll = preview.scrollTop();
                     var lastMarker = false;
@@ -1890,12 +1900,23 @@
                 var $el = $(this);
                 var id = $el.attr('href');
                 var lev = $el.attr('level');
+                var line = $el.attr('lineIdx');
 
                 preview.scrollTop(0);
                 var topOrg = preview.offset().top;
 
                 var hdName = id.substring(1);
-                var ref = previewContainer.find('a[name="' + hdName + '"]');
+                var refs = previewContainer.find('a[name="' + hdName + '"]');
+                var ref = refs;
+                if (line && refs.length > 1) {
+                    // 解决相同标题时跳转错误
+                    refs.each(function () {
+                        if ($(this).parent().attr('data-source-line') == line) {
+                            ref = $(this);
+                            return false;
+                        }
+                    })
+                }
                 var topPos = ref.offset().top - topOrg;
                 preview.scrollTop(topPos);
 
@@ -1926,12 +1947,51 @@
                     _this.previewContainer.css("padding", settings.autoHeight ? "20px 20px 50px 40px" : "20px");
                 }
 
-                timer = setTimeout(function() {
+                if (timer) {
                     clearTimeout(timer);
+                    timer = undefined;
+                }
+
+                var delay = elapsedSaveTime;
+                if (delay > settings.delay) {
+                    delay = settings.delay;
+                }
+
+                timer = setTimeout(function() {
+                    timer = undefined;
+
+                    var prevTime = new Date().getTime();
                     _this.save();
-                    timer = null;
-                }, settings.delay);
+                    var currTime = new Date().getTime();
+                    elapsedSaveTime = currTime - prevTime;
+                }, delay);
             });
+
+            return this;
+        },
+
+        bindVimModeChangeEvent : function() {
+
+            var _this            = this;
+            var cm               = this.cm;
+            var state            = this.state;
+            var settings         = this.settings;
+
+            cm.on("vim-mode-change", function(changeObj) {
+                // 禁用掉快捷键加粗斜体等
+                if (changeObj.mode === "insert") {
+                    if (!cacheKeymaps) {
+                        _this.registerKeyMaps();
+                    }
+                }
+                else {
+                    _this.unregisterKeyMaps();
+                }
+            });
+
+            if (settings.keymapMode !== "default") {
+                _this.cm.setOption("keyMap", settings.keymapMode);
+            }
 
             return this;
         },
@@ -1970,7 +2030,7 @@
                 _this.resize();
             });
 
-            this.bindScrollEvent().bindChangeEvent();
+            this.bindScrollEvent().bindChangeEvent().bindVimModeChangeEvent();
 
             if (!recreate)
             {
@@ -2162,7 +2222,8 @@
                 pedantic    : false,
                 sanitize    : (settings.htmlDecode) ? false : true,  // 关闭忽略HTML标签，即开启识别HTML标签，默认为false
                 smartLists  : true,
-                smartypants : false
+                smartypants : false,
+                mathDelimiters : [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
             };
 
             marked.setOptions(markedOptions);
@@ -2182,7 +2243,7 @@
                 }
                 else
                 {
-                    newMarkdownDoc = mdmj(cmValue, 3);
+                    newMarkdownDoc = editormd.$marked(cmValue, markedOptions);
                 }
             }
             else
@@ -2767,6 +2828,8 @@
                 height     : (settings.autoHeight && !this.state.fullscreen) ? "auto" : editor.height() - toolbar.height(),
                 top        : (settings.toolbar)    ? toolbar.height() : 0
             });
+
+            this.syncPreviewScrolling();
 
             if (this.state.loaded)
             {
@@ -3677,15 +3740,7 @@
                         return $1.replace(/@/g, "_#_&#64;_#_");
                     });
 
-                    text = text.replace(atLinkReg, function($1, $2, index, originalText) {
-                        // 过滤掉，防止数学公式占位符出问题
-                        if (/@(\d+)$/.test($1)) {
-                            return $1;
-                        }
-                        if (index >= 2 && /(\d)@$/.test(originalText.substring(index - 2, index))) {
-                            return $1;
-                        }
-
+                    text = text.replace(atLinkReg, function($1, $2) {
                         return "<a target=\"_blank\" href=\"" + editormd.urls.atLinkBase + "" + $2 + "\" title=\"&#64;" + $2 + "\" class=\"at-link\">" + $1 + "</a>";
                     }).replace(/_#_&#64;_#_/g, "@");
                 }
@@ -3802,7 +3857,8 @@
             var toc = {
                 text  : text,
                 level : level,
-                slug  : escapedText
+                slug  : escapedText,
+                lineIdx : line
             };
 
             var isChinese = /^[\u4e00-\u9fa5]+$/.test(text);
@@ -3849,9 +3905,13 @@
             // }
 
             var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
+            var dsl = "";
+            if (typeof(line) != "undefined") {
+                dsl = " data-source-line=\"" + line;
+            }
 
             return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
-                           : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + " data-source-line=\"" + line +  "\">" + this.atLink(this.emoji(this.footNote(text))) + "</p>\n" );
+                           : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + dsl +  "\">" + this.atLink(this.emoji(this.footNote(text))) + "</p>\n" );
         };
 
         markedRenderer.code = function (code, lang, escaped) {
@@ -3882,6 +3942,16 @@
             return tag + this.atLink(this.emoji(content)) + "</" + type + ">\n";
         };
 
+        markedRenderer.list = function(body, ordered, line) {
+            var dsl = "";
+            if (typeof(line) != "undefined") {
+                dsl = " data-source-line=\"" + line + "\"";
+            }
+
+            var type = ordered ? 'ol' : 'ul';
+            return '<' + type + dsl + '>\n' + body + '</' + type + '>\n';
+        };
+
         markedRenderer.listitem = function(text) {
             if (settings.taskList && /^\s*\[[x\s]\]\s*/.test(text))
             {
@@ -3895,6 +3965,27 @@
                 return "<li>" + this.atLink(this.emoji(text)) + "</li>";
             }
         };
+
+        markedRenderer.table = function(header, body, line) {
+            var dsl = "";
+            if (typeof(line) != "undefined") {
+                dsl = " data-source-line=\"" + line + "\"";
+            }
+
+            return '<table' + dsl + '>\n'
+                + '<thead>\n'
+                + header
+                + '</thead>\n'
+                + '<tbody>\n'
+                + body
+                + '</tbody>\n'
+                + '</table>\n';
+        };
+
+        /*markedRenderer.math = function(text) {
+            console.info(text);
+            return text;
+        };*/
 
         return markedRenderer;
     };
@@ -3922,6 +4013,7 @@
         {
             var text  = toc[i].text;
             var level = toc[i].level;
+            var line = toc[i].lineIdx;
 
             if (level < startLevel) {
                 continue;
@@ -3945,7 +4037,7 @@
                 html += "</ul></li>";
             }
 
-            html += "<li><a class=\"toc-level-" + level + "\" href=\"#" + text + "\" level=\"" + level + "\">" + text + "</a><ul>";
+            html += "<li><a class=\"toc-level-" + level + "\" href=\"#" + text + "\" level=\"" + level + "\" lineIdx=\"" + line + "\">" + text + "</a><ul>";
             lastLevel = level;
         }
 
@@ -4194,21 +4286,13 @@
             pedantic    : false,
             sanitize    : (settings.htmlDecode) ? false : true, // 是否忽略HTML标签，即是否开启HTML标签解析，为了安全性，默认不开启
             smartLists  : true,
-            smartypants : false
+            smartypants : false,
+            mathDelimiters : [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
         };
 
 		markdownDoc = new String(markdownDoc);
 
-        var markdownParsed = "";
-        if(settings.tex)
-        {
-            marked.setOptions(markedOptions);
-            markdownParsed = mdmj(markdownDoc, 3);
-        }
-        else
-        {
-            markdownParsed = marked(markdownDoc, markedOptions);
-        }
+        var markdownParsed = markdownParsed = marked(markdownDoc, markedOptions);
 
         markdownParsed = editormd.filterHTMLTags(markdownParsed, settings.htmlDecode);
 
@@ -4311,21 +4395,29 @@
     // CodeMirror / editor area themes
     // @1.5.0 rename -> editorThemes, old version -> themes
     editormd.editorThemes = [
-        "default", "3024-day", "3024-night",
+        "default", "3024-day", "3024-night", "abcdef",
         "ambiance", "ambiance-mobile",
-        "base16-dark", "base16-light", "blackboard",
-        "cobalt",
+        "base16-dark", "base16-light", "bespin", "blackboard",
+        "cobalt", "colorforth",
+        "dracula", "duotone-dark", "duotone-light",
         "eclipse", "elegant", "erlang-dark",
-        "lesser-dark",
-        "mbo", "mdn-like", "midnight", "monokai",
+        "hopscotch",
+        "icecoder", "isotope",
+        "lesser-dark", "liquibyte",
+        "material", "mbo", "mdn-like", "midnight", "monokai",
         "neat", "neo", "night",
-        "paraiso-dark", "paraiso-light", "pastel-on-dark",
-        "rubyblue",
-        "solarized",
-        "the-matrix", "tomorrow-night-eighties", "twilight",
+        "panda-syntax", "paraiso-dark", "paraiso-light", "pastel-on-dark",
+        "railscasts", "rubyblue",
+        "seti", "solarized",
+        "the-matrix", "tomorrow-night-bright", "tomorrow-night-eighties", "ttcn", "twilight",
         "vibrant-ink",
-        "xq-dark", "xq-light"
+        "xq-dark", "xq-light",
+        "yeti",
+        "zenburn"
     ];
+
+    // 键盘模式
+    editormd.keymapModes = ["default", "vim", "emacs", "sublime"];
 
     editormd.loadPlugins = {};
 
@@ -4473,7 +4565,7 @@
                                 'showProcessingMessages: false,'+
                                 'extensions: ["tex2jax.js"],'+
                                 'jax: ["input/TeX","output/HTML-CSS"],'+
-                                'tex2jax: {inlineMath: [["$","$"],["\\\\(","\\\\)"]]},'+
+                                'tex2jax: {inlineMath: [["$","$"],["\\\\(","\\\\)"]], processEscapes: true},'+
                                 'TeX: { equationNumbers: {autoNumber: "AMS"} },'+
                                 'messageStyle: "none"'+
                             '});';
@@ -4495,9 +4587,7 @@
      */
 
     editormd.loadMathJax = function (path, callback) {
-        editormd.loadScript(path + "mathJax/mdmj", function(){
-            editormd.loadScript(path + editormd.mathjaxURL, callback || function(){});
-        });
+        editormd.loadScript(path + editormd.mathjaxURL, callback || function(){});
     };
 
     /**

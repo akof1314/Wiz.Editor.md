@@ -1,6 +1,9 @@
-;function WizEditormdMarkdown(document, path) {
+;function WizEditormdMarkdown(doct, path) {
     var basePath = path;
-    var doc = document;
+    var doc = doct;
+    if (doc == null) {
+        doc = document;
+    }
 
     function isMarkdown() {
         var title = doc.title;
@@ -104,14 +107,26 @@
         });
     }
 
-    function onDocumentComplete() {
-        if (isMarkdown()) {
-            initMarkdown();
+    if (isMarkdown()) {
+        initMarkdown();
+    }
+}
+
+function WizMDEditorTabClose(objHtmlDocument, objWizDocument) {
+    if (objWizDocument)
+        return;
+    if (!objHtmlDocument)
+        return;
+
+    try {
+        if (objHtmlDocument.defaultView) {
+            objHtmlDocument.defaultView.eval("if (onBeforeCloseTab_MDEditor) onBeforeCloseTab_MDEditor();");
+        }
+        else { // 4.5 objBrowser
+            objHtmlDocument.ExecuteScript("if (onBeforeCloseTab_MDEditor) onBeforeCloseTab_MDEditor();", null);
         }
     }
-
-    return {
-        onDocumentComplete: onDocumentComplete
+    catch (err) {
     }
 }
 
@@ -124,11 +139,20 @@
         }
 
         function onDocumentComplete(doc) {
+            var objBrowser = doc;
             if (doc == null || doc.title == null || doc.GUID != null) {
                 doc = objWindow.CurrentDocumentHtmlDocument;
             }
-            var mardown = new WizEditormdMarkdown(doc, WizMD_pluginPath);
-            mardown.onDocumentComplete();
+            if (doc == null) {
+                doc = objBrowser; // 4.5
+                objBrowser.ExecuteScript(WizEditormdMarkdown.toString(), function(ret) {
+                    objBrowser.ExecuteFunction2("WizEditormdMarkdown", null, WizMD_pluginPath, function(ret) {
+                    });
+                });
+            }
+            else {
+                WizEditormdMarkdown(doc, WizMD_pluginPath);
+            }
         }
 
         if (eventsHtmlDocumentComplete) {
@@ -136,7 +160,8 @@
         }
     }
     catch(e) {
-        var mardown = new WizEditormdMarkdown(document, "");
-        mardown.onDocumentComplete();
+        WizEditormdMarkdown(document, "");
     }
 })();
+
+eventsTabClose.add(WizMDEditorTabClose);
