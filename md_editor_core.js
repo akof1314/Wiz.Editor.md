@@ -135,7 +135,7 @@ $(function() {
             // 绑定Ctrl-S快捷键和Vim的w命令保存
             CodeMirror.commands.save = OnPluginSaveMDEditor;
 
-            var isWebPage = false;
+            var isWebPage = true;
             if (isWebPage)
             {
                 $.get('Editor.md/examples/test.md', function(md){
