@@ -491,7 +491,7 @@ $(function() {
 
         var imgStrDiv = "";
         if (arrImgTags != "") {
-            imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">" + arrImgTags + "</div>";
+            imgStrDiv = "<ed_tag name=\"markdownimage\" style=\"display:none;\">" + arrImgTags + "</ed_tag>";
         };
         return [doc, imgStrDiv];
     }
