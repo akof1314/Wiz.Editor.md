@@ -115,7 +115,7 @@ $(function() {
             });
 
             // 监听粘贴事件
-            this.cm.getInputField().addEventListener("paste", function (e) {
+            this.cm.on("paste", function (_cm, e) {
                 var clipboardData = event.clipboardData || window.clipboardData;
                 if (clipboardData) {
                     if (clipboardData.types == "Files") {
