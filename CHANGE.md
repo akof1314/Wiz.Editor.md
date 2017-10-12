@@ -1,5 +1,10 @@
 ## 更新日志
 
+#### v2.5
+
+- 修改图片保存的标签
+- 修复重复粘贴问题[#111](https://github.com/akof1314/Wiz.Editor.md/issues/111)
+
 #### v2.3
 
 - 新增Vim键盘模式支持[Keymap](https://github.com/akof1314/Wiz.Editor.md/wiki/Keymap)
