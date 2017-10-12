@@ -39,6 +39,10 @@
 
 [Change logs](https://github.com/akof1314/Wiz.Editor.md/blob/master/CHANGE.md)
 
+#### 支持开发
+
+[微信支持](http://img.bbs.csdn.net/upload/201710/12/1507795274_603333.png)
+
 #### License
 
 The MIT License.
