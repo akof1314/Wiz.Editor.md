@@ -520,6 +520,18 @@ $(function() {
                 // 转换可能包含中文名的名称，转换成Unicode
                 var imgNameNew = escape(imgName).replace(/%/g, '_');
 
+                // 如果超过50个字符，则简短
+                var extPos = imgNameNew.lastIndexOf('.');
+                if (extPos == -1) {
+                    extPos = imgNameNew.length;
+                }
+                var imgNameWithoutExt = imgNameNew.substring(0, extPos);
+                var imgExt = imgNameNew.substring(extPos);
+                if (imgNameWithoutExt.length > 50) {
+                    imgNameWithoutExt = imgNameWithoutExt.substring(0, 35 - imgExt.length);
+                    imgNameNew = imgNameWithoutExt + imgExt;
+                }
+
                 // 路径不同，则进行拷贝
                 var imgCopyToFullPath = filesFullPath + imgNameNew;
                 if (imgFullPath != imgCopyToFullPath) {
@@ -527,7 +539,7 @@ $(function() {
                     // 目标文件已经存在
                     if (objCommon.PathFileExists(imgCopyToFullPath)) {
                         var date = new Date();
-                        imgNameNew = date.getTime() + imgNameNew;
+                        imgNameNew = imgNameWithoutExt + date.getTime() + imgExt;
                         imgCopyToFullPath = filesFullPath + imgNameNew;
                     }
 
