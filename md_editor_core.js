@@ -14,10 +14,10 @@ $(function() {
     var optionSettings = getOptionSettings();
     var code = loadDocument();
 
-    //缓存前一次保存的，解决为知4.5版本自动保存问题
+    //分清是不是快捷键保存，解决为知4.5版本自动保存问题
     var wizVerisonGreaterThan45 = null;
-    var savePreHtml = null;
-    var savePreTime = null;
+    var wantSaveKey = false;
+    var wantSaveTime = null;
     try {
         wizVerisonGreaterThan45 = objApp.Window.CurrentDocumentBrowserObject != null;
     }
@@ -104,6 +104,11 @@ $(function() {
                 },
                 "Ctrl-Alt-F": function(cm) {
                     wizEditor.cm.execCommand("find");
+                },
+                "Ctrl": function(cm) {
+                    // 可能按了保存快捷键，记录
+                    wantSaveKey = true;
+                    wantSaveTime = new Date();
                 }
             };
             this.addKeyMap(keyMap);
@@ -133,7 +138,7 @@ $(function() {
             });
 
             // 绑定Ctrl-S快捷键和Vim的w命令保存
-            CodeMirror.commands.save = OnPluginSaveMDEditor;
+            CodeMirror.commands.save = saveDocument;
 
             var isWebPage = false;
             if (isWebPage)
@@ -443,11 +448,13 @@ $(function() {
     // Ctrl+S保存调用
     OnPluginSaveMDEditor = function () {
         if (wizVerisonGreaterThan45) {
-            savePreHtml = null;
-            if (modified) {
-                savePreHtml = objDocument.GetHtml();
-                saveDocument();
-                savePreTime = new Date();
+            if (modified && wantSaveKey && wantSaveTime) {
+                wantSaveKey = false;
+                var closeTime = new Date();
+                var spanTime = closeTime.getTime() - wantSaveTime.getTime();
+                if (spanTime < 800) { // 间隔太短表示快捷键保存的
+                    saveDocument();
+                }
             }
         }
         else {
@@ -458,15 +465,6 @@ $(function() {
     ////////////////////////////////////////////////
     // 关闭标签前的事件
     OnBeforeCloseTabMDEditor = function () {
-        if (wizVerisonGreaterThan45 && savePreHtml && savePreTime) {
-            var closeTime = new Date();
-            var spanTime = closeTime.getTime() - savePreTime.getTime();
-            if (spanTime < 800) { // 间隔太短表示自动保存了
-                if (6 != objApp.Window.ShowMessage("是否将更改保存到 " + objDocument.Title + " ？", "{p}", 0x04 + 0x20)) {
-                    objDocument.UpdateDocument3(savePreHtml, 0);
-                }
-            }
-        }
     };
 
     ////////////////////////////////////////////////
