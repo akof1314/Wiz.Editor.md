@@ -1,3 +1,117 @@
+function WizEditormdMarkdown2(doct, path) {
+    var basePath = path;
+    var doc = doct;
+    if (doc == null) {
+        doc = document;
+    }
+
+    function isMarkdown() {
+        var title = doc.title;
+
+        if (!title)
+            return false;
+        if (-1 != title.indexOf(".md "))
+            return true;
+        if (-1 != title.indexOf(".md@"))
+            return true;
+        if (title.match(/\.md$/i))
+            return true;
+        return false;
+    }
+
+    function insertElem(part, elem_type, callbackfunc) {
+        var oPart = doc.getElementsByTagName(part).item(0);
+        var oElem = doc.createElement(elem_type);
+        callbackfunc(oElem);
+        oPart.insertBefore(oElem, null);
+        return oElem;
+    }
+
+    function appendScriptSrc(part, script_type, str, isServer) {
+        return insertElem(part, "script", function(oScript) {
+            oScript.type = script_type;
+            if (isServer) {
+                oScript.src = str;
+            } else {
+                oScript.src = ("" + basePath + str).replace(/\\/g, '/');
+            }
+        }
+      );
+    }
+
+    function appendCssSrc(str) {
+        insertElem('HEAD', "link", function(oCss) {
+            oCss.rel = "stylesheet";
+            oCss.href = ("" + basePath + str).replace(/\\/g, '/');
+        }
+      );
+    }
+
+    function appendScriptInnerHtml(part, class_Name, script_type, innerHtmlStr) {
+        insertElem(part, "script", function(oScript) {
+            oScript.className = class_Name;
+            oScript.type = script_type;
+            oScript.innerHTML = innerHtmlStr;
+        }
+      );
+    }
+
+    function appendScriptInnerHtml2(part, class_Name, script_type, innerHtmlStr, onLoadFunc) {
+        var oPart = doc.getElementsByTagName(part).item(0);
+        var oElem = doc.createElement('script');
+
+        oElem.className = class_Name;
+        oElem.type = script_type;
+        oElem.innerHTML = innerHtmlStr;
+        oPart.insertBefore(oElem, null);
+        onLoadFunc();
+        return oElem;
+    }
+
+    function appendScriptSrc2(part, script_type, str, isServer, onLoadFunc) {
+        var oPart = doc.getElementsByTagName(part).item(0);
+        var oElem = doc.createElement('script');
+
+        oElem.type = script_type;
+        if (!!onLoadFunc) {
+            oElem.onload = function() { onLoadFunc(); };
+        }
+
+        if (isServer) {
+            oElem.src = str;
+        } else {
+            oElem.src = ("" + basePath + str).replace(/\\/g, '/');
+        }
+
+        oPart.insertBefore(oElem, null);
+        return oElem;
+    }
+
+    function initMarkdown() {
+        doc.title = doc.title.replace(new RegExp(".md", "gi"), "");
+        appendCssSrc("Editor.md/css/editormd.preview.css");
+        appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/marked.min.js");
+        appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/prettify.min.js");
+        appendScriptSrc2('HEAD', "text/javascript", "Editor.md/examples/js/jquery.min.js", false, function() {
+            appendScriptSrc2('HEAD', "text/javascript", "Editor.md/lib/raphael.min.js", false, function() {
+                appendScriptSrc2('HEAD', "text/javascript", "Editor.md/lib/underscore.min.js", false, function() {
+                    appendScriptSrc2('HEAD', "text/javascript", "Editor.md/lib/flowchart.min.js", false, function() {
+                        appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/jquery.flowchart.min.js");
+                        appendScriptSrc2('HEAD', "text/javascript", "Editor.md/editormd.js", false, function() {
+                            appendScriptSrc('HEAD', "text/javascript", "md_editor_inject.js");
+                        });
+                    });
+                    appendScriptSrc('HEAD', "text/javascript", "Editor.md/lib/sequence-diagram.min.js");
+                });
+            });
+        });
+    }
+
+    if (isMarkdown()) {
+        initMarkdown();
+    }
+}
+
 function WizMDEditorTabClose(objHtmlDocument, objWizDocument) {
     if (objWizDocument)
         return;
@@ -37,7 +151,7 @@ function WizMDEditorTabClose(objHtmlDocument, objWizDocument) {
                 });
             }
             else {
-                WizEditormdMarkdown(doc, WizMD_pluginPath);
+                WizEditormdMarkdown2(doc, WizMD_pluginPath);
             }
         }
 
@@ -46,7 +160,7 @@ function WizMDEditorTabClose(objHtmlDocument, objWizDocument) {
         }
     }
     catch(e) {
-        WizEditormdMarkdown(document, "");
+        WizEditormdMarkdown2(document, "");
     }
 })();
 
