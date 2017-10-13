@@ -527,7 +527,7 @@ $(function() {
                 }
                 var imgNameWithoutExt = imgNameNew.substring(0, extPos);
                 var imgExt = imgNameNew.substring(extPos);
-                if (imgNameWithoutExt.length > 50) {
+                if (imgNameNew.length > 50) {
                     imgNameWithoutExt = imgNameWithoutExt.substring(0, 35 - imgExt.length);
                     imgNameNew = imgNameWithoutExt + imgExt;
                 }
@@ -540,6 +540,10 @@ $(function() {
                     if (objCommon.PathFileExists(imgCopyToFullPath)) {
                         var date = new Date();
                         imgNameNew = imgNameWithoutExt + date.getTime() + imgExt;
+                        if (imgNameNew.length > 50) {
+                            imgNameWithoutExt = imgNameWithoutExt.substring(0, 35 - imgExt.length);
+                            imgNameNew = imgNameWithoutExt + date.getTime() + imgExt;
+                        }
                         imgCopyToFullPath = filesFullPath + imgNameNew;
                     }
 
