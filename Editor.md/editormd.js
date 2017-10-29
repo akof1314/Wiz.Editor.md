@@ -1340,7 +1340,7 @@
             var infoDialogHTML = [
                 "<div class=\"" + classPrefix + "dialog " + classPrefix + "dialog-info\" style=\"\">",
                 "<div class=\"" + classPrefix + "dialog-container\">",
-                "<h1><i class=\"editormd-logo editormd-logo-lg editormd-logo-color\"></i> Wiz." + editormd.title + "<small>v2.5</small></h1>",
+                "<h1><i class=\"editormd-logo editormd-logo-lg editormd-logo-color\"></i> Wiz." + editormd.title + "<small>v2.6</small></h1>",
                 "<p>" + this.lang.description + "</p>",
                 "<p style=\"margin: 10px 0 20px 0;\">",
 				"<a href=\"https://github.com/akof1314/Wiz.Editor.md\" target=\"_blank\">https://github.com/akof1314/Wiz.Editor.md/ <i class=\"fa fa-external-link\"></i></a>",
