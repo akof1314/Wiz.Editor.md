@@ -160,8 +160,8 @@
         tocStartLevel        : 1,              // Said from H1 to create ToC
         htmlDecode           : false,          // Open the HTML tag identification
         pageBreak            : true,           // Enable parse page break [========]
-        atLink               : true,           // for @link
-        emailLink            : true,           // for email address auto link
+        atLink               : false,           // for @link
+        emailLink            : false,           // for email address auto link
         taskList             : false,          // Enable Github Flavored Markdown task lists
         emoji                : false,          // :emoji: , Support Github emoji, Twitter Emoji (Twemoji);
                                                // Support FontAwesome icon emoji :fa-xxx: > Using fontAwesome icon web fonts;
@@ -3643,8 +3643,8 @@
             tocm                 : false,
             tocStartLevel        : 1,              // Said from H1 to create ToC
             pageBreak            : true,
-            atLink               : true,           // for @link
-            emailLink            : true,           // for mail address auto link
+            atLink               : false,           // for @link
+            emailLink            : false,           // for mail address auto link
             taskList             : false,          // Enable Github Flavored Markdown task lists
             emoji                : false,          // :emoji: , Support Twemoji, fontAwesome, Editor.md logo emojis.
             tex                  : false,          // TeX(LaTeX), based on KaTeX
@@ -4244,8 +4244,8 @@
             htmlDecode           : false,
             autoLoadKaTeX        : true,
             pageBreak            : true,
-            atLink               : true,    // for @link
-            emailLink            : true,    // for mail address auto link
+            atLink               : false,    // for @link
+            emailLink            : false,    // for mail address auto link
             tex                  : false,
             taskList             : false,   // Github Flavored Markdown task lists
             emoji                : false,
