@@ -438,7 +438,7 @@ $(function() {
             doc = doc.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');   // 替换制表符
             doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
             doc += arrResult[1];
-            doc = "<!DOCTYPE html><html><head></head><body>" + doc + "</body></html>";
+            doc = "<!DOCTYPE html><html><head><style id=\"wiz_custom_css\"></style></head><body>" + doc + "</body></html>";
             objDocument.UpdateDocument3(doc, 0);
             modified = false;
         }
@@ -591,6 +591,7 @@ $(function() {
             document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
 
             var content = objDocument.GetHtml();
+            console.info(content)
             var tempBody = document.body.innerHTML;
             document.body.innerHTML = content;
 
