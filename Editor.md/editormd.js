@@ -2333,6 +2333,12 @@
                     this.flowChartAndSequenceDiagramRender();
                 }
 
+                // wiz 内部文档
+                previewContainer.find("a").click( function () {
+                    var hrefValue = $(this).attr('href')
+                    return $.proxy(settings.onclickHyperlink, this)(hrefValue);
+                });
+
                 if (state.loaded)
                 {
                     $.proxy(settings.onchange, this)();

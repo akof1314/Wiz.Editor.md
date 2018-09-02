@@ -170,6 +170,9 @@ $(function() {
         },
         ongetObjCommon : function() {
             return objCommon;
+        },
+        onclickHyperlink : function(hrefValue) {
+            return openOtherDocument(hrefValue);
         }
     });
 
@@ -574,8 +577,8 @@ $(function() {
     ////////////////////////////////////////////////
     // 加载文档
     function loadDocument() {
-        var guid = getQueryString("guid");
-        var kbGUID = getQueryString("kbguid");
+        var guid = getQueryString("guid", location.href);
+        var kbGUID = getQueryString("kbguid", location.href);
 
         if (kbGUID == "" || kbGUID == null) {
             objDatabase = objApp.Database;
@@ -591,7 +594,6 @@ $(function() {
             document.title = "编辑 " + objDocument.Title.replace(new RegExp(".md", "gi"), "");
 
             var content = objDocument.GetHtml();
-            console.info(content)
             var tempBody = document.body.innerHTML;
             document.body.innerHTML = content;
 
@@ -634,11 +636,11 @@ $(function() {
 
     ////////////////////////////////////////////////
     // 解析参数
-    function getQueryString(name) {
-        if (location.href.indexOf("?") == -1 || location.href.indexOf(name + '=') == -1) {
+    function getQueryString(name, hrefValue) {
+        if (hrefValue.indexOf("?") == -1 || hrefValue.indexOf(name + '=') == -1) {
             return '';
         }
-        var queryString = location.href.substring(location.href.indexOf("?") + 1);
+        var queryString = hrefValue.substring(hrefValue.indexOf("?") + 1);
 
         var parameters = queryString.split("&");
 
@@ -655,6 +657,35 @@ $(function() {
             }
         }
         return '';
+    };
+
+    ////////////////////////////////////////////////
+    // 打开新文档
+    function openOtherDocument(hrefValue) {
+        var guid = getQueryString("guid", hrefValue);
+        if (guid == "") {
+            return true;
+        }
+
+        var kbGUID = getQueryString("kbguid", hrefValue);
+        var newDatabase = null
+
+        if (kbGUID == "" || kbGUID == null) {
+            newDatabase = objApp.Database;
+        }
+        else {
+            newDatabase = objApp.GetGroupDatabase(kbGUID);
+        }
+
+        try {
+            var newDocument = newDatabase.DocumentFromGUID(guid);
+            objApp.Window.ViewDocument(newDocument, true);
+            return false;
+        }
+        catch (err) {
+        }
+
+        return true;
     };
 });
 
