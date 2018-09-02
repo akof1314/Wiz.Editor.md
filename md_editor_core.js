@@ -608,6 +608,17 @@ $(function() {
                 }
             }
 
+            var links = document.body.getElementsByTagName('a');
+            if(links.length){
+                for (var i = links.length - 1; i >= 0; i--) {
+                    var pi = links[i];
+                    if(pi && pi.getAttribute("href").indexOf("wiz://open_") != -1) {
+                        var linkmd = document.createTextNode("[" + pi.textContent + "](" + pi.getAttribute("href") + ")");
+                        $(pi).replaceWith(linkmd);
+                    }
+                }
+            }
+
             content = document.body.innerText;
             document.body.innerHTML = tempBody;
             code = content;
@@ -676,10 +687,18 @@ $(function() {
         else {
             newDatabase = objApp.GetGroupDatabase(kbGUID);
         }
+        var isAttachment = hrefValue.indexOf("wiz://open_attachment") != -1;
 
         try {
-            var newDocument = newDatabase.DocumentFromGUID(guid);
-            objApp.Window.ViewDocument(newDocument, true);
+            if (isAttachment) {
+                var newAttachment = newDatabase.AttachmentFromGUID(guid);
+                objCommon.RunExe("explorer", newAttachment.FileName, false);
+            }
+            else
+            {
+                var newDocument = newDatabase.DocumentFromGUID(guid);
+                objApp.Window.ViewDocument(newDocument, true);
+            }
             return false;
         }
         catch (err) {
