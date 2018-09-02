@@ -144,11 +144,11 @@ function WizMDEditorTabClose(objHtmlDocument, objWizDocument) {
                 doc = objWindow.CurrentDocumentHtmlDocument;
             }
             if (doc == null) {
-                doc = objBrowser; // 4.5
-                objBrowser.ExecuteScriptFile(WizMD_pluginPath + "md_editor_inject.js", function(ret) {
-                    objBrowser.ExecuteFunction3("WizEditormdMarkdown", null, WizMD_pluginPath, objCommon, function(ret) {
-                    });
-                });
+                // doc = objBrowser; // 4.5
+                // objBrowser.ExecuteScriptFile(WizMD_pluginPath + "md_editor_inject.js", function(ret) {
+                //     objBrowser.ExecuteFunction3("WizEditormdMarkdown", null, WizMD_pluginPath, objCommon, function(ret) {
+                //     });
+                // });
             }
             else {
                 WizEditormdMarkdown2(doc, WizMD_pluginPath);

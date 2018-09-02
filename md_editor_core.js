@@ -204,8 +204,8 @@ $(function() {
     // 获得选项配置值
     function getOptionSettings() {
         var optionsValue = {
-            MarkdownStyle : getConfigValue("MarkdownStyle", "WizDefault"),
-            ReadTheme : getConfigValue("ReadTheme", "default"),
+            // MarkdownStyle : getConfigValue("MarkdownStyle", "WizDefault"),
+            // ReadTheme : getConfigValue("ReadTheme", "default"),
             EditToolbarButton : getConfigValue("EditToolbarButton", "default"),
             EditToolbarTheme : getConfigValue("EditToolbarTheme", "default"),
             EditEditorTheme : getConfigValue("EditEditorTheme", "default"),
@@ -237,14 +237,14 @@ $(function() {
         }
 
         var showMsg = false;
-        if (optionSettings.MarkdownStyle != optionsValue.MarkdownStyle) {
-            setConfigValue("MarkdownStyle", optionsValue.MarkdownStyle);
-            showMsg = true;
-            setHookRead(optionsValue.MarkdownStyle == "Editor_md");
-        }
-        if (optionSettings.ReadTheme != optionsValue.ReadTheme) {
-            setConfigValue("ReadTheme", optionsValue.ReadTheme);
-        }
+        // if (optionSettings.MarkdownStyle != optionsValue.MarkdownStyle) {
+        //     setConfigValue("MarkdownStyle", optionsValue.MarkdownStyle);
+        //     showMsg = true;
+        //     setHookRead(optionsValue.MarkdownStyle == "Editor_md");
+        // }
+        // if (optionSettings.ReadTheme != optionsValue.ReadTheme) {
+        //     setConfigValue("ReadTheme", optionsValue.ReadTheme);
+        // }
         if (optionSettings.EmojiSupport != optionsValue.EmojiSupport) {
             setConfigValue("EmojiSupport", optionsValue.EmojiSupport);
             wizEditor.config("emoji", optionsValue.EmojiSupport == "1" ? true : false);

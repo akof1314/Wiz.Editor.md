@@ -11,7 +11,7 @@
                 dialog : {
                     options : {
                         title    : "选项",
-                        readTitle    : "阅读",
+                        readTitle    : "阅读 (不再支持）",
                         editTitle    : "编辑",
                         markdownStyle : "渲染风格",
                         selectStyle   : ["Editor.md 风格", "为知风格"],
@@ -47,11 +47,11 @@
 
             var dialogContent = [
                 "<div class=\"editormd-form\" style=\"padding: 13px 0;height: 352px;overflow: hidden;overflow-y: auto;\">",
-                "<h4 style=\"margin: 0 0px 10px;\">" + dialogLang.readTitle + "</h4>",
-                "<label style=\"width:94px;\">" + dialogLang.markdownStyle + "</label>",
-                "<div class=\"fa-btns\" id=\"read-preview-area-markdown-style\"></div><br/>",
-                "<label style=\"width:94px;\">" + dialogLang.readTheme + "</label>",
-                "<select id=\"read-preview-area-theme-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
+                // "<h4 style=\"margin: 0 0px 10px;\">" + dialogLang.readTitle + "</h4>",
+                // "<label style=\"width:94px;\">" + dialogLang.markdownStyle + "</label>",
+                // "<div class=\"fa-btns\" id=\"read-preview-area-markdown-style\"></div><br/>",
+                // "<label style=\"width:94px;\">" + dialogLang.readTheme + "</label>",
+                // "<select id=\"read-preview-area-theme-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
                 "<h4 style=\"margin: 0 0px 10px;\">" + dialogLang.featuresOnOff + "</h4>",
                 "<label style=\"width:94px;\">" + dialogLang.keymapModes + "</label>",
                 "<select id=\"edit-toolbar-area-keymapmodes-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
@@ -95,8 +95,8 @@
                     buttons    : {
                         enter : [lang.buttons.enter, function() {
                             var optionsValue = {
-                                MarkdownStyle : this.find("[name=\"markdown-style\"]:checked").val().toString(),
-                                ReadTheme : this.find("#read-preview-area-theme-select").val(),
+                                // MarkdownStyle : this.find("[name=\"markdown-style\"]:checked").val().toString(),
+                                // ReadTheme : this.find("#read-preview-area-theme-select").val(),
                                 EditToolbarButton : this.find("#edit-toolbar-area-button-select").val(),
                                 EditToolbarTheme : this.find("#edit-toolbar-area-theme-select").val(),
                                 EditEditorTheme : this.find("#edit-editor-area-theme-select").val(),
@@ -120,23 +120,23 @@
                 });
             }
 
-            var faBtns = dialog.find("#read-preview-area-markdown-style");
-            if (faBtns.html() === "")
-            {
-                var _lang  = dialogLang.selectStyle;
-                var values = ["Editor_md", "WizDefault"];
+            // var faBtns = dialog.find("#read-preview-area-markdown-style");
+            // if (faBtns.html() === "")
+            // {
+            //     var _lang  = dialogLang.selectStyle;
+            //     var values = ["Editor_md", "WizDefault"];
 
-                for (var i = 0; i < 2; i++)
-                {
-                    var checked = (i === 0) ? " checked=\"checked\"" : "";
-                    var btn = "<a href=\"javascript:;\"><label for=\"editormd-table-dialog-radio"+i+"\" >";
-                    btn += "<input type=\"radio\" name=\"markdown-style\" id=\"editormd-table-dialog-radio"+i+"\" value=\"" + values[i] + "\"" +checked + " />&nbsp;";
-                    btn += _lang[i];
-                    btn += "</label></a>";
+            //     for (var i = 0; i < 2; i++)
+            //     {
+            //         var checked = (i === 0) ? " checked=\"checked\"" : "";
+            //         var btn = "<a href=\"javascript:;\"><label for=\"editormd-table-dialog-radio"+i+"\" >";
+            //         btn += "<input type=\"radio\" name=\"markdown-style\" id=\"editormd-table-dialog-radio"+i+"\" value=\"" + values[i] + "\"" +checked + " />&nbsp;";
+            //         btn += _lang[i];
+            //         btn += "</label></a>";
 
-                    faBtns.append(btn);
-                }
-            }
+            //         faBtns.append(btn);
+            //     }
+            // }
 
             var faEmojiBtns = dialog.find("#edit-emoji-support");
             if (faEmojiBtns.html() === "")
@@ -157,13 +157,13 @@
             }
 
             var optionsNowValue = $.proxy(settings.ongetOptions, this)();
-            var markdownStyle = optionsNowValue["MarkdownStyle"];
-            var markdownStyleChecked = 1;
-            if (markdownStyle == "Editor_md") {
-                markdownStyleChecked = 0;
-            }
-            faBtns.find("[name=\"markdown-style\"]:checked").removeAttr("checked");
-            faBtns.find("input#editormd-table-dialog-radio" + markdownStyleChecked).attr("checked", "checked").click();
+            // var markdownStyle = optionsNowValue["MarkdownStyle"];
+            // var markdownStyleChecked = 1;
+            // if (markdownStyle == "Editor_md") {
+            //     markdownStyleChecked = 0;
+            // }
+            // faBtns.find("[name=\"markdown-style\"]:checked").removeAttr("checked");
+            // faBtns.find("input#editormd-table-dialog-radio" + markdownStyleChecked).attr("checked", "checked").click();
 
             var emojiSupport = optionsNowValue["EmojiSupport"];
             var emojiSupportChecked = 0;
@@ -195,7 +195,7 @@
                 return select;
             }
 
-            themeSelect("#read-preview-area-theme-select", editormd.previewThemes, optionsNowValue["ReadTheme"]);
+            //themeSelect("#read-preview-area-theme-select", editormd.previewThemes, optionsNowValue["ReadTheme"]);
             themeSelect("#edit-toolbar-area-button-select", dialogLang.toolbarButtonStyle, optionsNowValue["EditToolbarButton"]);
             themeSelect("#edit-toolbar-area-theme-select", editormd.themes, optionsNowValue["EditToolbarTheme"]);
             themeSelect("#edit-editor-area-theme-select", editormd.editorThemes, optionsNowValue["EditEditorTheme"]);
