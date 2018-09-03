@@ -26,6 +26,8 @@
                         emojiSupport : "Emoji表情",
                         selectFeatures : ["开", "关"],
                         keymapModes : "键盘模式",
+                        hrefOpenTitle : "链接打开",
+                        hrefOpenType   : ["内嵌", "默认浏览器"],
                     },
                 }
             }
@@ -57,6 +59,8 @@
                 "<select id=\"edit-toolbar-area-keymapmodes-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
                 "<label style=\"width:94px;\">" + dialogLang.emojiSupport + "</label>",
                 "<div class=\"fa-btns\" id=\"edit-emoji-support\"></div><br/>",
+                "<label style=\"width:94px;\">" + dialogLang.hrefOpenTitle + "</label>",
+                "<div class=\"fa-btns\" id=\"edit-href-support\"></div><br/>",
                 "<h4 style=\"margin: 10px 0px 10px;\">" + dialogLang.editTitle + "</h4>",
                 "<label style=\"width:94px;\">" + dialogLang.editToolbarButton + "</label>",
                 "<select id=\"edit-toolbar-area-button-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
@@ -102,6 +106,7 @@
                                 EditEditorTheme : this.find("#edit-editor-area-theme-select").val(),
                                 EditPreviewTheme : this.find("#edit-preview-area-theme-select").val(),
                                 EmojiSupport : this.find("[name=\"emojiSupport\"]:checked").val().toString(),
+                                HrefInBrowser : this.find("[name=\"hrefInBrowser\"]:checked").val().toString(),
                                 KeymapMode : this.find("#edit-toolbar-area-keymapmodes-select").val(),
                             };
                             $.proxy(settings.onsaveOptions, this)(optionsValue);
@@ -156,6 +161,24 @@
                 }
             }
 
+            var faHrefBtns = dialog.find("#edit-href-support");
+            if (faHrefBtns.html() === "")
+            {
+                var _lang  = dialogLang.hrefOpenType;
+                var values = ["0", "1"];
+
+                for (var i = 0; i < 2; i++)
+                {
+                    var checked = (i === 0) ? " checked=\"checked\"" : "";
+                    var btn = "<a href=\"javascript:;\"><label for=\"editormd-href-radio"+i+"\" >";
+                    btn += "<input type=\"radio\" name=\"hrefInBrowser\" id=\"editormd-href-radio"+i+"\" value=\"" + values[i] + "\"" +checked + " />&nbsp;";
+                    btn += _lang[i];
+                    btn += "</label></a>";
+
+                    faHrefBtns.append(btn);
+                }
+            }
+
             var optionsNowValue = $.proxy(settings.ongetOptions, this)();
             // var markdownStyle = optionsNowValue["MarkdownStyle"];
             // var markdownStyleChecked = 1;
@@ -172,6 +195,14 @@
             }
             faEmojiBtns.find("[name=\"emojiSupport\"]:checked").removeAttr("checked");
             faEmojiBtns.find("input#editormd-emoji-radio" + emojiSupportChecked).attr("checked", "checked").click();
+
+            var hrefInBrowser = optionsNowValue["HrefInBrowser"];
+            var hrefInBrowserChecked = 0;
+            if (hrefInBrowser == "1") {
+                hrefInBrowserChecked = 1;
+            }
+            faHrefBtns.find("[name=\"hrefInBrowser\"]:checked").removeAttr("checked");
+            faHrefBtns.find("input#editormd-href-radio" + hrefInBrowserChecked).attr("checked", "checked").click();
 
             function themeSelect(id, themes, curValue)
             {

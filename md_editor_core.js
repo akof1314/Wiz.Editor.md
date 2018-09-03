@@ -172,7 +172,7 @@ $(function() {
             return objCommon;
         },
         onclickHyperlink : function(hrefValue) {
-            return openOtherDocument(hrefValue);
+            return openOtherDocument(hrefValue) && openHrefInBrowser(hrefValue);
         }
     });
 
@@ -214,6 +214,7 @@ $(function() {
             EditEditorTheme : getConfigValue("EditEditorTheme", "default"),
             EditPreviewTheme : getConfigValue("EditPreviewTheme", "default"),
             EmojiSupport : getConfigValue("EmojiSupport", "1"),
+            HrefInBrowser : getConfigValue("HrefInBrowser", "0"),
             KeymapMode : getConfigValue("KeymapMode", "default"),
         };
         return optionsValue;
@@ -259,6 +260,9 @@ $(function() {
         if (optionSettings.KeymapMode != optionsValue.KeymapMode) {
             setConfigValue("KeymapMode", optionsValue.KeymapMode);
             wizEditor.setKeymapMode(optionsValue.KeymapMode);
+        }
+        if (optionSettings.HrefInBrowser != optionsValue.HrefInBrowser) {
+            setConfigValue("HrefInBrowser", optionsValue.HrefInBrowser);
         }
 
         optionSettings = optionsValue;
@@ -706,6 +710,21 @@ $(function() {
             return false;
         }
         catch (err) {
+        }
+
+        return true;
+    };
+
+    ////////////////////////////////////////////////
+    // 用默认浏览器打开链接
+    function openHrefInBrowser(hrefValue) {
+        if (optionSettings.HrefInBrowser == "1") {
+            try {
+                objCommon.RunExe("explorer", '\"' + hrefValue + '\"', false);
+                return false;
+            }
+            catch (err) {
+            }
         }
 
         return true;
