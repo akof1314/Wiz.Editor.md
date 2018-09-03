@@ -224,7 +224,9 @@ $(function() {
     function setOptionSettings(optionsValue) {
         if (optionSettings.EditToolbarButton != optionsValue.EditToolbarButton) {
             setConfigValue("EditToolbarButton", optionsValue.EditToolbarButton);
+            var doc = wizEditor.getValue();
             wizEditor.config("toolbarIcons", getEditToolbarButton(optionsValue.EditToolbarButton));
+            wizEditor.setValue(doc);
         }
         if (optionSettings.EditToolbarTheme != optionsValue.EditToolbarTheme) {
             setConfigValue("EditToolbarTheme", optionsValue.EditToolbarTheme);
@@ -250,7 +252,9 @@ $(function() {
         // }
         if (optionSettings.EmojiSupport != optionsValue.EmojiSupport) {
             setConfigValue("EmojiSupport", optionsValue.EmojiSupport);
+            var doc = wizEditor.getValue();
             wizEditor.config("emoji", optionsValue.EmojiSupport == "1" ? true : false);
+            wizEditor.setValue(doc);
         }
         if (optionSettings.KeymapMode != optionsValue.KeymapMode) {
             setConfigValue("KeymapMode", optionsValue.KeymapMode);
