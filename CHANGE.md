@@ -1,5 +1,16 @@
 ## 更新日志
 
+#### v2.7
+
+- 不再支持阅读模式的渲染
+- 保留`wiz_custom_css`样式[#162](https://github.com/akof1314/Wiz.Editor.md/issues/162)
+- 新增大纲支持浮动和固定 [#174](https://github.com/akof1314/Wiz.Editor.md/issues/174)
+- 新增链接支持默认浏览器打开[#126](https://github.com/akof1314/Wiz.Editor.md/issues/126)
+- 新增支持内部链接的转换和附件的打开
+- 移除自动转链接功能[#128](https://github.com/akof1314/Wiz.Editor.md/issues/128)
+- 修复选项修改时编辑的信息会丢失[#145](https://github.com/akof1314/Wiz.Editor.md/issues/145)
+
+
 #### v2.6
 
 - 修复中文图片名超过50字符问题
