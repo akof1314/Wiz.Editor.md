@@ -41,7 +41,7 @@
 
 #### 支持开发
 
-[微信支持](http://img.bbs.csdn.net/upload/201710/12/1507795274_603333.png)
+[微信支持](https://github.com/akof1314/akof1314.github.io/raw/master/img/weixin.png)
 
 #### License
 
