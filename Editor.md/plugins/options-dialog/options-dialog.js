@@ -11,7 +11,7 @@
                 dialog : {
                     options : {
                         title    : "选项",
-                        readTitle    : "阅读",
+                        readTitle    : "阅读 (不再支持）",
                         editTitle    : "编辑",
                         markdownStyle : "渲染风格",
                         selectStyle   : ["Editor.md 风格", "为知风格"],
@@ -26,6 +26,8 @@
                         emojiSupport : "Emoji表情",
                         selectFeatures : ["开", "关"],
                         keymapModes : "键盘模式",
+                        hrefOpenTitle : "链接打开",
+                        hrefOpenType   : ["内嵌", "默认浏览器"],
                     },
                 }
             }
@@ -47,16 +49,18 @@
 
             var dialogContent = [
                 "<div class=\"editormd-form\" style=\"padding: 13px 0;height: 352px;overflow: hidden;overflow-y: auto;\">",
-                "<h4 style=\"margin: 0 0px 10px;\">" + dialogLang.readTitle + "</h4>",
-                "<label style=\"width:94px;\">" + dialogLang.markdownStyle + "</label>",
-                "<div class=\"fa-btns\" id=\"read-preview-area-markdown-style\"></div><br/>",
-                "<label style=\"width:94px;\">" + dialogLang.readTheme + "</label>",
-                "<select id=\"read-preview-area-theme-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
+                // "<h4 style=\"margin: 0 0px 10px;\">" + dialogLang.readTitle + "</h4>",
+                // "<label style=\"width:94px;\">" + dialogLang.markdownStyle + "</label>",
+                // "<div class=\"fa-btns\" id=\"read-preview-area-markdown-style\"></div><br/>",
+                // "<label style=\"width:94px;\">" + dialogLang.readTheme + "</label>",
+                // "<select id=\"read-preview-area-theme-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
                 "<h4 style=\"margin: 0 0px 10px;\">" + dialogLang.featuresOnOff + "</h4>",
                 "<label style=\"width:94px;\">" + dialogLang.keymapModes + "</label>",
                 "<select id=\"edit-toolbar-area-keymapmodes-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
                 "<label style=\"width:94px;\">" + dialogLang.emojiSupport + "</label>",
                 "<div class=\"fa-btns\" id=\"edit-emoji-support\"></div><br/>",
+                "<label style=\"width:94px;\">" + dialogLang.hrefOpenTitle + "</label>",
+                "<div class=\"fa-btns\" id=\"edit-href-support\"></div><br/>",
                 "<h4 style=\"margin: 10px 0px 10px;\">" + dialogLang.editTitle + "</h4>",
                 "<label style=\"width:94px;\">" + dialogLang.editToolbarButton + "</label>",
                 "<select id=\"edit-toolbar-area-button-select\"style=\"width:245px;margin:3px 0 0 0;\"></select><br/>",
@@ -95,13 +99,14 @@
                     buttons    : {
                         enter : [lang.buttons.enter, function() {
                             var optionsValue = {
-                                MarkdownStyle : this.find("[name=\"markdown-style\"]:checked").val().toString(),
-                                ReadTheme : this.find("#read-preview-area-theme-select").val(),
+                                // MarkdownStyle : this.find("[name=\"markdown-style\"]:checked").val().toString(),
+                                // ReadTheme : this.find("#read-preview-area-theme-select").val(),
                                 EditToolbarButton : this.find("#edit-toolbar-area-button-select").val(),
                                 EditToolbarTheme : this.find("#edit-toolbar-area-theme-select").val(),
                                 EditEditorTheme : this.find("#edit-editor-area-theme-select").val(),
                                 EditPreviewTheme : this.find("#edit-preview-area-theme-select").val(),
                                 EmojiSupport : this.find("[name=\"emojiSupport\"]:checked").val().toString(),
+                                HrefInBrowser : this.find("[name=\"hrefInBrowser\"]:checked").val().toString(),
                                 KeymapMode : this.find("#edit-toolbar-area-keymapmodes-select").val(),
                             };
                             $.proxy(settings.onsaveOptions, this)(optionsValue);
@@ -120,23 +125,23 @@
                 });
             }
 
-            var faBtns = dialog.find("#read-preview-area-markdown-style");
-            if (faBtns.html() === "")
-            {
-                var _lang  = dialogLang.selectStyle;
-                var values = ["Editor_md", "WizDefault"];
+            // var faBtns = dialog.find("#read-preview-area-markdown-style");
+            // if (faBtns.html() === "")
+            // {
+            //     var _lang  = dialogLang.selectStyle;
+            //     var values = ["Editor_md", "WizDefault"];
 
-                for (var i = 0; i < 2; i++)
-                {
-                    var checked = (i === 0) ? " checked=\"checked\"" : "";
-                    var btn = "<a href=\"javascript:;\"><label for=\"editormd-table-dialog-radio"+i+"\" >";
-                    btn += "<input type=\"radio\" name=\"markdown-style\" id=\"editormd-table-dialog-radio"+i+"\" value=\"" + values[i] + "\"" +checked + " />&nbsp;";
-                    btn += _lang[i];
-                    btn += "</label></a>";
+            //     for (var i = 0; i < 2; i++)
+            //     {
+            //         var checked = (i === 0) ? " checked=\"checked\"" : "";
+            //         var btn = "<a href=\"javascript:;\"><label for=\"editormd-table-dialog-radio"+i+"\" >";
+            //         btn += "<input type=\"radio\" name=\"markdown-style\" id=\"editormd-table-dialog-radio"+i+"\" value=\"" + values[i] + "\"" +checked + " />&nbsp;";
+            //         btn += _lang[i];
+            //         btn += "</label></a>";
 
-                    faBtns.append(btn);
-                }
-            }
+            //         faBtns.append(btn);
+            //     }
+            // }
 
             var faEmojiBtns = dialog.find("#edit-emoji-support");
             if (faEmojiBtns.html() === "")
@@ -156,14 +161,32 @@
                 }
             }
 
-            var optionsNowValue = $.proxy(settings.ongetOptions, this)();
-            var markdownStyle = optionsNowValue["MarkdownStyle"];
-            var markdownStyleChecked = 1;
-            if (markdownStyle == "Editor_md") {
-                markdownStyleChecked = 0;
+            var faHrefBtns = dialog.find("#edit-href-support");
+            if (faHrefBtns.html() === "")
+            {
+                var _lang  = dialogLang.hrefOpenType;
+                var values = ["0", "1"];
+
+                for (var i = 0; i < 2; i++)
+                {
+                    var checked = (i === 0) ? " checked=\"checked\"" : "";
+                    var btn = "<a href=\"javascript:;\"><label for=\"editormd-href-radio"+i+"\" >";
+                    btn += "<input type=\"radio\" name=\"hrefInBrowser\" id=\"editormd-href-radio"+i+"\" value=\"" + values[i] + "\"" +checked + " />&nbsp;";
+                    btn += _lang[i];
+                    btn += "</label></a>";
+
+                    faHrefBtns.append(btn);
+                }
             }
-            faBtns.find("[name=\"markdown-style\"]:checked").removeAttr("checked");
-            faBtns.find("input#editormd-table-dialog-radio" + markdownStyleChecked).attr("checked", "checked").click();
+
+            var optionsNowValue = $.proxy(settings.ongetOptions, this)();
+            // var markdownStyle = optionsNowValue["MarkdownStyle"];
+            // var markdownStyleChecked = 1;
+            // if (markdownStyle == "Editor_md") {
+            //     markdownStyleChecked = 0;
+            // }
+            // faBtns.find("[name=\"markdown-style\"]:checked").removeAttr("checked");
+            // faBtns.find("input#editormd-table-dialog-radio" + markdownStyleChecked).attr("checked", "checked").click();
 
             var emojiSupport = optionsNowValue["EmojiSupport"];
             var emojiSupportChecked = 0;
@@ -172,6 +195,14 @@
             }
             faEmojiBtns.find("[name=\"emojiSupport\"]:checked").removeAttr("checked");
             faEmojiBtns.find("input#editormd-emoji-radio" + emojiSupportChecked).attr("checked", "checked").click();
+
+            var hrefInBrowser = optionsNowValue["HrefInBrowser"];
+            var hrefInBrowserChecked = 0;
+            if (hrefInBrowser == "1") {
+                hrefInBrowserChecked = 1;
+            }
+            faHrefBtns.find("[name=\"hrefInBrowser\"]:checked").removeAttr("checked");
+            faHrefBtns.find("input#editormd-href-radio" + hrefInBrowserChecked).attr("checked", "checked").click();
 
             function themeSelect(id, themes, curValue)
             {
@@ -195,7 +226,7 @@
                 return select;
             }
 
-            themeSelect("#read-preview-area-theme-select", editormd.previewThemes, optionsNowValue["ReadTheme"]);
+            //themeSelect("#read-preview-area-theme-select", editormd.previewThemes, optionsNowValue["ReadTheme"]);
             themeSelect("#edit-toolbar-area-button-select", dialogLang.toolbarButtonStyle, optionsNowValue["EditToolbarButton"]);
             themeSelect("#edit-toolbar-area-theme-select", editormd.themes, optionsNowValue["EditToolbarTheme"]);
             themeSelect("#edit-editor-area-theme-select", editormd.editorThemes, optionsNowValue["EditEditorTheme"]);

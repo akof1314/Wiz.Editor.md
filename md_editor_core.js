@@ -14,10 +14,10 @@ $(function() {
     var optionSettings = getOptionSettings();
     var code = loadDocument();
 
-    //缓存前一次保存的，解决为知4.5版本自动保存问题
+    //分清是不是快捷键保存，解决为知4.5版本自动保存问题
     var wizVerisonGreaterThan45 = null;
-    var savePreHtml = null;
-    var savePreTime = null;
+    var wantSaveKey = false;
+    var wantSaveTime = null;
     try {
         wizVerisonGreaterThan45 = objApp.Window.CurrentDocumentBrowserObject != null;
     }
@@ -104,6 +104,11 @@ $(function() {
                 },
                 "Ctrl-Alt-F": function(cm) {
                     wizEditor.cm.execCommand("find");
+                },
+                "Ctrl": function(cm) {
+                    // 可能按了保存快捷键，记录
+                    wantSaveKey = true;
+                    wantSaveTime = new Date();
                 }
             };
             this.addKeyMap(keyMap);
@@ -115,7 +120,7 @@ $(function() {
             });
 
             // 监听粘贴事件
-            this.cm.getInputField().addEventListener("paste", function (e) {
+            this.cm.on("paste", function (_cm, e) {
                 var clipboardData = event.clipboardData || window.clipboardData;
                 if (clipboardData) {
                     if (clipboardData.types == "Files") {
@@ -133,7 +138,7 @@ $(function() {
             });
 
             // 绑定Ctrl-S快捷键和Vim的w命令保存
-            CodeMirror.commands.save = OnPluginSaveMDEditor;
+            CodeMirror.commands.save = saveDocument;
 
             var isWebPage = true;
             if (isWebPage)
@@ -165,6 +170,9 @@ $(function() {
         },
         ongetObjCommon : function() {
             return objCommon;
+        },
+        onclickHyperlink : function(hrefValue) {
+            return openOtherDocument(hrefValue) && openHrefInBrowser(hrefValue);
         }
     });
 
@@ -199,13 +207,14 @@ $(function() {
     // 获得选项配置值
     function getOptionSettings() {
         var optionsValue = {
-            MarkdownStyle : getConfigValue("MarkdownStyle", "WizDefault"),
-            ReadTheme : getConfigValue("ReadTheme", "default"),
+            // MarkdownStyle : getConfigValue("MarkdownStyle", "WizDefault"),
+            // ReadTheme : getConfigValue("ReadTheme", "default"),
             EditToolbarButton : getConfigValue("EditToolbarButton", "default"),
             EditToolbarTheme : getConfigValue("EditToolbarTheme", "default"),
             EditEditorTheme : getConfigValue("EditEditorTheme", "default"),
             EditPreviewTheme : getConfigValue("EditPreviewTheme", "default"),
             EmojiSupport : getConfigValue("EmojiSupport", "1"),
+            HrefInBrowser : getConfigValue("HrefInBrowser", "0"),
             KeymapMode : getConfigValue("KeymapMode", "default"),
         };
         return optionsValue;
@@ -216,7 +225,9 @@ $(function() {
     function setOptionSettings(optionsValue) {
         if (optionSettings.EditToolbarButton != optionsValue.EditToolbarButton) {
             setConfigValue("EditToolbarButton", optionsValue.EditToolbarButton);
+            var doc = wizEditor.getValue();
             wizEditor.config("toolbarIcons", getEditToolbarButton(optionsValue.EditToolbarButton));
+            wizEditor.setValue(doc);
         }
         if (optionSettings.EditToolbarTheme != optionsValue.EditToolbarTheme) {
             setConfigValue("EditToolbarTheme", optionsValue.EditToolbarTheme);
@@ -232,21 +243,26 @@ $(function() {
         }
 
         var showMsg = false;
-        if (optionSettings.MarkdownStyle != optionsValue.MarkdownStyle) {
-            setConfigValue("MarkdownStyle", optionsValue.MarkdownStyle);
-            showMsg = true;
-            setHookRead(optionsValue.MarkdownStyle == "Editor_md");
-        }
-        if (optionSettings.ReadTheme != optionsValue.ReadTheme) {
-            setConfigValue("ReadTheme", optionsValue.ReadTheme);
-        }
+        // if (optionSettings.MarkdownStyle != optionsValue.MarkdownStyle) {
+        //     setConfigValue("MarkdownStyle", optionsValue.MarkdownStyle);
+        //     showMsg = true;
+        //     setHookRead(optionsValue.MarkdownStyle == "Editor_md");
+        // }
+        // if (optionSettings.ReadTheme != optionsValue.ReadTheme) {
+        //     setConfigValue("ReadTheme", optionsValue.ReadTheme);
+        // }
         if (optionSettings.EmojiSupport != optionsValue.EmojiSupport) {
             setConfigValue("EmojiSupport", optionsValue.EmojiSupport);
+            var doc = wizEditor.getValue();
             wizEditor.config("emoji", optionsValue.EmojiSupport == "1" ? true : false);
+            wizEditor.setValue(doc);
         }
         if (optionSettings.KeymapMode != optionsValue.KeymapMode) {
             setConfigValue("KeymapMode", optionsValue.KeymapMode);
             wizEditor.setKeymapMode(optionsValue.KeymapMode);
+        }
+        if (optionSettings.HrefInBrowser != optionsValue.HrefInBrowser) {
+            setConfigValue("HrefInBrowser", optionsValue.HrefInBrowser);
         }
 
         optionSettings = optionsValue;
@@ -433,7 +449,7 @@ $(function() {
             doc = doc.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');   // 替换制表符
             doc = doc.replace(/\n|\r|(\r\n)|(\u0085)|(\u2028)|(\u2029)/g, "<br/>").replace(/ /g, '\u00a0');
             doc += arrResult[1];
-            doc = "<!DOCTYPE html><html><head></head><body>" + doc + "</body></html>";
+            doc = "<!DOCTYPE html><html><head><style id=\"wiz_custom_css\"></style></head><body>" + doc + "</body></html>";
             objDocument.UpdateDocument3(doc, 0);
             modified = false;
         }
@@ -443,11 +459,13 @@ $(function() {
     // Ctrl+S保存调用
     OnPluginSaveMDEditor = function () {
         if (wizVerisonGreaterThan45) {
-            savePreHtml = null;
-            if (modified) {
-                savePreHtml = objDocument.GetHtml();
-                saveDocument();
-                savePreTime = new Date();
+            if (modified && wantSaveKey && wantSaveTime) {
+                wantSaveKey = false;
+                var closeTime = new Date();
+                var spanTime = closeTime.getTime() - wantSaveTime.getTime();
+                if (spanTime < 800) { // 间隔太短表示快捷键保存的
+                    saveDocument();
+                }
             }
         }
         else {
@@ -458,15 +476,6 @@ $(function() {
     ////////////////////////////////////////////////
     // 关闭标签前的事件
     OnBeforeCloseTabMDEditor = function () {
-        if (wizVerisonGreaterThan45 && savePreHtml && savePreTime) {
-            var closeTime = new Date();
-            var spanTime = closeTime.getTime() - savePreTime.getTime();
-            if (spanTime < 800) { // 间隔太短表示自动保存了
-                if (6 != objApp.Window.ShowMessage("是否将更改保存到 " + objDocument.Title + " ？", "{p}", 0x04 + 0x20)) {
-                    objDocument.UpdateDocument3(savePreHtml, 0);
-                }
-            }
-        }
     };
 
     ////////////////////////////////////////////////
@@ -491,7 +500,7 @@ $(function() {
 
         var imgStrDiv = "";
         if (arrImgTags != "") {
-            imgStrDiv = "<div name=\"markdownimage\" style=\"display:none;\">" + arrImgTags + "</div>";
+            imgStrDiv = "<ed_tag name=\"markdownimage\" style=\"display:none;\">" + arrImgTags + "</ed_tag>";
         };
         return [doc, imgStrDiv];
     }
@@ -522,6 +531,18 @@ $(function() {
                 // 转换可能包含中文名的名称，转换成Unicode
                 var imgNameNew = escape(imgName).replace(/%/g, '_');
 
+                // 如果超过50个字符，则简短
+                var extPos = imgNameNew.lastIndexOf('.');
+                if (extPos == -1) {
+                    extPos = imgNameNew.length;
+                }
+                var imgNameWithoutExt = imgNameNew.substring(0, extPos);
+                var imgExt = imgNameNew.substring(extPos);
+                if (imgNameNew.length > 50) {
+                    imgNameWithoutExt = imgNameWithoutExt.substring(0, 35 - imgExt.length);
+                    imgNameNew = imgNameWithoutExt + imgExt;
+                }
+
                 // 路径不同，则进行拷贝
                 var imgCopyToFullPath = filesFullPath + imgNameNew;
                 if (imgFullPath != imgCopyToFullPath) {
@@ -529,7 +550,11 @@ $(function() {
                     // 目标文件已经存在
                     if (objCommon.PathFileExists(imgCopyToFullPath)) {
                         var date = new Date();
-                        imgNameNew = date.getTime() + imgNameNew;
+                        imgNameNew = imgNameWithoutExt + date.getTime() + imgExt;
+                        if (imgNameNew.length > 50) {
+                            imgNameWithoutExt = imgNameWithoutExt.substring(0, 35 - imgExt.length);
+                            imgNameNew = imgNameWithoutExt + date.getTime() + imgExt;
+                        }
                         imgCopyToFullPath = filesFullPath + imgNameNew;
                     }
 
@@ -560,8 +585,8 @@ $(function() {
     ////////////////////////////////////////////////
     // 加载文档
     function loadDocument() {
-        var guid = getQueryString("guid");
-        var kbGUID = getQueryString("kbguid");
+        var guid = getQueryString("guid", location.href);
+        var kbGUID = getQueryString("kbguid", location.href);
 
         if (kbGUID == "" || kbGUID == null) {
             objDatabase = objApp.Database;
@@ -587,6 +612,17 @@ $(function() {
                     if(pi && pi.parentNode.getAttribute("name") != "markdownimage") {
                         var imgmd = document.createTextNode("![](" + pi.getAttribute("src") + ")");
                         $(pi).replaceWith(imgmd);
+                    }
+                }
+            }
+
+            var links = document.body.getElementsByTagName('a');
+            if(links.length){
+                for (var i = links.length - 1; i >= 0; i--) {
+                    var pi = links[i];
+                    if(pi && pi.getAttribute("href").indexOf("wiz://open_") != -1) {
+                        var linkmd = document.createTextNode("[" + pi.textContent + "](" + pi.getAttribute("href") + ")");
+                        $(pi).replaceWith(linkmd);
                     }
                 }
             }
@@ -619,11 +655,11 @@ $(function() {
 
     ////////////////////////////////////////////////
     // 解析参数
-    function getQueryString(name) {
-        if (location.href.indexOf("?") == -1 || location.href.indexOf(name + '=') == -1) {
+    function getQueryString(name, hrefValue) {
+        if (hrefValue.indexOf("?") == -1 || hrefValue.indexOf(name + '=') == -1) {
             return '';
         }
-        var queryString = location.href.substring(location.href.indexOf("?") + 1);
+        var queryString = hrefValue.substring(hrefValue.indexOf("?") + 1);
 
         var parameters = queryString.split("&");
 
@@ -640,6 +676,58 @@ $(function() {
             }
         }
         return '';
+    };
+
+    ////////////////////////////////////////////////
+    // 打开新文档
+    function openOtherDocument(hrefValue) {
+        var guid = getQueryString("guid", hrefValue);
+        if (guid == "") {
+            return true;
+        }
+
+        var kbGUID = getQueryString("kbguid", hrefValue);
+        var newDatabase = null
+
+        if (kbGUID == "" || kbGUID == null) {
+            newDatabase = objApp.Database;
+        }
+        else {
+            newDatabase = objApp.GetGroupDatabase(kbGUID);
+        }
+        var isAttachment = hrefValue.indexOf("wiz://open_attachment") != -1;
+
+        try {
+            if (isAttachment) {
+                var newAttachment = newDatabase.AttachmentFromGUID(guid);
+                objCommon.RunExe("explorer", newAttachment.FileName, false);
+            }
+            else
+            {
+                var newDocument = newDatabase.DocumentFromGUID(guid);
+                objApp.Window.ViewDocument(newDocument, true);
+            }
+            return false;
+        }
+        catch (err) {
+        }
+
+        return true;
+    };
+
+    ////////////////////////////////////////////////
+    // 用默认浏览器打开链接
+    function openHrefInBrowser(hrefValue) {
+        if (optionSettings.HrefInBrowser == "1") {
+            try {
+                objCommon.RunExe("explorer", '\"' + hrefValue + '\"', false);
+                return false;
+            }
+            catch (err) {
+            }
+        }
+
+        return true;
     };
 });
 

@@ -57,6 +57,19 @@
                     buttons    : false
                 });
 
+                var header = dialog.find("." + classPrefix + "dialog-header");
+                header.after("<a href=\"javascript:;\" class=\"fa fa-thumb-tack " + classPrefix + "dialog-close\"></a>");
+                var pin = dialog.find("." + classPrefix + "dialog-close");
+                var clrPin = "rgb(102, 102, 102)"
+                pin.bind(editormd.mouseOrTouch("click", "touchend"), function() {
+                    if (pin.css("color") == clrPin) {
+                        pin.css("color", "#ccc");
+                    }
+                    else {
+                        pin.css("color", clrPin);
+                    }
+                });
+
                 var dialogPosition = function(){
                 	var offset = $('.fa-list').offset();
 		            var leftPos = offset.left  - dialog.width();
@@ -77,7 +90,9 @@
                 $(document).mouseup(function(e) {
 	                if($(e.target).parents("." + dialogName).length == 0)
 			        {
-			            $("." + dialogName).hide();
+                        if (pin.css("color") != clrPin) {
+                            $("." + dialogName).hide();
+                        }
 			        }
 	            });
             }

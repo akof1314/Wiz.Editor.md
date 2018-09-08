@@ -1,4 +1,4 @@
-;function WizEditormdMarkdown(doct, path) {
+function WizEditormdMarkdown2(doct, path) {
     var basePath = path;
     var doc = doct;
     if (doc == null) {
@@ -144,14 +144,14 @@ function WizMDEditorTabClose(objHtmlDocument, objWizDocument) {
                 doc = objWindow.CurrentDocumentHtmlDocument;
             }
             if (doc == null) {
-                doc = objBrowser; // 4.5
-                objBrowser.ExecuteScript(WizEditormdMarkdown.toString(), function(ret) {
-                    objBrowser.ExecuteFunction2("WizEditormdMarkdown", null, WizMD_pluginPath, function(ret) {
-                    });
-                });
+                // doc = objBrowser; // 4.5
+                // objBrowser.ExecuteScriptFile(WizMD_pluginPath + "md_editor_inject.js", function(ret) {
+                //     objBrowser.ExecuteFunction3("WizEditormdMarkdown", null, WizMD_pluginPath, objCommon, function(ret) {
+                //     });
+                // });
             }
             else {
-                WizEditormdMarkdown(doc, WizMD_pluginPath);
+                WizEditormdMarkdown2(doc, WizMD_pluginPath);
             }
         }
 
@@ -160,7 +160,7 @@ function WizMDEditorTabClose(objHtmlDocument, objWizDocument) {
         }
     }
     catch(e) {
-        WizEditormdMarkdown(document, "");
+        WizEditormdMarkdown2(document, "");
     }
 })();
 
