@@ -23,8 +23,8 @@ function editCurrentMarkdownDocument () {
 	objCommon.CopyFile(pluginPath + "index.html", tempFile);
 
 	var tempText = objCommon.LoadTextFromFile(tempFile);
-	tempText = tempText.replace(/(<script src=")/g, "$1" + encodeURI(pluginPath))
-					   .replace(/(<link rel="stylesheet" href=")/g, "$1" + encodeURI(pluginPath));
+	tempText = tempText.replace(/(<script src=")/g, "$1" + pluginPath)
+					   .replace(/(<link rel="stylesheet" href=")/g, "$1" + pluginPath);
 	objCommon.SaveTextToFile(tempFile, tempText, "utf-8-bom");
 
 	var editorFileName = tempFile + "?guid=" + objDocument.GUID + "&kbguid=" + objDocument.Database.KbGUID;
