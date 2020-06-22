@@ -459,13 +459,17 @@ $(function() {
     // Ctrl+S保存调用
     OnPluginSaveMDEditor = function () {
         if (wizVerisonGreaterThan45) {
-            if (modified && wantSaveKey && wantSaveTime) {
-                wantSaveKey = false;
-                var closeTime = new Date();
-                var spanTime = closeTime.getTime() - wantSaveTime.getTime();
-                if (spanTime < 800) { // 间隔太短表示快捷键保存的
+            if (modified) {
+                if (wantSaveKey && wantSaveTime) {
+                    wantSaveKey = false;
+                    var closeTime = new Date();
+                    var spanTime = closeTime.getTime() - wantSaveTime.getTime();
+                    if (spanTime < 800) { // 间隔太短表示快捷键保存的
+                        saveDocument();
+                    }
+                } else {
                     saveDocument();
-                }
+                } 
             }
         }
         else {
